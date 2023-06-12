@@ -6,61 +6,26 @@ import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
 import { UserType } from "@/types/user";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
   pages: {
     signIn: "/login",
   },
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       id: "credentials",
       name: "credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "admin" },
-        password: { label: "Password", type: "password", placeholder: "1234" },
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (credentials === undefined) return null;
-        const user = await prisma.user.findUnique({
-          where: {
-            username: credentials.username,
-          },
-          include: {
-            doctor: true,
-            patient: true,
-          },
-        });
-
-        if (user === null || !compareSync(credentials.password, user.password))
-          return null;
-        const {
-          doctor,
-          patient,
-          password,
-          createdAt,
-          updatedAt,
-          ...partialUser
-        } = user;
-
-        if (doctor) {
-          const { userId, ...partialDoctor } = doctor;
-          return {
-            type: UserType.Doctor,
-            ...partialUser,
-            ...partialDoctor,
-          };
-        } else if (patient) {
-          const { userId, ...partialPatient } = patient;
-          return {
-            type: UserType.Patient,
-            ...partialUser,
-            ...partialPatient,
-          };
-        } else {
-          throw new Error("User type not found");
-        }
+        const { username, password } = credentials;
+        const currentUser = await getCurrentUser(username, password);
+        return currentUser;
       },
     }),
   ],
@@ -68,21 +33,71 @@ export const authOptions: NextAuthOptions = {
     jwt({ token, user }) {
       if (user) {
         const u = user as User;
-        token.id = u.id;
-        token.username = u.username;
-        token = { ...u, ...token };
+        token = { ...token, id: u.id, name: u.username };
+        console.log(token);
       }
       return token;
     },
-    session({ token, session }) {
-      if (session.user) {
-        const { sub, iat, exp, jti, ...partialToken } = token;
-        session.user = partialToken;
+    async session({ token, session }) {
+      const { name: username } = token;
+      if (username) {
+        const user = await getCurrentUser(username);
+        if (user) {
+          session.user = user;
+        }
       }
       return session;
     },
   },
 };
+
+export async function getCurrentUser(
+  username: string,
+  password?: string
+): Promise<User | null> {
+  const user = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+    include: {
+      doctor: true,
+      patient: true,
+    },
+  });
+
+  if (
+    user === null ||
+    (password !== undefined && !compareSync(password, user.password))
+  )
+    return null;
+  const {
+    doctor,
+    patient,
+    password: _password,
+    salt: _salt,
+    createdAt,
+    updatedAt,
+    ...partialUser
+  } = user;
+
+  if (doctor) {
+    const { userId, ...partialDoctor } = doctor;
+    return {
+      type: UserType.Doctor,
+      ...partialUser,
+      ...partialDoctor,
+    };
+  } else if (patient) {
+    const { userId, ...partialPatient } = patient;
+    return {
+      type: UserType.Patient,
+      ...partialUser,
+      ...partialPatient,
+    };
+  } else {
+    throw new Error("User type not found");
+  }
+}
 
 export function saltHashPassword(password: string) {
   const saltRounds = 10;

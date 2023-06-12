@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Button, Icons, Input } from "@/components/ui";
 import { registerSchema } from "@/lib/validation/auth";
+import { signIn } from "next-auth/react";
 
 type FormData = z.infer<typeof registerSchema>;
 
@@ -22,7 +23,18 @@ export default function Register() {
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
-    await fetch("/api/users", { method: "POST", body: JSON.stringify(data) });
+    const { username, password } = data;
+    const response = await fetch("/api/users", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    if (response.ok) {
+      await signIn("credentials", {
+        username,
+        password,
+        callbackUrl: "/",
+      });
+    }
     setIsLoading(false);
     reset();
   }

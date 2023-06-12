@@ -1,7 +1,17 @@
+import { cn } from "@/lib/utils";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter as FontSans } from "next/font/google";
+import localFont from "next/font/local";
 
-const inter = Inter({ subsets: ["latin"] });
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const fontMono = localFont({
+  src: "../../assets/fonts/Jack-Regular.woff2",
+  variable: "--font-mono",
+});
 
 export const metadata = {
   title: "Create Next App",
@@ -15,7 +25,15 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable,
+          fontMono.variable
+        )}
+      >
+        {children}
+      </body>
     </html>
   );
 }

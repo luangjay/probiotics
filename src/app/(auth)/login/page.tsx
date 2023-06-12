@@ -27,7 +27,7 @@ export default function Register() {
     const signInResult = await signIn("credentials", {
       username,
       password,
-      callbackUrl: "/example",
+      callbackUrl: "/",
     });
     setIsError(!signInResult?.ok);
     setIsLoading(false);

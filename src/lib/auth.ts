@@ -23,7 +23,6 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (credentials === undefined) return null;
-        // const authUser = await authenticate(username, password);
         const user = await prisma.user.findUnique({
           where: {
             username: credentials.username,
@@ -34,11 +33,6 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        // if (
-        //   user === null ||
-        //   !compareSync(credentials.password, user.password)
-        // )
-        // return null;
         if (user === null) return null;
         const {
           doctor,
@@ -93,5 +87,5 @@ export function saltHashPassword(password: string) {
   const saltRounds = 10;
   const salt = genSaltSync(saltRounds);
   const hash = hashSync(password, salt);
-  return { salt: salt, hash: hash };
+  return { salt, password: hash };
 }

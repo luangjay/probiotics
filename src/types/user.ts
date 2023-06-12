@@ -5,7 +5,10 @@ export const enum UserType {
   Patient = "Patient",
 }
 
-export type PartialUser = Omit<User, "password" | "createdAt" | "updatedAt">;
+export type PartialUser = Omit<
+  User,
+  "password" | "salt" | "createdAt" | "updatedAt"
+>;
 
 export type PartialDoctor = Omit<Doctor, "userId">;
 

@@ -11,7 +11,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   pages: {
-    // signIn: "/login",
+    signIn: "/login",
   },
   providers: [
     CredentialsProvider({
@@ -33,7 +33,8 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        if (user === null) return null;
+        if (user === null || !compareSync(credentials.password, user.password))
+          return null;
         const {
           doctor,
           patient,

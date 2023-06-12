@@ -1,6 +1,6 @@
 import { saltHashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { userCreateSchema } from "@/lib/validation/auth";
+import { registerSchema } from "@/lib/validation/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     // Validate the request body against the schema
     const body = await req.json();
-    const { attr1, attr2, ...user } = userCreateSchema.parse(body);
+    const { attr1, attr2, ...user } = registerSchema.parse(body);
 
     // Create the user
     const doctor = await prisma.doctor.create({
@@ -38,11 +38,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    console.log("POST /api/users", 200);
     return new NextResponse(null, { status: 200 });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.log("POST /api/users", 400);
       return NextResponse.json(null, { status: 400 });
     }
+    console.log("POST /api/users", 500);
     return NextResponse.json(null, { status: 500 });
   }
 }

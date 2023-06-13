@@ -41,8 +41,8 @@ export default function Register() {
         onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        {/* <p></p> */}
-        <h2 className="mx-auto text-2xl font-bold">Login</h2>
+        {/* {isError && <p className="text-sm text-destructive">Login failed</p>} */}
+        <h2 className="mx-auto text-5xl leading-normal font-bold">LOGO</h2>
         <Input
           id="username"
           key="username"
@@ -54,7 +54,7 @@ export default function Register() {
           {...register("username")}
         />
         {errors?.username && (
-          <p className="text-destructive">{errors.username.message}</p>
+          <p className="text-sm text-destructive">{errors.username.message}</p>
         )}
         <Input
           id="password"
@@ -65,7 +65,7 @@ export default function Register() {
           {...register("password")}
         />
         {errors?.password && (
-          <p className="text-destructive">{errors.password.message}</p>
+          <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}

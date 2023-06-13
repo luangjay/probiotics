@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
 import { registerSchema } from "@/lib/validation/auth";
-import { Button, Icons, Input, validateNumericKey } from "@/components/ui";
+import { Button, Icons, Input } from "@/components/ui";
 
 type FormData = z.infer<typeof registerSchema>;
 
@@ -43,11 +43,12 @@ export default function Register() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <form
+        id="register-form"
         noValidate
         onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        <h2 className="mx-auto text-2xl font-bold">Register</h2>
+        <h2 className="mx-auto text-5xl leading-normal font-bold">LOGO</h2>
         <Input
           id="username"
           key="username"
@@ -58,7 +59,7 @@ export default function Register() {
           {...register("username")}
         />
         {errors?.username && (
-          <p className="text-destructive">{errors.username.message}</p>
+          <p className="text-sm text-destructive">{errors.username.message}</p>
         )}
         <Input
           id="password"
@@ -69,7 +70,7 @@ export default function Register() {
           {...register("password")}
         />
         {errors?.password && (
-          <p className="text-destructive">{errors.password.message}</p>
+          <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
         <Input
           id="prefix"
@@ -80,20 +81,20 @@ export default function Register() {
           {...register("prefix")}
         />
         {errors?.prefix && (
-          <p className="text-destructive">{errors.prefix.message}</p>
+          <p className="text-sm text-destructive">{errors.prefix.message}</p>
         )}
         <Input
           id="firstName"
           key="firstName"
           placeholder="firstName: string"
-          type="number"
+          // type="number"
           autoCorrect="off"
           disabled={isLoading}
-          onKeyDown={validateNumericKey}
+          // onKeyDown={validateNumericKey}
           {...register("firstName")}
         />
         {errors?.firstName && (
-          <p className="text-destructive">{errors.firstName.message}</p>
+          <p className="text-sm text-destructive">{errors.firstName.message}</p>
         )}
         <Input
           id="lastName"
@@ -104,7 +105,7 @@ export default function Register() {
           {...register("lastName")}
         />
         {errors?.lastName && (
-          <p className="text-destructive">{errors.lastName.message}</p>
+          <p className="text-sm text-destructive">{errors.lastName.message}</p>
         )}
         <Input
           id="email"
@@ -115,7 +116,7 @@ export default function Register() {
           {...register("email")}
         />
         {errors?.email && (
-          <p className="text-destructive">{errors.email.message}</p>
+          <p className="text-sm text-destructive">{errors.email.message}</p>
         )}
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}

@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
+
 import "./globals.css";
+
 import { Inter as FontSans } from "next/font/google";
 import localFont from "next/font/local";
 

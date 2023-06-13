@@ -1,9 +1,10 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
 import type { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "./prisma";
-import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
+
 import { UserType } from "@/types/user";
+import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -103,5 +104,5 @@ export function saltHashPassword(password: string) {
   const saltRounds = 10;
   const salt = genSaltSync(saltRounds);
   const hash = hashSync(password, salt);
-  return { salt, password: hash };
+  return { password: hash, salt };
 }

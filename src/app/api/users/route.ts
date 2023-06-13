@@ -1,8 +1,9 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
+
 import { saltHashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validation/auth";
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
 /**
  * `GET /api/users`
@@ -18,8 +19,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     // Validate the request body against the schema
-    const body = await req.json();
-    const { attr1, attr2, ...user } = registerSchema.parse(body);
+    const body: unknown = await req.json();
+    const user = registerSchema.parse(body);
 
     // Create the user
     const doctor = await prisma.doctor.create({
@@ -30,8 +31,6 @@ export async function POST(req: NextRequest) {
             ...saltHashPassword(user.password),
           },
         },
-        attr1,
-        attr2,
       },
       include: {
         user: true,

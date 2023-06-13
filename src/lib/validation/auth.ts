@@ -6,8 +6,10 @@ export const registerSchema = z.object({
     .min(4)
     .regex(/^[a-zA-Z0-9_]*$/),
   password: z.string().min(4),
-  attr1: z.string().min(1),
-  attr2: z.number().min(0),
+  prefix: z.string().min(1),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().email().optional(),
 });
 
 export const loginSchema = z.object({

@@ -10,31 +10,137 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// enums
+enum Gender {
+  Male   @map("male")
+  Female @map("female")
+  Others @map("others")
+
+  @@map("genders")
+}
+
+// models
 model User {
   id        String    @id @default(cuid())
   username  String    @unique
   password  String
   salt      String
+  prefix    String
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  email     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   doctor    Doctor?
   patient   Patient?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
   accounts  Account[]
   sessions  Session[]
+
+  @@map("users")
 }
 
 model Doctor {
-  userId String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  attr1  String
-  attr2  Int
+  userId          String            @id @default(cuid()) @map("user_id")
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  probioticRecord ProbioticRecord[]
+
+  @@map("doctors")
 }
 
 model Patient {
-  userId String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  attr3  String
-  attr4  Int
+  userId          String            @id @default(cuid()) @map("user_id")
+  ssn             String
+  gender          Gender
+  birthDate       DateTime          @map("birth_date")
+  ethnicity       String?
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  diseasePatient  DiseasePatient[]
+  probioticRecord ProbioticRecord[]
+
+  @@map("patients")
+}
+
+model File {
+  id        String   @id @default(cuid())
+  uri       String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("files")
+}
+
+model Probiotic {
+  id        Int         @id @default(autoincrement())
+  parentId  Int?        @map("parent_id")
+  name      String
+  red       Int
+  yellow    Int
+  green     Int
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  parent    Probiotic?  @relation("parent", fields: [parentId], references: [id])
+  childs    Probiotic[] @relation("parent")
+
+  @@map("probiotics")
+}
+
+model ProbioticBrand {
+  id                            Int                             @id @default(autoincrement())
+  name                          String
+  createdAt                     DateTime                        @default(now()) @map("created_at")
+  updatedAt                     DateTime                        @updatedAt @map("updated_at")
+  probioticBrandProbioticRecord ProbioticBrandProbioticRecord[]
+
+  @@map("probiotic_brands")
+}
+
+model Disease {
+  id             Int              @id @default(autoincrement())
+  name           String
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  diseasePatient DiseasePatient[]
+
+  @@map("disease")
+}
+
+model ProbioticRecord {
+  id                            String                          @id @default(cuid())
+  doctorId                      String                          @map("doctor_id")
+  patientId                     String                          @map("patient_id")
+  fileId                        String                          @map("file_id")
+  result                        Json
+  createdAt                     DateTime                        @default(now()) @map("created_at")
+  updatedAt                     DateTime                        @updatedAt @map("updated_at")
+  doctor                        Doctor                          @relation(fields: [doctorId], references: [userId])
+  patient                       Patient                         @relation(fields: [patientId], references: [userId])
+  probioticBrandProbioticRecord ProbioticBrandProbioticRecord[]
+
+  @@map("probiotic_records")
+}
+
+model ProbioticBrandProbioticRecord {
+  id                Int             @id @default(autoincrement())
+  probioticBrandId  Int             @map("probiotic_brand_id")
+  probioticRecordId String          @map("probiotic_record_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  probioticBrand    ProbioticBrand  @relation(fields: [probioticBrandId], references: [id])
+  probioticRecord   ProbioticRecord @relation(fields: [probioticRecordId], references: [id])
+
+  @@map("probiotic_brand_probiotic_record")
+}
+
+model DiseasePatient {
+  id        Int      @id @default(autoincrement())
+  diseaseId Int      @map("disease_id")
+  patientId String   @map("patient_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  disease   Disease  @relation(fields: [diseaseId], references: [id])
+  patient   Patient  @relation(fields: [patientId], references: [userId])
+
+  @@map("disease_patient")
 }
 
 // NextAuth
@@ -43,7 +149,7 @@ model Account {
   userId            String
   type              String
   provider          String
-  providerAccountId String // ! should maybe be Int?
+  providerAccountId String
   refresh_token     String? @db.Text
   access_token      String? @db.Text
   expires_at        Int?
@@ -51,10 +157,10 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
@@ -63,6 +169,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -71,4 +179,5 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verfication_tokens")
 }

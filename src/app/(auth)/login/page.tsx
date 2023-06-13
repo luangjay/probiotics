@@ -1,12 +1,13 @@
 "use client";
 
-import { z } from "zod";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { Button, Icons, Input } from "@/components/ui";
+import { type z } from "zod";
+
 import { loginSchema } from "@/lib/validation/auth";
+import { Button, Icons, Input } from "@/components/ui";
 
 type FormData = z.infer<typeof loginSchema>;
 
@@ -37,7 +38,7 @@ export default function Register() {
     <div className="flex min-h-screen items-center justify-center">
       <form
         noValidate
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
         className="flex w-full max-w-sm flex-col gap-4"
       >
         {/* <p></p> */}

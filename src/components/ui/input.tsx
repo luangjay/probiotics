@@ -22,4 +22,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 Input.displayName = "Input";
 
-export { Input };
+const validateNumericKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const invalidKeys = ["e", "E", "+", "-", ".", " "];
+  if (invalidKeys.includes(e.key)) {
+    e.preventDefault();
+  }
+};
+
+export { Input, validateNumericKey };

@@ -1,12 +1,13 @@
 "use client";
 
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { Button, Icons, Input } from "@/components/ui";
-import { registerSchema } from "@/lib/validation/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { type z } from "zod";
+
+import { registerSchema } from "@/lib/validation/auth";
+import { Button, Icons, Input, validateNumericKey } from "@/components/ui";
 
 type FormData = z.infer<typeof registerSchema>;
 
@@ -43,15 +44,14 @@ export default function Register() {
     <div className="flex min-h-screen items-center justify-center">
       <form
         noValidate
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
         className="flex w-full max-w-sm flex-col gap-4"
       >
         <h2 className="mx-auto text-2xl font-bold">Register</h2>
         <Input
           id="username"
           key="username"
-          placeholder="username"
-          type="text"
+          placeholder="username: string"
           autoCapitalize="none"
           autoCorrect="off"
           disabled={isLoading}
@@ -63,8 +63,8 @@ export default function Register() {
         <Input
           id="password"
           key="password"
-          placeholder="password"
           type="password"
+          placeholder="password: string"
           autoCapitalize="none"
           {...register("password")}
         />
@@ -72,33 +72,50 @@ export default function Register() {
           <p className="text-destructive">{errors.password.message}</p>
         )}
         <Input
-          id="attr1"
-          key="attr1"
-          placeholder="attr1: string"
-          type="text"
+          id="prefix"
+          key="prefix"
+          placeholder="prefix: string"
           autoCorrect="off"
           disabled={isLoading}
-          {...register("attr1")}
+          {...register("prefix")}
         />
-        {errors?.attr1 && (
-          <p className="text-destructive">{errors.attr1.message}</p>
+        {errors?.prefix && (
+          <p className="text-destructive">{errors.prefix.message}</p>
         )}
         <Input
-          id="attr2"
-          key="attr2"
-          placeholder="attr2: int"
+          id="firstName"
+          key="firstName"
+          placeholder="firstName: string"
           type="number"
           autoCorrect="off"
           disabled={isLoading}
-          onKeyDown={(e) => {
-            if (["e", "E", "+", "-", ".", " "].includes(e.key)) {
-              e.preventDefault();
-            }
-          }}
-          {...register("attr2", { valueAsNumber: true })}
+          onKeyDown={validateNumericKey}
+          {...register("firstName")}
         />
-        {errors?.attr2 && (
-          <p className="text-destructive">{errors.attr2.message}</p>
+        {errors?.firstName && (
+          <p className="text-destructive">{errors.firstName.message}</p>
+        )}
+        <Input
+          id="lastName"
+          key="lastName"
+          placeholder="lastName: string"
+          autoCorrect="off"
+          disabled={isLoading}
+          {...register("lastName")}
+        />
+        {errors?.lastName && (
+          <p className="text-destructive">{errors.lastName.message}</p>
+        )}
+        <Input
+          id="email"
+          key="email"
+          placeholder="email: string?"
+          autoCorrect="off"
+          disabled={isLoading}
+          {...register("email")}
+        />
+        {errors?.email && (
+          <p className="text-destructive">{errors.email.message}</p>
         )}
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}

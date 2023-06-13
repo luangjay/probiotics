@@ -1,6 +1,6 @@
 import type { User, Doctor, Patient } from "@prisma/client";
 
-export const enum UserType {
+export enum UserType {
   Doctor = "Doctor",
   Patient = "Patient",
 }

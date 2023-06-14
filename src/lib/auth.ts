@@ -78,22 +78,22 @@ export async function getCurrentUser(
     salt: _salt,
     createdAt,
     updatedAt,
-    ...partialUser
+    ...userInfo
   } = user;
 
   if (doctor) {
-    const { userId, ...partialDoctor } = doctor;
+    const { userId, ...doctorInfo } = doctor;
     return {
       type: UserType.Doctor,
-      ...partialUser,
-      ...partialDoctor,
+      ...userInfo,
+      ...doctorInfo,
     };
   } else if (patient) {
-    const { userId, ...partialPatient } = patient;
+    const { userId, ...patientInfo } = patient;
     return {
       type: UserType.Patient,
-      ...partialUser,
-      ...partialPatient,
+      ...userInfo,
+      ...patientInfo,
     };
   } else {
     throw new Error("User type not found");

@@ -1,19 +1,19 @@
-import type { User, Doctor, Patient } from "@prisma/client";
+import type { Doctor, Patient, User } from "@prisma/client";
 
 export enum UserType {
   Doctor = "Doctor",
   Patient = "Patient",
 }
 
-export type PartialUser = Omit<
+export type UserInfo = Omit<
   User,
   "password" | "salt" | "createdAt" | "updatedAt"
 >;
 
-export type PartialDoctor = Omit<Doctor, "userId">;
+export type DoctorInfo = Omit<Doctor, "userId">;
 
-export type PartialPatient = Omit<Patient, "userId">;
+export type PatientInfo = Omit<Patient, "userId">;
 
-export type UserSubType =
-  | ({ type: UserType.Doctor } & PartialDoctor)
-  | ({ type: UserType.Patient } & PartialPatient);
+export type UserTypeInfo =
+  | ({ type: UserType.Doctor } & DoctorInfo)
+  | ({ type: UserType.Patient } & PatientInfo);

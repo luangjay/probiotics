@@ -40,7 +40,7 @@ model User {
 }
 
 model Doctor {
-  userId          String            @id @default(cuid()) @map("user_id")
+  userId          String            @id @map("user_id")
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   probioticRecord ProbioticRecord[]
 
@@ -48,7 +48,7 @@ model Doctor {
 }
 
 model Patient {
-  userId          String            @id @default(cuid()) @map("user_id")
+  userId          String            @id @map("user_id")
   ssn             String
   gender          Gender
   birthDate       DateTime          @map("birth_date")

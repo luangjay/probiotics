@@ -1,4 +1,4 @@
-import type { PartialUser, UserSubType } from "./user";
+import type { UserInfo, UserTypeInfo } from "./user";
 
 declare module "next-auth/jwt" {
   interface JWT {
@@ -14,8 +14,8 @@ declare module "next-auth/jwt" {
 
 declare module "next-auth" {
   interface Session {
-    user?: PartialUser & UserSubType;
+    user?: UserInfo & UserTypeInfo;
   }
 
-  type User = PartialUser & UserSubType;
+  type User = UserInfo & UserTypeInfo;
 }

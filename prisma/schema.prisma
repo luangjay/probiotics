@@ -84,7 +84,7 @@ model Probiotic {
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
   parent    Probiotic?  @relation("parent", fields: [parentId], references: [id])
-  childs    Probiotic[] @relation("parent")
+  children  Probiotic[] @relation("parent")
 
   @@map("probiotics")
 }

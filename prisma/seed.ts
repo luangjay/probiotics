@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Gender, Prisma, PrismaClient } from "@prisma/client";
+import { Gender, PrismaClient } from "@prisma/client";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import yargs from "yargs";
 
@@ -62,7 +62,9 @@ async function seed(option: string, count: unknown) {
 }
 
 async function seedDoctors(count: number) {
+  // Options
   faker.seed(42001);
+
   return prisma.$transaction(
     Array.from({ length: count }, () => {
       // User fields
@@ -74,18 +76,21 @@ async function seedDoctors(count: number) {
       const { password, salt } = saltHashPassword("secret");
 
       // Create doctors
-      const data = Prisma.validator<Prisma.DoctorCreateInput>()({
-        user: {
-          create: { username, password, salt, prefix, firstName, lastName },
+      return prisma.doctor.create({
+        data: {
+          user: {
+            create: { username, password, salt, prefix, firstName, lastName },
+          },
         },
       });
-      return prisma.doctor.create({ data });
     })
   );
 }
 
 async function seedPatients(count: number) {
+  // Options
   faker.seed(42002);
+
   return prisma.$transaction(
     Array.from({ length: count }, () => {
       // User fields
@@ -109,54 +114,70 @@ async function seedPatients(count: number) {
           : Gender.Female
         : Gender.Others;
 
-      const data = Prisma.validator<Prisma.PatientCreateInput>()({
-        user: {
-          create: { username, password, salt, prefix, firstName, lastName },
+      // Create patients
+      return prisma.patient.create({
+        data: {
+          user: {
+            create: { username, password, salt, prefix, firstName, lastName },
+          },
+          ssn,
+          birthDate,
+          gender,
         },
-        ssn,
-        birthDate,
-        gender,
       });
-      return prisma.patient.create({ data });
     })
   );
 }
 
 async function seedProbiotics() {
+  // Options
   faker.seed(42004);
-  const pool = probioticPool();
+  const count = 50;
+  const rootCount = 5;
+
   return prisma.$transaction(async (tx) => {
     // Initialize probiotic roots
-    const roots = pool.map((name) => {
-      // Each probiotic fields
+    await Promise.all(
+      Array.from({ length: rootCount }, async (_, idx) => {
+        // Probiotic fields
+        const id = idx;
+        const name = id.toString();
+        const red = faker.number.int({ min: 0, max: 333 });
+        const yellow = faker.number.int({ min: red, max: 666 });
+        const green = faker.number.int({ min: yellow, max: 999 });
+
+        // Create probiotics
+        return tx.probiotic.create({
+          data: { id, name, red, yellow, green },
+        });
+      })
+    );
+
+    // Populate probiotic tree
+    for (let idx = 0; idx < count - rootCount; idx++) {
+      // Probiotic fields
+      const id = idx + rootCount;
+      const parentId = faker.number.int({ min: 0, max: id - 1 });
+      const { name: parentName } = await tx.probiotic.findUniqueOrThrow({
+        where: { id: parentId },
+      });
+      const name = `${parentName} ${id.toString()}`;
       const red = faker.number.int({ min: 0, max: 333 });
       const yellow = faker.number.int({ min: red, max: 666 });
       const green = faker.number.int({ min: yellow, max: 999 });
 
-      const data = Prisma.validator<Prisma.ProbioticCreateInput>()({
-        name,
-        red,
-        yellow,
-        green,
+      // Create probiotics
+      await tx.probiotic.create({
+        data: { id, parentId, name, red, yellow, green },
       });
-      return data;
-    });
-    await tx.probiotic.createMany({
-      data: roots,
-    });
-
-    // Populate probiotic tree
-    const probiotics = Array.from({length:44}, ()=>{
-      // Probiotic fields
-      const parentId = 
-    })
+    }
   });
 }
 
 /* Custom pools */
-function probioticPool() {
-  return ["Pig", "Dog", "Crow", "Chicken", "Cow", "Buffalo"] as const;
-}
+// function probioticPool() {
+//   return ["Pig", "Dog", "Crow", "Chicken", "Cow", "Buffalo"] as const;
+// }
 
 /* Encryption */
 function saltHashPassword(password: string) {

@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Gender, Prisma, PrismaClient } from "@prisma/client";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import yargs from "yargs";
 
@@ -7,18 +7,12 @@ const prisma = new PrismaClient();
 
 /* Main function */
 async function main() {
-  faker.seed(6969);
+  console.log();
   const options = await getOptions();
+  console.log(options);
   for (const option in options) {
     const count = options[option];
-    if (typeof count !== "number") {
-      throw new TypeError("Invalid count");
-    }
-    if (count > 0) {
-      console.time(option);
-      await seed(option, count);
-      console.timeEnd(option);
-    }
+    await seed(option, count);
   }
 }
 
@@ -34,22 +28,46 @@ main()
   });
 
 /* Seed functions */
-async function seed(option: string, count: number) {
-  switch (option) {
-    case "doctor":
-      await seedDoctors(count);
-      break;
-    default:
-      throw new Error("Invalid option");
+async function seed(option: string, count: unknown) {
+  if (typeof count === "number") {
+    if (count === 0) return;
+    console.time(option);
+    switch (option) {
+      case "doctors":
+        await seedDoctors(count);
+        break;
+      case "patients":
+        await seedPatients(count);
+        break;
+      default:
+        throw new Error("Invalid option");
+    }
+    console.timeEnd(option);
+    return;
   }
+  if (typeof count === "boolean") {
+    if (!count) return;
+    console.time(option);
+    switch (option) {
+      case "probiotics":
+        await seedProbiotics();
+        break;
+      default:
+        throw new Error("Invalid option");
+    }
+    console.timeEnd(option);
+    return;
+  }
+  throw new Error("Invalid type");
 }
 
 async function seedDoctors(count: number) {
+  faker.seed(42001);
   return prisma.$transaction(
     Array.from({ length: count }, () => {
       // User fields
-      const sex = faker.datatype.boolean(0.5) ? "male" : "female";
-      const prefix = faker.person.prefix(sex);
+      const sex = faker.helpers.arrayElement(["male", "female"] as const);
+      const prefix = "Dr.";
       const firstName = faker.person.firstName(sex);
       const lastName = faker.person.lastName(sex);
       const username = faker.internet.userName({ firstName, lastName });
@@ -66,29 +84,79 @@ async function seedDoctors(count: number) {
   );
 }
 
-// async function seedPatients(count: number) {
-//   return prisma.$transaction(
-//     Array.from({ length: count }, () => {
-//       // User fields
-//       const sex = faker.datatype.boolean(0.5) ? "male" : "female";
-//       const prefix = faker.person.prefix(sex);
-//       const firstName = faker.person.firstName(sex);
-//       const lastName = faker.person.lastName(sex);
-//       const username = faker.internet.userName({ firstName, lastName });
-//       const { password, salt } = saltHashPassword("secret");
+async function seedPatients(count: number) {
+  faker.seed(42002);
+  return prisma.$transaction(
+    Array.from({ length: count }, () => {
+      // User fields
+      const sex = faker.helpers.arrayElement(["male", "female"] as const);
+      const prefix =
+        sex === "male"
+          ? "Mr."
+          : faker.helpers.arrayElement(["Ms.", "Mrs."] as const);
+      const firstName = faker.person.firstName(sex);
+      const lastName = faker.person.lastName(sex);
+      const username = faker.internet.userName({ firstName, lastName });
+      const { password, salt } = saltHashPassword("secret");
 
-//       // Patient fields
-//       const birthDate = faker.date.birthdate();
+      // Patient fields
+      const cis = faker.datatype.boolean(0.8);
+      const ssn = faker.number.int({ min: 4.2e13, max: 4.21e13 }).toString();
+      const birthDate = faker.date.birthdate();
+      const gender = cis
+        ? sex === "male"
+          ? Gender.Male
+          : Gender.Female
+        : Gender.Others;
 
-//       const data = Prisma.validator<Prisma.PatientCreateInput>()({
-//         user: {
-//           create: { username, password, salt, prefix, firstName, lastName },
-//         },
-//       });
-//       return prisma.patient.create({ data });
-//     })
-//   );
-// }
+      const data = Prisma.validator<Prisma.PatientCreateInput>()({
+        user: {
+          create: { username, password, salt, prefix, firstName, lastName },
+        },
+        ssn,
+        birthDate,
+        gender,
+      });
+      return prisma.patient.create({ data });
+    })
+  );
+}
+
+async function seedProbiotics() {
+  faker.seed(42004);
+  const pool = probioticPool();
+  return prisma.$transaction(async (tx) => {
+    // Initialize probiotic roots
+    const roots = pool.map((name) => {
+      // Each probiotic fields
+      const red = faker.number.int({ min: 0, max: 333 });
+      const yellow = faker.number.int({ min: red, max: 666 });
+      const green = faker.number.int({ min: yellow, max: 999 });
+
+      const data = Prisma.validator<Prisma.ProbioticCreateInput>()({
+        name,
+        red,
+        yellow,
+        green,
+      });
+      return data;
+    });
+    await tx.probiotic.createMany({
+      data: roots,
+    });
+
+    // Populate probiotic tree
+    const probiotics = Array.from({length:44}, ()=>{
+      // Probiotic fields
+      const parentId = 
+    })
+  });
+}
+
+/* Custom pools */
+function probioticPool() {
+  return ["Pig", "Dog", "Crow", "Chicken", "Cow", "Buffalo"] as const;
+}
 
 /* Encryption */
 function saltHashPassword(password: string) {
@@ -98,7 +166,7 @@ function saltHashPassword(password: string) {
   return { password: hash, salt };
 }
 
-/* Limit number inputs */
+/* Bound number inputs */
 function clamp(x: number, min: number, max: number) {
   return Math.max(min, Math.min(x, max));
 }
@@ -108,10 +176,13 @@ async function getOptions() {
   const args = await yargs(process.argv.slice(2))
     .strict()
     .options({
-      doctor: { type: "number", default: 0 },
+      doctors: { type: "number", default: 0 },
+      patients: { type: "number", default: 0 },
+      probiotics: { type: "boolean", default: false },
     })
     .coerce({
-      doctor: (count: number) => clamp(count, 1, 20),
+      doctors: (count: number) => clamp(count, 0, 20),
+      patients: (count: number) => clamp(count, 0, 20),
     })
     .parseAsync();
 

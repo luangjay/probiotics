@@ -20,6 +20,7 @@ enum Gender {
 }
 
 // models
+// 42000
 model User {
   id        String    @id @default(cuid())
   username  String    @unique
@@ -39,6 +40,7 @@ model User {
   @@map("users")
 }
 
+// 42001
 model Doctor {
   userId          String            @id @map("user_id")
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -47,19 +49,21 @@ model Doctor {
   @@map("doctors")
 }
 
+// 42002
 model Patient {
-  userId          String            @id @map("user_id")
-  ssn             String
-  gender          Gender
-  birthDate       DateTime          @map("birth_date")
-  ethnicity       String?
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  diseasePatient  DiseasePatient[]
-  probioticRecord ProbioticRecord[]
+  userId                  String                    @id @map("user_id")
+  ssn                     String
+  gender                  Gender
+  birthDate               DateTime                  @map("birth_date")
+  ethnicity               String?
+  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicalConditionPatient MedicalConditionPatient[]
+  probioticRecord         ProbioticRecord[]
 
   @@map("patients")
 }
 
+// 42003
 model File {
   id        String   @id @default(cuid())
   uri       String
@@ -69,6 +73,7 @@ model File {
   @@map("files")
 }
 
+// 42004
 model Probiotic {
   id        Int         @id @default(autoincrement())
   parentId  Int?        @map("parent_id")
@@ -84,6 +89,7 @@ model Probiotic {
   @@map("probiotics")
 }
 
+// 42005
 model ProbioticBrand {
   id                            Int                             @id @default(autoincrement())
   name                          String
@@ -94,16 +100,18 @@ model ProbioticBrand {
   @@map("probiotic_brands")
 }
 
-model Disease {
-  id             Int              @id @default(autoincrement())
-  name           String
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-  diseasePatient DiseasePatient[]
+// 42006
+model MedicalCondition {
+  id                      Int                       @id @default(autoincrement())
+  name                    String
+  createdAt               DateTime                  @default(now()) @map("created_at")
+  updatedAt               DateTime                  @updatedAt @map("updated_at")
+  medicalConditionPatient MedicalConditionPatient[]
 
-  @@map("disease")
+  @@map("medical_conditions")
 }
 
+// 42007
 model ProbioticRecord {
   id                            String                          @id @default(cuid())
   doctorId                      String                          @map("doctor_id")
@@ -119,6 +127,7 @@ model ProbioticRecord {
   @@map("probiotic_records")
 }
 
+// 42008
 model ProbioticBrandProbioticRecord {
   id                Int             @id @default(autoincrement())
   probioticBrandId  Int             @map("probiotic_brand_id")
@@ -131,16 +140,17 @@ model ProbioticBrandProbioticRecord {
   @@map("probiotic_brand_probiotic_record")
 }
 
-model DiseasePatient {
-  id        Int      @id @default(autoincrement())
-  diseaseId Int      @map("disease_id")
-  patientId String   @map("patient_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  disease   Disease  @relation(fields: [diseaseId], references: [id])
-  patient   Patient  @relation(fields: [patientId], references: [userId])
+// 42009
+model MedicalConditionPatient {
+  id                 Int              @id @default(autoincrement())
+  medicalConditionId Int              @map("medical_condition_id")
+  patientId          String           @map("patient_id")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  medicalCondition   MedicalCondition @relation(fields: [medicalConditionId], references: [id])
+  patient            Patient          @relation(fields: [patientId], references: [userId])
 
-  @@map("disease_patient")
+  @@map("medical_condition_patient")
 }
 
 // NextAuth

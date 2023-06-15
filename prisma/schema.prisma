@@ -42,9 +42,9 @@ model User {
 
 // 42001
 model Doctor {
-  userId          String            @id @map("user_id")
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  probioticRecord ProbioticRecord[]
+  userId           String            @id @map("user_id")
+  user             User              @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  probioticRecords ProbioticRecord[]
 
   @@map("doctors")
 }
@@ -56,9 +56,9 @@ model Patient {
   gender                  Gender
   birthDate               DateTime                  @map("birth_date")
   ethnicity               String?
-  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                    User                      @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   medicalConditionPatient MedicalConditionPatient[]
-  probioticRecord         ProbioticRecord[]
+  probioticRecords        ProbioticRecord[]
 
   @@map("patients")
 }
@@ -83,7 +83,7 @@ model Probiotic {
   green     Int
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
-  parent    Probiotic?  @relation("parent", fields: [parentId], references: [id])
+  parent    Probiotic?  @relation("parent", fields: [parentId], references: [id], onUpdate: Cascade)
   children  Probiotic[] @relation("parent")
 
   @@map("probiotics")
@@ -116,12 +116,12 @@ model ProbioticRecord {
   id                            String                          @id @default(cuid())
   doctorId                      String                          @map("doctor_id")
   patientId                     String                          @map("patient_id")
-  fileId                        String                          @map("file_id")
+  fileId                        String?                         @map("file_id")
   result                        Json
   createdAt                     DateTime                        @default(now()) @map("created_at")
   updatedAt                     DateTime                        @updatedAt @map("updated_at")
-  doctor                        Doctor                          @relation(fields: [doctorId], references: [userId])
-  patient                       Patient                         @relation(fields: [patientId], references: [userId])
+  doctor                        Doctor                          @relation(fields: [doctorId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  patient                       Patient                         @relation(fields: [patientId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
   probioticBrandProbioticRecord ProbioticBrandProbioticRecord[]
 
   @@map("probiotic_records")
@@ -134,8 +134,8 @@ model ProbioticBrandProbioticRecord {
   probioticRecordId String          @map("probiotic_record_id")
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
-  probioticBrand    ProbioticBrand  @relation(fields: [probioticBrandId], references: [id])
-  probioticRecord   ProbioticRecord @relation(fields: [probioticRecordId], references: [id])
+  probioticBrand    ProbioticBrand  @relation(fields: [probioticBrandId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  probioticRecord   ProbioticRecord @relation(fields: [probioticRecordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("probiotic_brand_probiotic_record")
 }
@@ -147,8 +147,8 @@ model MedicalConditionPatient {
   patientId          String           @map("patient_id")
   createdAt          DateTime         @default(now()) @map("created_at")
   updatedAt          DateTime         @updatedAt @map("updated_at")
-  medicalCondition   MedicalCondition @relation(fields: [medicalConditionId], references: [id])
-  patient            Patient          @relation(fields: [patientId], references: [userId])
+  medicalCondition   MedicalCondition @relation(fields: [medicalConditionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  patient            Patient          @relation(fields: [patientId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("medical_condition_patient")
 }
@@ -167,7 +167,7 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -178,7 +178,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("sessions")
 }

@@ -8,11 +8,12 @@ const prisma = new PrismaClient();
 /* Main function */
 async function main() {
   console.log();
-  const options = await getOptions();
-  console.log(options);
-  for (const option in options) {
+  const { clear, reset, ...options } = await getOptions();
+
+  let option: keyof typeof options;
+  for (option in options) {
     const count = options[option];
-    await seed(option, count);
+    await seed({ option, count, clear, reset });
   }
 }
 
@@ -28,114 +29,159 @@ main()
   });
 
 /* Seed functions */
-async function seed(option: string, count: unknown) {
-  if (typeof count === "number") {
-    if (count === 0) return;
-    console.time(option);
-    switch (option) {
-      case "doctors":
-        await seedDoctors(count);
-        break;
-      case "patients":
-        await seedPatients(count);
-        break;
-      default:
-        throw new Error("Invalid option");
-    }
-    console.timeEnd(option);
-    return;
-  }
-  if (typeof count === "boolean") {
-    if (!count) return;
-    console.time(option);
-    switch (option) {
-      case "probiotics":
-        await seedProbiotics();
-        break;
-      default:
-        throw new Error("Invalid option");
-    }
-    console.timeEnd(option);
-    return;
-  }
-  throw new Error("Invalid type");
+interface SeedOptions {
+  reset: boolean;
+  clear: boolean;
+  count: number;
 }
 
-async function seedDoctors(count: number) {
+async function seed({
+  option,
+  reset,
+  clear,
+  count,
+}: { option: string } & SeedOptions) {
+  if (typeof count !== "number") {
+    throw new Error("Invalid type");
+  }
+  if (!reset && count === 0) return;
+  console.time(`${reset ? "Reset" : `Seeded ${count}`} ${option} in`);
+  switch (option) {
+    case "doctors":
+      await seedDoctors({ reset, clear, count });
+      break;
+    case "patients":
+      await seedPatients({ reset, clear, count });
+      break;
+    case "probiotics":
+      await seedProbiotics({ reset, clear, count });
+      break;
+    case "probiotic_brands":
+      await seedProbioticBrands({ reset, clear, count });
+      break;
+    case "medical_conditions":
+      await seedMedicalConditions({ reset, clear, count });
+      break;
+    case "probiotic_records":
+      await seedProbioticRecords({ reset, clear, count });
+      break;
+    case "probiotic_brand_probiotic_record":
+      await seedProbioticBrandProbioticRecord({ reset, clear, count });
+      break;
+    case "medical_condition_patient":
+      await seedMedicalConditionPatient({ reset, clear, count });
+      break;
+    default:
+      throw new Error("Invalid option");
+  }
+  console.timeEnd(`${reset ? "Reset" : `Seeded ${count}`} ${option} in`);
+}
+
+async function seedDoctors({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42001);
 
-  return prisma.$transaction(
-    Array.from({ length: count }, () => {
-      // User fields
-      const sex = faker.helpers.arrayElement(["male", "female"] as const);
-      const prefix = "Dr.";
-      const firstName = faker.person.firstName(sex);
-      const lastName = faker.person.lastName(sex);
-      const username = faker.internet.userName({ firstName, lastName });
-      const { password, salt } = saltHashPassword("secret");
-
-      // Create doctors
-      return prisma.doctor.create({
-        data: {
-          user: {
-            create: { username, password, salt, prefix, firstName, lastName },
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.user.deleteMany({
+        where: {
+          NOT: {
+            OR: [{ doctor: { user: { username: "root" } } }, { doctor: null }],
           },
         },
       });
-    })
-  );
+      if (reset) return;
+    }
+    await Promise.all(
+      Array.from({ length: count }, () => {
+        // User fields
+        const sex = faker.helpers.arrayElement(["male", "female"] as const);
+        const prefix = "Dr.";
+        const firstName = faker.person.firstName(sex);
+        const lastName = faker.person.lastName(sex);
+        const username = faker.internet.userName({ firstName, lastName });
+        const { password, salt } = saltHashPassword("secret");
+
+        // Create doctors
+        return tx.doctor.create({
+          data: {
+            user: {
+              create: { username, password, salt, prefix, firstName, lastName },
+            },
+          },
+        });
+      })
+    );
+  });
 }
 
-async function seedPatients(count: number) {
+async function seedPatients({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42002);
 
-  return prisma.$transaction(
-    Array.from({ length: count }, () => {
-      // User fields
-      const sex = faker.helpers.arrayElement(["male", "female"] as const);
-      const prefix =
-        sex === "male"
-          ? "Mr."
-          : faker.helpers.arrayElement(["Ms.", "Mrs."] as const);
-      const firstName = faker.person.firstName(sex);
-      const lastName = faker.person.lastName(sex);
-      const username = faker.internet.userName({ firstName, lastName });
-      const { password, salt } = saltHashPassword("secret");
-
-      // Patient fields
-      const cis = faker.datatype.boolean(0.8);
-      const ssn = faker.number.int({ min: 4.2e13, max: 4.21e13 }).toString();
-      const birthDate = faker.date.birthdate();
-      const gender = cis
-        ? sex === "male"
-          ? Gender.Male
-          : Gender.Female
-        : Gender.Others;
-
-      // Create patients
-      return prisma.patient.create({
-        data: {
-          user: {
-            create: { username, password, salt, prefix, firstName, lastName },
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.user.deleteMany({
+        where: {
+          NOT: {
+            OR: [
+              { patient: { user: { username: "root" } } },
+              { patient: null },
+            ],
           },
-          ssn,
-          birthDate,
-          gender,
         },
       });
-    })
-  );
+      if (reset) return;
+    }
+    await Promise.all(
+      Array.from({ length: count }, () => {
+        // User fields
+        const sex = faker.helpers.arrayElement(["male", "female"] as const);
+        const prefix =
+          sex === "male"
+            ? "Mr."
+            : faker.helpers.arrayElement(["Ms.", "Mrs."] as const);
+        const firstName = faker.person.firstName(sex);
+        const lastName = faker.person.lastName(sex);
+        const username = faker.internet.userName({ firstName, lastName });
+        const { password, salt } = saltHashPassword("secret");
+
+        // Patient fields
+        const cis = faker.datatype.boolean(0.8);
+        const ssn = faker.number.int({ min: 4.2e13, max: 4.21e13 }).toString();
+        const birthDate = faker.date.birthdate();
+        const gender = cis
+          ? sex === "male"
+            ? Gender.Male
+            : Gender.Female
+          : Gender.Others;
+
+        // Create patients
+        return tx.patient.create({
+          data: {
+            user: {
+              create: { username, password, salt, prefix, firstName, lastName },
+            },
+            ssn,
+            birthDate,
+            gender,
+          },
+        });
+      })
+    );
+  });
 }
 
-async function seedProbiotics() {
+async function seedProbiotics({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42004);
-  const count = 50;
   const rootCount = 5;
 
   return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.probiotic.deleteMany();
+      if (reset) return;
+    }
     // Initialize probiotic roots
     await Promise.all(
       Array.from({ length: rootCount }, async (_, idx) => {
@@ -174,10 +220,251 @@ async function seedProbiotics() {
   });
 }
 
+async function seedProbioticBrands({ reset, clear, count }: SeedOptions) {
+  // Options
+  faker.seed(42005);
+
+  // Probiotic brand fields
+  const names = faker.helpers.uniqueArray(() => faker.person.lastName(), count);
+
+  // Create probiotic brands
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.probioticBrand.deleteMany();
+      if (reset) return;
+    }
+    await tx.probioticBrand.createMany({
+      data: Array.from({ length: count }, (_, idx) => ({
+        id: idx,
+        name: names[idx],
+      })),
+    });
+  });
+}
+
+async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
+  // Options
+  faker.seed(42006);
+  const pool = medicalConditionPool();
+
+  // Medical condition fields
+  const names = faker.helpers.uniqueArray(pool, count);
+
+  // Create medical conditions
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.medicalCondition.deleteMany();
+      if (reset) return;
+    }
+    await tx.medicalCondition.createMany({
+      data: Array.from({ length: count }, (_, idx) => ({
+        id: idx,
+        name: names[idx],
+      })),
+    });
+  });
+}
+
+async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
+  // Options
+  faker.seed(42007);
+
+  // Initialize
+  const doctors = await prisma.doctor.findMany();
+  const patients = await prisma.patient.findMany();
+  const probiotics = await prisma.probioticBrand.findMany();
+
+  const doctorIds = doctors.map((doctor) => doctor.userId);
+  const patientIds = patients.map((patient) => patient.userId);
+  const probioticNames = probiotics.map((probiotic) => probiotic.name);
+
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.probioticRecord.deleteMany();
+      if (reset) return;
+    }
+    await Promise.all(
+      Array.from({ length: count }, () => {
+        // Probiotic record fields
+        const doctorId = faker.helpers.arrayElement(doctorIds);
+        const patientId = faker.helpers.arrayElement(patientIds);
+        const entries = faker.number.int({ min: 20, max: 40 });
+        const _probioticNames = faker.helpers.arrayElements(
+          probioticNames,
+          entries
+        );
+        const result = Array.from({ length: entries }, (_, idx) => ({
+          [_probioticNames[idx]]: faker.number.int({ min: 0, max: 999 }),
+        })).reduce((acc, cur) => ({ ...acc, ...cur }), {});
+
+        // Create probiotic records
+        return tx.probioticRecord.create({
+          data: { doctorId, patientId, result },
+        });
+      })
+    );
+  });
+}
+
+async function seedProbioticBrandProbioticRecord({
+  reset,
+  clear,
+  count,
+}: SeedOptions) {
+  // Options
+  faker.seed(42008);
+
+  // Initialize
+  const probioticBrands = await prisma.probioticBrand.findMany();
+  const probioticRecords = await prisma.probioticRecord.findMany();
+
+  const probioticBrandIds = probioticBrands.map(
+    (probioticBrand) => probioticBrand.id
+  );
+  const probioticRecordIds = probioticRecords.map(
+    (probioticRecord) => probioticRecord.id
+  );
+
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.probioticBrandProbioticRecord.deleteMany();
+      if (reset) return;
+    }
+    await Promise.all(
+      Array.from({ length: count }, () => {
+        // Probiotic brand probiotic record fields
+        const probioticBrandId = faker.helpers.arrayElement(probioticBrandIds);
+        const probioticRecordId =
+          faker.helpers.arrayElement(probioticRecordIds);
+
+        // Create probiotic brand probiotic record
+        return tx.probioticBrandProbioticRecord.create({
+          data: { probioticBrandId, probioticRecordId },
+        });
+      })
+    );
+  });
+}
+
+async function seedMedicalConditionPatient({
+  reset,
+  clear,
+  count,
+}: SeedOptions) {
+  // Options
+  faker.seed(42009);
+
+  // Initialize
+  const medicalConditions = await prisma.medicalCondition.findMany();
+  const patients = await prisma.patient.findMany();
+
+  const medicalConditionIds = medicalConditions.map(
+    (medicalCondition) => medicalCondition.id
+  );
+  const patientIds = patients.map((patient) => patient.userId);
+
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.medicalConditionPatient.deleteMany();
+      if (reset) return;
+    }
+    await Promise.all(
+      Array.from({ length: count }, (_, idx) => {
+        // Medical condition patient fields
+        const id = idx;
+        const medicalConditionId =
+          faker.helpers.arrayElement(medicalConditionIds);
+        const patientId = faker.helpers.arrayElement(patientIds);
+
+        // Create medical condition patient
+        return tx.medicalConditionPatient.create({
+          data: { id, medicalConditionId, patientId },
+        });
+      })
+    );
+  });
+}
+
 /* Custom pools */
-// function probioticPool() {
-//   return ["Pig", "Dog", "Crow", "Chicken", "Cow", "Buffalo"] as const;
-// }
+function medicalConditionPool() {
+  return [
+    "High blood pressure",
+    "Type 2 diabetes",
+    "Bronchial asthma",
+    "Heart disease",
+    "Osteoarthritis",
+    "Rheumatoid arthritis",
+    "Migraine headaches",
+    "Mood disorder",
+    "Anxiety",
+    "Psychosis",
+    "Mood swings",
+    "Memory loss",
+    "Tremors",
+    "Nerve damage",
+    "Chronic lung disease",
+    "Brain attack",
+    "Kidney disease",
+    "Liver disease",
+    "Underactive thyroid",
+    "Overactive thyroid",
+    "Acid reflux",
+    "Stomach ulcers",
+    "Inflammatory bowel disease",
+    "Digestive issues",
+    "Chronic bronchitis",
+    "Lung infection",
+    "Tuberculosis",
+    "Immune deficiency",
+    "Bone thinning",
+    "Chronic pain syndrome",
+    "Chronic fatigue",
+    "Gynecological disorder",
+    "Hormonal disorder",
+    "Erectile dysfunction",
+    "Premenstrual symptoms",
+    "Hormonal changes",
+    "Eye condition",
+    "Skin condition",
+    "Allergies",
+    "Low red blood cell count",
+    "Clogged arteries",
+    "Irregular heartbeat",
+    "Heart dysfunction",
+    "Kidney dysfunction",
+    "Liver dysfunction",
+    "Eating disorder",
+    "Seizures",
+    "Gallbladder issues",
+    "Stomach inflammation",
+    "Swollen blood vessels",
+    "Liver inflammation",
+    "Cold sores",
+    "Sleeping difficulties",
+    "Bone disorder",
+    "Pancreas inflammation",
+    "Non-cancerous growths",
+    "Prostate inflammation",
+    "Blood clot in lung",
+    "Spinal curvature",
+    "Sleep disorder",
+    "Thyroid growths",
+    "Ringing in the ears",
+    "Urinary tract issues",
+    "Uterine growths",
+    "Vein abnormalities",
+    "Skin pigmentation disorder",
+    "Inherited metabolic disorder",
+    "Gluten intolerance",
+    "Jaw joint disorder",
+    "Blood circulation disorder",
+    "Restless legs",
+    "Recurring ear disorder",
+    "Muscle weakness",
+    "High blood pressure during pregnancy",
+    "Gallbladder inflammation",
+  ] as const;
+}
 
 /* Encryption */
 function saltHashPassword(password: string) {
@@ -193,20 +480,64 @@ function clamp(x: number, min: number, max: number) {
 }
 
 /* Options */
+/* eslint-disable @typescript-eslint/naming-convention */
 async function getOptions() {
   const args = await yargs(process.argv.slice(2))
     .strict()
     .options({
+      reset: { type: "boolean", default: false },
+      all: { type: "boolean", default: false },
+      clear: { type: "boolean", default: false },
       doctors: { type: "number", default: 0 },
       patients: { type: "number", default: 0 },
-      probiotics: { type: "boolean", default: false },
+      probiotics: { type: "number", default: 0 },
+      probiotic_brands: { type: "number", default: 0 },
+      medical_conditions: { type: "number", default: 0 },
+      probiotic_records: { type: "number", default: 0 },
+      probiotic_brand_probiotic_record: { type: "number", default: 0 },
+      medical_condition_patient: { type: "number", default: 0 },
     })
     .coerce({
-      doctors: (count: number) => clamp(count, 0, 20),
-      patients: (count: number) => clamp(count, 0, 20),
+      doctors: (count: number) => clamp(count, 0, 40),
+      patients: (count: number) => clamp(count, 0, 40),
+      probiotics: (count: number) => clamp(count, 0, 80),
+      probiotic_brands: (count: number) =>
+        clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
+      medical_conditions: (count: number) => clamp(count, 0, 80),
+      probiotic_records: (count: number) => clamp(count, 0, 400),
+      probiotic_brand_probiotic_record: (count: number) => clamp(count, 0, 400),
+      medical_condition_patient: (count: number) => clamp(count, 0, 80),
     })
     .parseAsync();
 
-  const { _, $0, ...options } = args;
-  return options;
+  const { _, $0, all, ...options } = args;
+  if (all) {
+    return {
+      reset: options.reset,
+      clear: options.reset || options.clear,
+      doctors: options.doctors || 10,
+      patients: options.patients || 10,
+      probiotics: options.probiotics || 40,
+      probiotic_brands: options.probiotic_brands || 40,
+      medical_conditions: options.medical_conditions || 40,
+      probiotic_records: options.probiotic_records || 80,
+      probiotic_brand_probiotic_record:
+        options.probiotic_brand_probiotic_record || 80,
+      medical_condition_patient: options.medical_condition_patient || 20,
+    };
+  }
+  return {
+    reset: options.reset,
+    clear: options.reset || options.clear,
+    doctors: options.doctors || 0,
+    patients: options.patients || 0,
+    probiotics: options.probiotics || 0,
+    probiotic_brands: options.probiotic_brands || 0,
+    medical_conditions: options.medical_conditions || 0,
+    probiotic_records: options.probiotic_records || 0,
+    probiotic_brand_probiotic_record:
+      options.probiotic_brand_probiotic_record || 0,
+    medical_condition_patient: options.medical_condition_patient || 0,
+  };
 }
+/* eslint-enable @typescript-eslint/naming-convention */

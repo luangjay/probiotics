@@ -2,11 +2,10 @@ import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
-import { Inter as FontSans } from "next/font/google";
 import localFont from "next/font/local";
 
-const fontSans = FontSans({
-  subsets: ["latin"],
+const fontSans = localFont({
+  src: "../../assets/fonts/Inter.var.woff2",
   variable: "--font-sans",
 });
 

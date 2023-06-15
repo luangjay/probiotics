@@ -6,7 +6,13 @@ import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validation/auth";
 
 /**
- * `GET /api/users`
+ * @swagger
+ * /api/hello:
+ *   get:
+ *     description: Returns the hello world
+ *     responses:
+ *       200:
+ *         description: Hello World!
  */
 export async function GET() {
   const users = await prisma.user.findMany();

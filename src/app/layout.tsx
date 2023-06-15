@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import "./globals.css";
+import "@/styles/globals.css";
 
 import localFont from "next/font/local";
 
@@ -26,6 +26,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
+      <head />
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -33,7 +34,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontMono.variable
         )}
       >
-        {children}
+        <div className="relative flex min-h-screen flex-col">
+          <div className="fixed top-0 w-screen"></div>
+          <div className="flex-1 border border-red-500">{children}</div>
+        </div>
       </body>
     </html>
   );

@@ -1,14 +1,11 @@
 import type { UserInfo, UserTypeInfo } from "./user";
 
 declare module "next-auth/jwt" {
-  interface JWT {
-    id: string;
-
-    // Default JWT properties
-    sub: string;
-    iat: number;
-    exp: number;
-    jti: string;
+  interface JWT extends Record<string, unknown> {
+    name?: string | null;
+    email?: string | null;
+    picture?: string | null;
+    sub?: string;
   }
 }
 
@@ -17,5 +14,10 @@ declare module "next-auth" {
     user?: UserInfo & UserTypeInfo;
   }
 
-  type User = UserInfo & UserTypeInfo;
+  interface User {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  }
 }

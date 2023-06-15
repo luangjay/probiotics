@@ -463,6 +463,11 @@ function medicalConditionPool() {
     "Muscle weakness",
     "High blood pressure during pregnancy",
     "Gallbladder inflammation",
+    "Allergic rhinitis",
+    "Irritable bowel syndrome",
+    "Seasonal affective disorder (SAD)",
+    "Tension headache",
+    "Rosacea",
   ] as const;
 }
 

@@ -1,10 +1,12 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
-import type { NextAuthOptions, User } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { UserType } from "@/types/user";
+import { UserType, type UserInfo, type UserTypeInfo } from "@/types/user";
 import { prisma } from "@/lib/prisma";
+
+type User = UserInfo & UserTypeInfo;
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -26,26 +28,20 @@ export const authOptions: NextAuthOptions = {
         if (credentials === undefined) return null;
         const { username, password } = credentials;
         const currentUser = await getCurrentUser({ username, password });
-        return currentUser;
+        if (currentUser === null) return null;
+        return { id: currentUser.id };
       },
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        const u = user as User;
-        token = { ...token, id: u.id, name: u.username };
-        console.log(token);
-      }
+    jwt({ token }) {
       return token;
     },
     async session({ token, session }) {
-      const { id } = token;
-      if (id) {
-        const user = await getCurrentUser({ id });
-        if (user) {
-          session.user = user;
-        }
+      const { sub: id } = token;
+      const user = await getCurrentUser({ id });
+      if (user !== null) {
+        session.user = user;
       }
       return session;
     },
@@ -63,9 +59,11 @@ export async function getCurrentUser({
   username,
   password,
 }: GetCurrentUserInput): Promise<User | null> {
-  const user = await prisma.user.findFirst({
+  if (id === undefined && username === undefined) return null;
+  const user = await prisma.user.findUnique({
     where: {
-      OR: { id, username },
+      id,
+      username,
     },
     include: {
       doctor: true,

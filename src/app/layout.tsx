@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
 
 import "@/styles/globals.css";
 
@@ -34,9 +35,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontMono.variable
         )}
       >
-        <div className="relative flex min-h-screen flex-col">
-          <div className="fixed top-0 w-screen"></div>
-          <div className="flex-1 border border-red-500">{children}</div>
+        <div>
+          <div>{children}</div>
+          <TailwindIndicator />
         </div>
       </body>
     </html>

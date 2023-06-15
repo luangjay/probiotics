@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (credentials === undefined) return null;
         const { username, password } = credentials;
-        const currentUser = await getCurrentUser(username, password);
+        const currentUser = await getCurrentUser({ username, password });
         return currentUser;
       },
     }),
@@ -40,9 +40,9 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ token, session }) {
-      const { name: username } = token;
-      if (username) {
-        const user = await getCurrentUser(username);
+      const { id } = token;
+      if (id) {
+        const user = await getCurrentUser({ id });
         if (user) {
           session.user = user;
         }
@@ -52,13 +52,20 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export async function getCurrentUser(
-  username: string,
-  password?: string
-): Promise<User | null> {
-  const user = await prisma.user.findUnique({
+interface GetCurrentUserInput {
+  id?: string;
+  username?: string;
+  password?: string;
+}
+
+export async function getCurrentUser({
+  id,
+  username,
+  password,
+}: GetCurrentUserInput): Promise<User | null> {
+  const user = await prisma.user.findFirst({
     where: {
-      username,
+      OR: { id, username },
     },
     include: {
       doctor: true,

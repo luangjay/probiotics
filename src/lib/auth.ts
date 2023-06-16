@@ -1,6 +1,6 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
-import type { NextAuthOptions, User } from "next-auth";
+import { getServerSession, type NextAuthOptions, type User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { UserType } from "@/types/user";
@@ -42,14 +42,26 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ token, session }) {
       const { sub: id } = token;
-      const user = await getCurrentUser({ id });
-      if (user !== null) {
-        session.user = user;
+      const currentUser = await getCurrentUser({ id });
+      if (currentUser !== null) {
+        session.user = currentUser;
       }
       return session;
     },
   },
 };
+
+export async function getSessionUser() {
+  const session = await getServerSession(authOptions);
+  return session?.user;
+}
+
+export function saltHashPassword(password: string) {
+  const saltRounds = 10;
+  const salt = genSaltSync(saltRounds);
+  const hash = hashSync(password, salt);
+  return { password: hash, salt };
+}
 
 interface GetCurrentUserInput {
   id?: string;
@@ -57,7 +69,7 @@ interface GetCurrentUserInput {
   password?: string;
 }
 
-export async function getCurrentUser({
+async function getCurrentUser({
   id,
   username,
   password,
@@ -71,6 +83,7 @@ export async function getCurrentUser({
     include: {
       doctor: true,
       patient: true,
+      admin: true,
     },
   });
 
@@ -83,6 +96,7 @@ export async function getCurrentUser({
   const {
     doctor,
     patient,
+    admin,
     password: _password,
     salt: _salt,
     createdAt,
@@ -104,14 +118,14 @@ export async function getCurrentUser({
       ...userInfo,
       ...patientInfo,
     };
+  } else if (admin !== null) {
+    const { userId, ...adminInfo } = admin;
+    return {
+      type: UserType.Admin,
+      ...userInfo,
+      ...adminInfo,
+    };
   } else {
     throw new Error("User type not found");
   }
-}
-
-export function saltHashPassword(password: string) {
-  const saltRounds = 10;
-  const salt = genSaltSync(saltRounds);
-  const hash = hashSync(password, salt);
-  return { password: hash, salt };
 }

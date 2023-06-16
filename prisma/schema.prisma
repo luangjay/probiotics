@@ -25,8 +25,8 @@ model User {
   id        String    @id @default(cuid())
   username  String    @unique
   password  String
-  email     String?
   salt      String
+  email     String?
   prefix    String
   firstName String    @map("first_name")
   lastName  String    @map("last_name")
@@ -34,6 +34,7 @@ model User {
   updatedAt DateTime  @updatedAt @map("updated_at")
   doctor    Doctor?
   patient   Patient?
+  admin     Admin?
   accounts  Account[]
   sessions  Session[]
 
@@ -41,6 +42,14 @@ model User {
 }
 
 // 42001
+model Admin {
+  userId String @id @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("admins")
+}
+
+// 42002
 model Doctor {
   userId           String            @id @map("user_id")
   user             User              @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -49,21 +58,21 @@ model Doctor {
   @@map("doctors")
 }
 
-// 42002
+// 42003
 model Patient {
-  userId                  String                    @id @map("user_id")
-  ssn                     String
-  gender                  Gender
-  birthDate               DateTime                  @map("birth_date")
-  ethnicity               String?
-  user                    User                      @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  medicalConditionPatient MedicalConditionPatient[]
-  probioticRecords        ProbioticRecord[]
+  userId            String                    @id @map("user_id")
+  ssn               String
+  gender            Gender
+  birthDate         DateTime                  @map("birth_date")
+  ethnicity         String?
+  user              User                      @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  medicalConditions MedicalConditionPatient[]
+  probioticRecords  ProbioticRecord[]
 
   @@map("patients")
 }
 
-// 42003
+// 42004
 model File {
   id        String   @id @default(cuid())
   uri       String
@@ -73,7 +82,7 @@ model File {
   @@map("files")
 }
 
-// 42004
+// 42005
 model Probiotic {
   id        Int         @id @default(autoincrement())
   parentId  Int?        @map("parent_id")
@@ -89,45 +98,45 @@ model Probiotic {
   @@map("probiotics")
 }
 
-// 42005
+// 42006
 model ProbioticBrand {
-  id                            Int                             @id @default(autoincrement())
-  name                          String
-  createdAt                     DateTime                        @default(now()) @map("created_at")
-  updatedAt                     DateTime                        @updatedAt @map("updated_at")
-  probioticBrandProbioticRecord ProbioticBrandProbioticRecord[]
+  id               Int                             @id @default(autoincrement())
+  name             String
+  createdAt        DateTime                        @default(now()) @map("created_at")
+  updatedAt        DateTime                        @updatedAt @map("updated_at")
+  probioticRecords ProbioticBrandProbioticRecord[]
 
   @@map("probiotic_brands")
 }
 
-// 42006
+// 42007
 model MedicalCondition {
-  id                      Int                       @id @default(autoincrement())
-  name                    String
-  createdAt               DateTime                  @default(now()) @map("created_at")
-  updatedAt               DateTime                  @updatedAt @map("updated_at")
-  medicalConditionPatient MedicalConditionPatient[]
+  id        Int                       @id @default(autoincrement())
+  name      String
+  createdAt DateTime                  @default(now()) @map("created_at")
+  updatedAt DateTime                  @updatedAt @map("updated_at")
+  patients  MedicalConditionPatient[]
 
   @@map("medical_conditions")
 }
 
-// 42007
+// 42008
 model ProbioticRecord {
-  id                            String                          @id @default(cuid())
-  doctorId                      String                          @map("doctor_id")
-  patientId                     String                          @map("patient_id")
-  fileId                        String?                         @map("file_id")
-  result                        Json
-  createdAt                     DateTime                        @default(now()) @map("created_at")
-  updatedAt                     DateTime                        @updatedAt @map("updated_at")
-  doctor                        Doctor                          @relation(fields: [doctorId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
-  patient                       Patient                         @relation(fields: [patientId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
-  probioticBrandProbioticRecord ProbioticBrandProbioticRecord[]
+  id              String                          @id @default(cuid())
+  doctorId        String                          @map("doctor_id")
+  patientId       String                          @map("patient_id")
+  fileId          String?                         @map("file_id")
+  result          Json
+  createdAt       DateTime                        @default(now()) @map("created_at")
+  updatedAt       DateTime                        @updatedAt @map("updated_at")
+  doctor          Doctor                          @relation(fields: [doctorId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  patient         Patient                         @relation(fields: [patientId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  probioticBrands ProbioticBrandProbioticRecord[]
 
   @@map("probiotic_records")
 }
 
-// 42008
+// 42009
 model ProbioticBrandProbioticRecord {
   id                Int             @id @default(autoincrement())
   probioticBrandId  Int             @map("probiotic_brand_id")
@@ -140,7 +149,7 @@ model ProbioticBrandProbioticRecord {
   @@map("probiotic_brand_probiotic_record")
 }
 
-// 42009
+// 42010
 model MedicalConditionPatient {
   id                 Int              @id @default(autoincrement())
   medicalConditionId Int              @map("medical_condition_id")

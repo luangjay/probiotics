@@ -7,18 +7,16 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     console.log(pathname);
     const token = await getToken({ req });
-    const isLoggedIn = !!token;
+    const authenticated = !!token;
 
-    if (pathname === "/register" || pathname === "/login") {
-      if (isLoggedIn) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-      return null;
+    switch (pathname) {
+      case "/register":
+      case "/login":
+        if (authenticated) {
+          return NextResponse.redirect(new URL("/", req.url));
+        }
+        return null;
     }
-
-    await fetch(new URL("/api/auth/signout", req.url), { method: "POST" });
-    return null;
-    // return NextResponse.redirect(new URL("/api/auth/signout", req.url));
   },
   {
     callbacks: {
@@ -32,4 +30,6 @@ export default withAuth(
   }
 );
 
-export const matcher = ["/register", "/login", "/logout"];
+export const config = {
+  matcher: ["/register", "/login"],
+};

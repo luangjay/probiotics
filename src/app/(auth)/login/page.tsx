@@ -7,7 +7,7 @@ import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
-import { loginSchema } from "@/lib/validation/auth";
+import { loginSchema } from "@/lib/schema";
 
 type FormData = z.infer<typeof loginSchema>;
 

@@ -1,4 +1,4 @@
-import { getSessionUser } from "@/lib/session";
+import { getSessionUser } from "@/lib/auth";
 
 import { AuthButton } from "./auth-button";
 

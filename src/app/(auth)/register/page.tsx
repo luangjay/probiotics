@@ -7,7 +7,7 @@ import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
-import { registerSchema } from "@/lib/validation/auth";
+import { registerSchema } from "@/lib/schema";
 
 type FormData = z.infer<typeof registerSchema>;
 
@@ -25,7 +25,7 @@ export default function Register() {
   async function onSubmit(data: FormData) {
     setIsLoading(true);
     const { username, password } = data;
-    const response = await fetch("/api/users", {
+    const response = await fetch("/api/auth/register/doctor", {
       method: "POST",
       body: JSON.stringify(data),
     });

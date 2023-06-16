@@ -47,6 +47,9 @@ async function seed({
   if (!reset && count === 0) return;
   console.time(`${reset ? "Reset" : `Seeded ${count}`} ${option} in`);
   switch (option) {
+    case "admins":
+      await seedAdmins({ reset, clear, count });
+      break;
     case "doctors":
       await seedDoctors({ reset, clear, count });
       break;
@@ -77,16 +80,85 @@ async function seed({
   console.timeEnd(`${reset ? "Reset" : `Seeded ${count}`} ${option} in`);
 }
 
-async function seedDoctors({ reset, clear, count }: SeedOptions) {
+async function seedAdmins({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42001);
+  const rootCount = 1;
 
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.user.deleteMany({
         where: {
           NOT: {
-            OR: [{ doctor: { user: { username: "root" } } }, { doctor: null }],
+            admin: null,
+          },
+        },
+      });
+      if (reset) return;
+    }
+    // Initialize admin roots
+    await Promise.all(
+      Array.from({ length: rootCount }, async () => {
+        // User fields
+        const email = "root@luangjay.com";
+        const prefix = "Dr.";
+        const firstName = "Root*";
+        const lastName = "Tree->";
+        const username = "root";
+        const { password, salt } = saltHashPassword("1234");
+
+        // Create admin roots
+        return tx.admin.create({
+          data: {
+            user: {
+              create: {
+                username,
+                password,
+                salt,
+                email,
+                prefix,
+                firstName,
+                lastName,
+              },
+            },
+          },
+        });
+      })
+    );
+
+    await Promise.all(
+      Array.from({ length: count - rootCount }, () => {
+        // User fields
+        const sex = faker.helpers.arrayElement(["male", "female"] as const);
+        const prefix = "Dr.";
+        const firstName = faker.person.firstName(sex);
+        const lastName = faker.person.lastName(sex);
+        const username = faker.internet.userName({ firstName, lastName });
+        const { password, salt } = saltHashPassword("secret");
+
+        // Create admins
+        return tx.admin.create({
+          data: {
+            user: {
+              create: { username, password, salt, prefix, firstName, lastName },
+            },
+          },
+        });
+      })
+    );
+  });
+}
+
+async function seedDoctors({ reset, clear, count }: SeedOptions) {
+  // Options
+  faker.seed(42002);
+
+  return prisma.$transaction(async (tx) => {
+    if (clear) {
+      await tx.user.deleteMany({
+        where: {
+          NOT: {
+            doctor: null,
           },
         },
       });
@@ -117,17 +189,14 @@ async function seedDoctors({ reset, clear, count }: SeedOptions) {
 
 async function seedPatients({ reset, clear, count }: SeedOptions) {
   // Options
-  faker.seed(42002);
+  faker.seed(42003);
 
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.user.deleteMany({
         where: {
           NOT: {
-            OR: [
-              { patient: { user: { username: "root" } } },
-              { patient: null },
-            ],
+            patient: null,
           },
         },
       });
@@ -174,7 +243,7 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
 
 async function seedProbiotics({ reset, clear, count }: SeedOptions) {
   // Options
-  faker.seed(42004);
+  faker.seed(42005);
   const rootCount = 5;
 
   return prisma.$transaction(async (tx) => {
@@ -222,7 +291,7 @@ async function seedProbiotics({ reset, clear, count }: SeedOptions) {
 
 async function seedProbioticBrands({ reset, clear, count }: SeedOptions) {
   // Options
-  faker.seed(42005);
+  faker.seed(42006);
 
   // Probiotic brand fields
   const names = faker.helpers.uniqueArray(() => faker.person.lastName(), count);
@@ -244,7 +313,7 @@ async function seedProbioticBrands({ reset, clear, count }: SeedOptions) {
 
 async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
   // Options
-  faker.seed(42006);
+  faker.seed(42007);
   const pool = medicalConditionPool();
 
   // Medical condition fields
@@ -267,7 +336,7 @@ async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
 
 async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
   // Options
-  faker.seed(42007);
+  faker.seed(42008);
 
   // Initialize
   const doctors = await prisma.doctor.findMany();
@@ -312,7 +381,7 @@ async function seedProbioticBrandProbioticRecord({
   count,
 }: SeedOptions) {
   // Options
-  faker.seed(42008);
+  faker.seed(42009);
 
   // Initialize
   const probioticBrands = await prisma.probioticBrand.findMany();
@@ -352,7 +421,7 @@ async function seedMedicalConditionPatient({
   count,
 }: SeedOptions) {
   // Options
-  faker.seed(42009);
+  faker.seed(42010);
 
   // Initialize
   const medicalConditions = await prisma.medicalCondition.findMany();
@@ -493,6 +562,7 @@ async function getOptions() {
       reset: { type: "boolean", default: false },
       all: { type: "boolean", default: false },
       clear: { type: "boolean", default: false },
+      admins: { type: "number", default: 0 },
       doctors: { type: "number", default: 0 },
       patients: { type: "number", default: 0 },
       probiotics: { type: "number", default: 0 },
@@ -503,6 +573,8 @@ async function getOptions() {
       medical_condition_patient: { type: "number", default: 0 },
     })
     .coerce({
+      admins: (count: number) =>
+        clamp(count > 0 ? Math.max(1, count) : 0, 0, 20),
       doctors: (count: number) => clamp(count, 0, 40),
       patients: (count: number) => clamp(count, 0, 40),
       probiotics: (count: number) => clamp(count, 0, 80),
@@ -520,6 +592,7 @@ async function getOptions() {
     return {
       reset: options.reset,
       clear: options.reset || options.clear,
+      admins: options.admins || 5,
       doctors: options.doctors || 10,
       patients: options.patients || 10,
       probiotics: options.probiotics || 40,
@@ -534,6 +607,7 @@ async function getOptions() {
   return {
     reset: options.reset,
     clear: options.reset || options.clear,
+    admins: options.admins || 0,
     doctors: options.doctors || 0,
     patients: options.patients || 0,
     probiotics: options.probiotics || 0,

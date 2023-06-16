@@ -9,7 +9,14 @@ type ReactSwaggerProps = {
 };
 
 function ReactSwagger({ spec }: ReactSwaggerProps) {
-  return <SwaggerUI spec={spec} />;
+  return (
+    <SwaggerUI
+      spec={spec}
+      tryItOutEnabled
+      displayRequestDuration
+      defaultModelRendering="model"
+    />
+  );
 }
 
 export default ReactSwagger;

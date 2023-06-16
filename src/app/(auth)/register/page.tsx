@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Icons, Input } from "@/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
 import { registerSchema } from "@/lib/validation/auth";
-import { Button, Icons, Input } from "@/components/ui";
 
 type FormData = z.infer<typeof registerSchema>;
 

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { TailwindIndicator } from "@/components/tailwind-indicator";
+import { Indicator } from "@/ui/indicator";
 
 import "@/styles/globals.css";
 
@@ -37,7 +37,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <div>
           <div>{children}</div>
-          <TailwindIndicator />
+          <Indicator />
         </div>
       </body>
     </html>

@@ -16,8 +16,7 @@ module.exports = {
     "^@/config/(.*)$",
     "^@/lib/(.*)$",
     "^@/hooks/(.*)$",
-    "^@/components/ui/(.*)$",
-    "^@/components/(.*)$",
+    "^@/ui/(.*)$",
     "^@/styles/(.*)$",
     "^@/app/(.*)$",
     "",
@@ -34,4 +33,4 @@ module.exports = {
     require.resolve("prettier-plugin-tailwindcss"),
     require.resolve("@ianvs/prettier-plugin-sort-imports"),
   ],
-}
+};

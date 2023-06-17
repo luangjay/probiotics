@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 export function GET() {
-  return new NextResponse("Hello world");
+  return new Response("Hello world");
 }

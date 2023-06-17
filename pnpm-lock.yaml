@@ -85,6 +85,9 @@ dependencies:
   zod:
     specifier: ^3.21.4
     version: 3.21.4
+  zod-validation-error:
+    specifier: ^1.3.0
+    version: 1.3.0(zod@3.21.4)
 
 devDependencies:
   '@ianvs/prettier-plugin-sort-imports':
@@ -5457,6 +5460,15 @@ packages:
 
   /zenscroll@4.0.2:
     resolution: {integrity: sha512-jEA1znR7b4C/NnaycInCU6h/d15ZzCd1jmsruqOKnZP6WXQSMH3W2GL+OXbkruslU4h+Tzuos0HdswzRUk/Vgg==}
+    dev: false
+
+  /zod-validation-error@1.3.0(zod@3.21.4):
+    resolution: {integrity: sha512-4WoQnuWnj06kwKR4A+cykRxFmy+CTvwMQO5ogTXLiVx1AuvYYmMjixh7sbkSsQTr1Fvtss6d5kVz8PGeMPUQjQ==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      zod: ^3.18.0
+    dependencies:
+      zod: 3.21.4
     dev: false
 
   /zod@3.21.4:

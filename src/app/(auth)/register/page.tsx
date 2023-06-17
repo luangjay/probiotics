@@ -7,9 +7,9 @@ import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
-import { registerSchema } from "@/lib/schema";
+import { createDoctorSchema } from "@/lib/schema";
 
-type FormData = z.infer<typeof registerSchema>;
+type FormData = z.infer<typeof createDoctorSchema>;
 
 export default function Register() {
   const {
@@ -18,14 +18,14 @@ export default function Register() {
     formState: { errors },
     reset,
   } = useForm<FormData>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(createDoctorSchema),
   });
   const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
     const { username, password } = data;
-    const response = await fetch("/api/auth/register/doctor", {
+    const response = await fetch("/api/doctors", {
       method: "POST",
       body: JSON.stringify(data),
     });

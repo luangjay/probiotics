@@ -81,9 +81,9 @@ async function getCurrentUser({
       username,
     },
     include: {
+      admin: true,
       doctor: true,
       patient: true,
-      admin: true,
     },
   });
 
@@ -94,9 +94,9 @@ async function getCurrentUser({
     return null;
   }
   const {
+    admin,
     doctor,
     patient,
-    admin,
     password: _password,
     salt: _salt,
     createdAt,
@@ -104,6 +104,14 @@ async function getCurrentUser({
     ...userInfo
   } = user;
 
+  if (admin !== null) {
+    const { userId, ...adminInfo } = admin;
+    return {
+      type: UserType.Admin,
+      ...userInfo,
+      ...adminInfo,
+    };
+  }
   if (doctor !== null) {
     const { userId, ...doctorInfo } = doctor;
     return {
@@ -111,21 +119,14 @@ async function getCurrentUser({
       ...userInfo,
       ...doctorInfo,
     };
-  } else if (patient !== null) {
+  }
+  if (patient !== null) {
     const { userId, ...patientInfo } = patient;
     return {
       type: UserType.Patient,
       ...userInfo,
       ...patientInfo,
     };
-  } else if (admin !== null) {
-    const { userId, ...adminInfo } = admin;
-    return {
-      type: UserType.Admin,
-      ...userInfo,
-      ...adminInfo,
-    };
-  } else {
-    throw new Error("User type not found");
   }
+  throw new Error("User type not found");
 }

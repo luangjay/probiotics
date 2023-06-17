@@ -40,7 +40,8 @@
     "swagger-ui-react": "^5.0.0",
     "tailwind-merge": "^1.13.1",
     "typescript": "5.1.3",
-    "zod": "^3.21.4"
+    "zod": "^3.21.4",
+    "zod-validation-error": "^1.3.0"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.0.2",

@@ -1,19 +1,50 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { User } from "next-auth";
-import { z } from "zod";
+import { NextResponse } from "next/server";
 
-import { saltHashPassword } from "@/lib/auth";
+import { UserType } from "@/types/user";
+import { handler } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { registerSchema } from "@/lib/schema";
 
 export async function GET() {
-  const users = await prisma.user.findMany();
-  return NextResponse.json(
-    users.map((user) => {
-      const { password, salt, ...userInfo } = user;
-      return userInfo;
-    })
-  );
-}
+  const action = async () => {
+    const users = await prisma.user.findMany({
+      include: {
+        admin: true,
+        doctor: true,
+        patient: true,
+      },
+    });
 
-export const revalidate = 10;
+    return NextResponse.json(
+      users.map((user) => {
+        const { admin, doctor, patient, password, salt, ...userInfo } = user;
+        if (admin !== null) {
+          const { userId, ...adminInfo } = admin;
+          return {
+            type: UserType.Admin,
+            ...userInfo,
+            ...adminInfo,
+          };
+        }
+        if (doctor !== null) {
+          const { userId, ...doctorInfo } = doctor;
+          return {
+            type: UserType.Doctor,
+            ...userInfo,
+            ...doctorInfo,
+          };
+        }
+        if (patient !== null) {
+          const { userId, ...patientInfo } = patient;
+          return {
+            type: UserType.Patient,
+            ...userInfo,
+            ...patientInfo,
+          };
+        }
+        throw new Error("User type not found");
+      })
+    );
+  };
+
+  return handler(action);
+}

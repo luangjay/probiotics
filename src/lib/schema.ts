@@ -1,8 +1,11 @@
 import { z } from "zod";
 
-const minUsername = 4;
-const minPassword = 4;
-const regExpUsername = /^[a-zA-Z0-9_.]*$/;
+export const minUsername = 4;
+export const minPassword = 4;
+export const maxUsername = 16;
+export const maxPassword = 16;
+export const regexUsername = /^[a-zA-Z0-9_.]*$/;
+export const patternUsername = "^[a-zA-Z0-9_.]*$";
 
 enum Gender {
   Male = "Male",
@@ -10,49 +13,74 @@ enum Gender {
   Others = "Others",
 }
 
-export const registerSchema = z.object({
+export const loginSchema = z.object({
   username: z
     .string()
     .trim()
-    .toLowerCase()
     .min(minUsername)
-    .regex(regExpUsername),
-  password: z.string().min(minPassword),
+    .max(maxUsername)
+    .regex(regexUsername),
+  password: z.string().min(minPassword).max(maxPassword),
+});
+
+export const userSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(minUsername)
+    .max(maxUsername)
+    .regex(regexUsername),
+  password: z.string().min(minPassword).max(maxPassword),
   email: z.preprocess((field) => {
-    if (!field || typeof field !== "string" || field.trim() === "") return null;
-    return field.trim();
-  }, z.string().email().toLowerCase().nullable()),
+    if (field === undefined) return undefined;
+    if (typeof field !== "string" || field.trim() === "") return null;
+    return field;
+  }, z.string().trim().email().toLowerCase().nullable().optional()),
   prefix: z.string().trim().min(1),
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
 });
 
-export const loginSchema = z.object({
+export const createDoctorSchema = z.object({
   username: z
     .string()
     .trim()
-    .toLowerCase()
     .min(minUsername)
-    .regex(/^[a-zA-Z0-9]*$/),
-  password: z.string().min(minPassword),
+    .max(maxUsername)
+    .regex(regexUsername),
+  password: z.string().min(minPassword).max(maxPassword),
+  email: z.preprocess((field) => {
+    if (field === undefined) return undefined;
+    if (typeof field !== "string" || field.trim() === "") return null;
+    return field;
+  }, z.string().trim().email().toLowerCase().nullable().optional()),
+  prefix: z.string().trim().min(1),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
 });
 
-export const userSchema = z.object({
-  id: z.string().cuid(),
-  username: z.string(),
-  password: z.string(),
-  salt: z.string(),
-  email: z.string().nullable(),
-  prefix: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+export const updateDoctorSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(minUsername)
+    .max(maxUsername)
+    .regex(regexUsername)
+    .optional(),
+  password: z.string().min(minPassword).max(maxPassword).optional(),
+  email: z.preprocess((field) => {
+    if (field === undefined) return undefined;
+    if (typeof field !== "string" || field.trim() === "") return null;
+    return field;
+  }, z.string().trim().email().toLowerCase().nullable().optional()),
+  prefix: z.string().trim().min(1).optional(),
+  firstName: z.string().trim().min(1).optional(),
+  lastName: z.string().trim().min(1).optional(),
 });
 
-export const doctorSchema = z.object({
-  userId: z.string(),
-});
+// export const doctorSchema = z.object({
+//   userId: z.string(),
+// });
 
 export const patientSchema = z.object({
   userId: z.string(),

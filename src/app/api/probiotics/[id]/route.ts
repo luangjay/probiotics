@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { handler } from "@/lib/api";
 import prisma from "@/lib/prisma";
+import { updateProbioticSchema } from "@/lib/schema";
 
 // import { updateProbioticSchema } from "@/lib/schema";
 
@@ -31,52 +32,43 @@ export async function GET(
   return handler(action);
 }
 
-// export async function PUT(
-//   req: NextRequest,
-//   { params }: { params: { userId: string } }
-// ) {
-//   const action = async () => {
-//     // Validate the request body against the schema
-//     const body: unknown = await req.json();
-//     const { ..._userInfo } = updateProbioticSchema.parse(body);
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const action = async () => {
+    // Validate the request body against the schema
+    const id = z.number().int().parse(parseInt(params.id));
+    const body: unknown = await req.json();
+    const probioticInfo = updateProbioticSchema.parse(body);
 
-//     const _probiotic = await prisma.probiotic.findUnique({
-//       where: {
-//         userId: params.userId,
-//       },
-//     });
-//     if (_probiotic === null) {
-//       return new NextResponse("Probiotic not found", { status: 404 });
-//     }
+    const _probiotic = await prisma.probiotic.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        parent: true,
+        children: true,
+      },
+    });
+    if (_probiotic === null) {
+      return new NextResponse("Probiotic not found", { status: 404 });
+    }
 
-//     const probiotic = await prisma.probiotic.update({
-//       where: {
-//         userId: params.userId,
-//       },
-//       data: {
-//         user: {
-//           update: {
-//             ..._userInfo,
-//             ...(_userInfo.password && saltHashPassword(_userInfo.password)),
-//           },
-//         },
-//       },
-//       include: {
-//         user: true,
-//       },
-//     });
+    const probiotic = await prisma.probiotic.update({
+      where: {
+        id,
+      },
+      data: {
+        ...probioticInfo,
+      },
+    });
 
-//     const { user, userId, ...probioticInfo } = probiotic;
-//     const { password, salt, ...userInfo } = user;
-//     return NextResponse.json({
-//       type: UserType.Probiotic,
-//       ...userInfo,
-//       ...probioticInfo,
-//     });
-//   };
+    return NextResponse.json(probiotic);
+  };
 
-//   return handler(action);
-// }
+  return handler(action);
+}
 
 export async function DELETE(
   req: NextRequest,
@@ -98,7 +90,7 @@ export async function DELETE(
         id: parseInt(params.id),
       },
     });
-    return NextResponse.json({});
+    return NextResponse.json(null);
   };
 
   return handler(action);

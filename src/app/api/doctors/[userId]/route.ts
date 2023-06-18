@@ -102,7 +102,7 @@ export async function DELETE(
         id: params.userId,
       },
     });
-    return NextResponse.json({});
+    return NextResponse.json(null);
   };
 
   return handler(action);

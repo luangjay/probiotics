@@ -262,6 +262,29 @@ export const spec = createSwaggerSpec({
             "500": { description: "Internal server error" },
           },
         },
+        put: {
+          tags: ["Probiotic"],
+          summary: "Update a probiotic by id",
+          parameters: [{ $ref: "#/components/parameters/probioticId" }],
+          requestBody: { $ref: "#/components/requestBodies/RootProbiotic" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        delete: {
+          tags: ["Probiotic"],
+          summary: "Delete a probiotic by id",
+          parameters: [{ $ref: "#/components/parameters/probioticId" }],
+          responses: {
+            "200": { description: "OK" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
       },
     },
     components: {

@@ -181,6 +181,15 @@ export const createRootProbioticSchema = z
   })
   .strict();
 
+export const updateProbioticSchema = z
+  .object({
+    name: z.string().trim().min(1).optional(),
+    red: z.number().min(0).optional(),
+    yellow: z.number().min(0).optional(),
+    green: z.number().min(0).optional(),
+  })
+  .strict();
+
 // export const doctorSchema = z.object({
 //   userId: z.string(),
 // });

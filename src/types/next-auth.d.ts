@@ -1,4 +1,4 @@
-import type { UserInfo, UserTypeInfo } from "./user";
+import type { UserInfo, UserType, UserTypeInfo } from "@/types/user";
 
 declare module "next-auth/jwt" {
   /**
@@ -7,7 +7,8 @@ declare module "next-auth/jwt" {
    * [`jwt` callback](https://next-auth.js.org/configuration/callbacks#jwt-callback) | [`getToken`](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken)
    */
   interface JWT extends Record<string, unknown> {
-    name?: string | null;
+    type?: UserType;
+    name?: string;
     email?: string | null;
     picture?: string | null;
     sub?: string;

@@ -252,38 +252,43 @@ async function seedProbiotics({ reset, clear, count }: SeedOptions) {
       if (reset) return;
     }
     // Initialize probiotic roots
-    await Promise.all(
+    const probioticIds = await Promise.all(
       Array.from({ length: rootCount }, async (_, idx) => {
         // Probiotic fields
-        const id = idx;
-        const name = id.toString();
+        const name = idx.toString();
         const red = faker.number.int({ min: 0, max: 333 });
         const yellow = faker.number.int({ min: red, max: 666 });
         const green = faker.number.int({ min: yellow, max: 999 });
 
         // Create probiotics
-        return tx.probiotic.create({
-          data: { id, name, red, yellow, green },
+        const probiotic = await tx.probiotic.create({
+          data: { name, red, yellow, green },
         });
+        return probiotic.id;
       })
     );
 
+    // Id of the first probiotic created
+    const offset = probioticIds[0];
+
     // Populate probiotic tree
-    for (let idx = 0; idx < count - rootCount; idx++) {
+    for (let idx = rootCount; idx < count; idx++) {
       // Probiotic fields
-      const id = idx + rootCount;
-      const parentId = faker.number.int({ min: 0, max: id - 1 });
+      const parentId = faker.number.int({
+        min: offset,
+        max: offset + idx - 1,
+      });
       const { name: parentName } = await tx.probiotic.findUniqueOrThrow({
         where: { id: parentId },
       });
-      const name = `${parentName} ${id.toString()}`;
+      const name = `${parentName} ${idx.toString()}`;
       const red = faker.number.int({ min: 0, max: 333 });
       const yellow = faker.number.int({ min: red, max: 666 });
       const green = faker.number.int({ min: yellow, max: 999 });
 
       // Create probiotics
       await tx.probiotic.create({
-        data: { id, parentId, name, red, yellow, green },
+        data: { parentId, name, red, yellow, green },
       });
     }
   });
@@ -304,7 +309,6 @@ async function seedProbioticBrands({ reset, clear, count }: SeedOptions) {
     }
     await tx.probioticBrand.createMany({
       data: Array.from({ length: count }, (_, idx) => ({
-        id: idx,
         name: names[idx],
       })),
     });
@@ -327,7 +331,6 @@ async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
     }
     await tx.medicalCondition.createMany({
       data: Array.from({ length: count }, (_, idx) => ({
-        id: idx,
         name: names[idx],
       })),
     });
@@ -577,7 +580,8 @@ async function getOptions() {
         clamp(count > 0 ? Math.max(1, count) : 0, 0, 20),
       doctors: (count: number) => clamp(count, 0, 40),
       patients: (count: number) => clamp(count, 0, 40),
-      probiotics: (count: number) => clamp(count, 0, 80),
+      probiotics: (count: number) =>
+        clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
       probiotic_brands: (count: number) =>
         clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
       medical_conditions: (count: number) => clamp(count, 0, 80),

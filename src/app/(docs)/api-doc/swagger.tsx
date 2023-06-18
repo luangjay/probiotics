@@ -8,15 +8,16 @@ type ReactSwaggerProps = {
   spec?: Record<string, any>;
 };
 
-function ReactSwagger({ spec }: ReactSwaggerProps) {
+function Swagger({ spec }: ReactSwaggerProps) {
   return (
     <SwaggerUI
       spec={spec}
       tryItOutEnabled
       displayRequestDuration
       defaultModelRendering="model"
+      defaultModelExpandDepth={2}
     />
   );
 }
 
-export default ReactSwagger;
+export default Swagger;

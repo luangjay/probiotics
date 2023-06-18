@@ -4,32 +4,31 @@ import { UserType } from "@/types/user";
 import { handler } from "@/lib/api";
 import { saltHashPassword } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { updateDoctorSchema } from "@/lib/schema";
+import { updateAdminSchema } from "@/lib/schema";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
   const action = async () => {
-    const doctor = await prisma.doctor.findUnique({
+    const admin = await prisma.admin.findUnique({
       where: {
         userId: params.userId,
       },
       include: {
         user: true,
-        probioticRecords: true,
       },
     });
 
-    if (doctor === null) {
-      return new NextResponse("Doctor not found", { status: 404 });
+    if (admin === null) {
+      return new NextResponse("Admin not found", { status: 404 });
     }
-    const { user, userId, ...doctorInfo } = doctor;
+    const { user, userId, ...adminInfo } = admin;
     const { password, salt, ...userInfo } = user;
     return NextResponse.json({
-      type: UserType.Doctor,
+      type: UserType.Admin,
       ...userInfo,
-      ...doctorInfo,
+      ...adminInfo,
     });
   };
 
@@ -43,18 +42,18 @@ export async function PUT(
   const action = async () => {
     // Validate the request body against the schema
     const body: unknown = await req.json();
-    const { ..._userInfo } = updateDoctorSchema.parse(body);
+    const { ..._userInfo } = updateAdminSchema.parse(body);
 
-    const _doctor = await prisma.doctor.findUnique({
+    const _admin = await prisma.admin.findUnique({
       where: {
         userId: params.userId,
       },
     });
-    if (_doctor === null) {
-      return new NextResponse("Doctor not found", { status: 404 });
+    if (_admin === null) {
+      return new NextResponse("Admin not found", { status: 404 });
     }
 
-    const doctor = await prisma.doctor.update({
+    const admin = await prisma.admin.update({
       where: {
         userId: params.userId,
       },
@@ -71,12 +70,12 @@ export async function PUT(
       },
     });
 
-    const { user, userId, ...doctorInfo } = doctor;
+    const { user, userId, ...adminInfo } = admin;
     const { password, salt, ...userInfo } = user;
     return NextResponse.json({
-      type: UserType.Doctor,
+      type: UserType.Admin,
       ...userInfo,
-      ...doctorInfo,
+      ...adminInfo,
     });
   };
 
@@ -88,13 +87,13 @@ export async function DELETE(
   { params }: { params: { userId: string } }
 ) {
   const action = async () => {
-    const doctor = await prisma.doctor.findUnique({
+    const admin = await prisma.admin.findUnique({
       where: {
         userId: params.userId,
       },
     });
-    if (doctor === null) {
-      return new NextResponse("Doctor not found", { status: 404 });
+    if (admin === null) {
+      return new NextResponse("Admin not found", { status: 404 });
     }
 
     await prisma.user.delete({

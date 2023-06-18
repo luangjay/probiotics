@@ -1,11 +1,11 @@
 import { spec } from "@/lib/swagger";
 
-import ReactSwagger from "./react-swagger";
+import Swagger from "./swagger";
 
 export default function IndexPage() {
   return (
     <section className="container">
-      <ReactSwagger spec={spec} />
+      <Swagger spec={spec} />
     </section>
   );
 }

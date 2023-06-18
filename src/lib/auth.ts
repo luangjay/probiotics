@@ -34,6 +34,7 @@ export const authOptions: NextAuthOptions = {
     jwt({ token, user }) {
       const u = user as User;
       if (u) {
+        token.type = u.type;
         token.sub = u.id;
         token.name = u.username;
         token.email = u.email;

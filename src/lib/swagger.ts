@@ -1,10 +1,12 @@
 import { createSwaggerSpec } from "next-swagger-doc";
 
 import {
+  enumGender,
   maxPassword,
   maxUsername,
   minPassword,
   minUsername,
+  patternSsn,
   patternUsername,
 } from "./schema";
 
@@ -60,6 +62,62 @@ export const spec = createSwaggerSpec({
           },
         },
       },
+      "/api/admins": {
+        get: {
+          tags: ["Admin"],
+          summary: "Get all admins",
+          responses: {
+            "200": { description: "OK" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        post: {
+          tags: ["Admin"],
+          summary: "Create a new admin",
+          requestBody: { $ref: "#/components/requestBodies/Admin" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/admins/{userId}": {
+        get: {
+          tags: ["Admin"],
+          summary: "Get an admin by user id",
+          parameters: [{ $ref: "#/components/parameters/adminId" }],
+          responses: {
+            "200": { description: "OK" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        put: {
+          tags: ["Admin"],
+          summary: "Update an admin by user id",
+          parameters: [{ $ref: "#/components/parameters/adminId" }],
+          requestBody: { $ref: "#/components/requestBodies/Admin" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        delete: {
+          tags: ["Admin"],
+          summary: "Delete an admin by user id",
+          parameters: [{ $ref: "#/components/parameters/adminId" }],
+          responses: {
+            "200": { description: "OK" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
       "/api/doctors": {
         get: {
           tags: ["Doctor"],
@@ -84,7 +142,7 @@ export const spec = createSwaggerSpec({
       "/api/doctors/{userId}": {
         get: {
           tags: ["Doctor"],
-          summary: "Get a doctor by id",
+          summary: "Get a doctor by user id",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           responses: {
             "200": { description: "OK" },
@@ -94,7 +152,7 @@ export const spec = createSwaggerSpec({
         },
         put: {
           tags: ["Doctor"],
-          summary: "Update a doctor by id",
+          summary: "Update a doctor by user id",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           requestBody: { $ref: "#/components/requestBodies/Doctor" },
           responses: {
@@ -107,8 +165,97 @@ export const spec = createSwaggerSpec({
         },
         delete: {
           tags: ["Doctor"],
-          summary: "Delete a doctor by id",
+          summary: "Delete a doctor by user id",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
+          responses: {
+            "200": { description: "OK" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/patients": {
+        get: {
+          tags: ["Patient"],
+          summary: "Get all patients",
+          responses: {
+            "200": { description: "OK" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        post: {
+          tags: ["Patient"],
+          summary: "Create a new patient",
+          requestBody: { $ref: "#/components/requestBodies/Patient" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/patients/{userId}": {
+        get: {
+          tags: ["Patient"],
+          summary: "Get a patient by user id",
+          parameters: [{ $ref: "#/components/parameters/patientId" }],
+          responses: {
+            "200": { description: "OK" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        put: {
+          tags: ["Patient"],
+          summary: "Update a patient by user id",
+          parameters: [{ $ref: "#/components/parameters/patientId" }],
+          requestBody: { $ref: "#/components/requestBodies/Patient" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        delete: {
+          tags: ["Patient"],
+          summary: "Delete a patient by user id",
+          parameters: [{ $ref: "#/components/parameters/patientId" }],
+          responses: {
+            "200": { description: "OK" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotics": {
+        get: {
+          tags: ["Probiotic"],
+          summary: "Get all probiotics",
+          responses: {
+            "200": { description: "OK" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        post: {
+          tags: ["Probiotic"],
+          summary: "Create a new root probiotic",
+          requestBody: { $ref: "#/components/requestBodies/RootProbiotic" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotics/{id}": {
+        get: {
+          tags: ["Probiotic"],
+          summary: "Get a probiotic by id",
+          parameters: [{ $ref: "#/components/parameters/probioticId" }],
           responses: {
             "200": { description: "OK" },
             "404": { description: "Not found" },
@@ -134,6 +281,14 @@ export const spec = createSwaggerSpec({
           type: "string",
           default: "",
         },
+        adminId: {
+          name: "userId",
+          in: "path",
+          description: "The user id of the admin",
+          required: true,
+          type: "string",
+          default: "",
+        },
         doctorId: {
           name: "userId",
           in: "path",
@@ -142,8 +297,69 @@ export const spec = createSwaggerSpec({
           type: "string",
           default: "",
         },
+        patientId: {
+          name: "userId",
+          in: "path",
+          description: "The user id of the patient",
+          required: true,
+          type: "string",
+          default: "",
+        },
+        probioticId: {
+          name: "id",
+          in: "path",
+          description: "The id of the probiotic",
+          required: true,
+          type: "integer",
+          default: "",
+        },
       },
       requestBodies: {
+        Admin: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  username: {
+                    type: "string",
+                    description: "The username of the admin",
+                    minLength: minUsername,
+                    maxLength: maxUsername,
+                    pattern: patternUsername,
+                  },
+                  password: {
+                    type: "string",
+                    description: "The password of the admin",
+                    minLength: minPassword,
+                    maxLength: maxPassword,
+                  },
+                  email: {
+                    type: "string",
+                    description: "The email address of the admin (optional)",
+                    format: "email",
+                  },
+                  prefix: {
+                    type: "string",
+                    description: "The prefix of the admin's name",
+                    minLength: 1,
+                  },
+                  firstName: {
+                    type: "string",
+                    description: "The first name of the admin",
+                    minLength: 1,
+                  },
+                  lastName: {
+                    type: "string",
+                    description: "The last name of the admin",
+                    minLength: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
         Doctor: {
           required: true,
           content: {
@@ -185,13 +401,107 @@ export const spec = createSwaggerSpec({
                     minLength: 1,
                   },
                 },
-                required: [
-                  "username",
-                  "password",
-                  "prefix",
-                  "firstName",
-                  "lastName",
-                ],
+              },
+            },
+          },
+        },
+        Patient: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  username: {
+                    type: "string",
+                    description: "The username of the patient",
+                    minLength: minUsername,
+                    maxLength: maxUsername,
+                    pattern: patternUsername,
+                  },
+                  password: {
+                    type: "string",
+                    description: "The password of the patient",
+                    minLength: minPassword,
+                    maxLength: maxPassword,
+                  },
+                  email: {
+                    type: "string",
+                    description: "The email address of the patient (optional)",
+                    format: "email",
+                  },
+                  prefix: {
+                    type: "string",
+                    description: "The prefix of the patient's name",
+                    minLength: 1,
+                  },
+                  firstName: {
+                    type: "string",
+                    description: "The first name of the patient",
+                    minLength: 1,
+                  },
+                  lastName: {
+                    type: "string",
+                    description: "The last name of the patient",
+                    minLength: 1,
+                  },
+                  ssn: {
+                    type: "string",
+                    description: "The last name of the patient",
+                    minLength: 1,
+                    maxLength: 16,
+                    pattern: patternSsn,
+                  },
+                  gender: {
+                    type: "string",
+                    enum: enumGender,
+                    description: "The last name of the patient",
+                    minLength: 1,
+                  },
+                  birthDate: {
+                    type: "string",
+                    description: "The last name of the patient",
+                    minLength: 1,
+                    format: "date-time",
+                  },
+                  ethnicity: {
+                    type: "string",
+                    description: "The last name of the patient",
+                    minLength: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+        RootProbiotic: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "The name of the probiotic",
+                    minLength: 1,
+                  },
+                  red: {
+                    type: "number",
+                    description: "The red threshold for probiotic results",
+                    minimum: 0,
+                  },
+                  yellow: {
+                    type: "number",
+                    description: "The yellow threshold for probiotic results",
+                    minimum: 0,
+                  },
+                  green: {
+                    type: "number",
+                    description: "The green threshold for probiotic results",
+                    minimum: 0,
+                  },
+                },
               },
             },
           },
@@ -365,6 +675,7 @@ export const spec = createSwaggerSpec({
             ssn: {
               type: "string",
               description: "The social security number of the patient",
+              pattern: patternSsn,
             },
             gender: {
               type: "string",
@@ -432,18 +743,22 @@ export const spec = createSwaggerSpec({
             name: {
               type: "string",
               description: "The name of the probiotic",
+              minLength: 1,
             },
             red: {
               type: "number",
-              description: "The red threshold for the probiotic result",
+              description: "The red threshold for probiotic results",
+              minimum: 0,
             },
             yellow: {
               type: "number",
-              description: "The yellow threshold for the probiotic results",
+              description: "The yellow threshold for probiotic results",
+              minimum: 0,
             },
             green: {
               type: "number",
-              description: "The green threshold for the probiotic results",
+              description: "The green threshold for probiotic results",
+              minimum: 0,
             },
             createdAt: {
               type: "string",

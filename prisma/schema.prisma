@@ -87,9 +87,9 @@ model Probiotic {
   id        Int         @id @default(autoincrement())
   parentId  Int?        @map("parent_id")
   name      String
-  red       Int
-  yellow    Int
-  green     Int
+  red       Float
+  yellow    Float
+  green     Float
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
   parent    Probiotic?  @relation("parent", fields: [parentId], references: [id], onUpdate: Cascade)

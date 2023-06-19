@@ -12,14 +12,19 @@ import { validator as baseValidator } from "../../validator";
 
 export function validator(handler: ApiHandler) {
   const validated = baseValidator(async (req: ApiRequest, ctx: ApiContext) => {
+    const userId = ctx.params["user-id"];
     const id = z.number().int().parse(parseInt(ctx.params.id));
-    const probiotic = await prisma.probiotic.findUnique({
+
+    const medicalCondition = await prisma.medicalConditionPatient.findUnique({
       where: {
-        id,
+        medicalConditionId_patientId: {
+          medicalConditionId: id,
+          patientId: userId,
+        },
       },
     });
-    if (probiotic === null) {
-      return new ApiResponse("Probiotic not found", { status: 404 });
+    if (medicalCondition === null) {
+      return new ApiResponse("Medical condition not found", { status: 404 });
     }
     const response = await handler(req, ctx);
     return response;

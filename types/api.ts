@@ -4,7 +4,7 @@ export interface ApiRequest extends NextRequest {}
 
 export interface ApiContext {
   params: {
-    [x: string]: unknown;
+    [x: string]: string;
   };
 }
 

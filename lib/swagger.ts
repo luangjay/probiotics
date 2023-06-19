@@ -57,6 +57,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/userId" }],
           responses: {
             "200": { description: "OK" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -90,6 +91,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/adminId" }],
           responses: {
             "200": { description: "OK" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -113,6 +115,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/adminId" }],
           responses: {
             "200": { description: "OK" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -146,6 +149,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           responses: {
             "200": { description: "OK" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -169,6 +173,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           responses: {
             "200": { description: "OK" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -202,6 +207,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
             "200": { description: "OK" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -225,6 +231,51 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
             "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/patients/{user-id}/medical-conditions": {
+        get: {
+          tags: ["Patient"],
+          summary: "Get a patient's medical conditions",
+          parameters: [{ $ref: "#/components/parameters/patientId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        post: {
+          tags: ["Patient"],
+          summary: "Add a patient's medical condition",
+          parameters: [{ $ref: "#/components/parameters/patientId" }],
+          requestBody: {
+            $ref: "#/components/requestBodies/AddPatientMedicalCondition",
+          },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/patients/{user-id}/medical-conditions/{id}": {
+        delete: {
+          tags: ["Patient"],
+          summary: "Remove a patient's medical condition",
+          parameters: [
+            { $ref: "#/components/parameters/patientId" },
+            { $ref: "#/components/parameters/medicalConditionId" },
+          ],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -239,17 +290,6 @@ export const spec = createSwaggerSpec({
             "500": { description: "Internal server error" },
           },
         },
-        post: {
-          tags: ["Probiotic"],
-          summary: "Create a new root probiotic",
-          requestBody: { $ref: "#/components/requestBodies/RootProbiotic" },
-          responses: {
-            "200": { description: "OK" },
-            "400": { description: "Bad request" },
-            "409": { description: "Conflict" },
-            "500": { description: "Internal server error" },
-          },
-        },
       },
       "/api/probiotics/{id}": {
         get: {
@@ -258,29 +298,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/probioticId" }],
           responses: {
             "200": { description: "OK" },
-            "404": { description: "Not found" },
-            "500": { description: "Internal server error" },
-          },
-        },
-        put: {
-          tags: ["Probiotic"],
-          summary: "Update a probiotic by id",
-          parameters: [{ $ref: "#/components/parameters/probioticId" }],
-          requestBody: { $ref: "#/components/requestBodies/RootProbiotic" },
-          responses: {
-            "200": { description: "OK" },
             "400": { description: "Bad request" },
-            "404": { description: "Not found" },
-            "409": { description: "Conflict" },
-            "500": { description: "Internal server error" },
-          },
-        },
-        delete: {
-          tags: ["Probiotic"],
-          summary: "Delete a probiotic by id",
-          parameters: [{ $ref: "#/components/parameters/probioticId" }],
-          responses: {
-            "200": { description: "OK" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -302,7 +320,6 @@ export const spec = createSwaggerSpec({
           description: "The id of the user",
           required: true,
           type: "string",
-          default: "",
         },
         adminId: {
           name: "user-id",
@@ -310,7 +327,6 @@ export const spec = createSwaggerSpec({
           description: "The user id of the admin",
           required: true,
           type: "string",
-          default: "",
         },
         doctorId: {
           name: "user-id",
@@ -318,7 +334,6 @@ export const spec = createSwaggerSpec({
           description: "The user id of the doctor",
           required: true,
           type: "string",
-          default: "",
         },
         patientId: {
           name: "user-id",
@@ -326,7 +341,6 @@ export const spec = createSwaggerSpec({
           description: "The user id of the patient",
           required: true,
           type: "string",
-          default: "",
         },
         probioticId: {
           name: "id",
@@ -334,7 +348,13 @@ export const spec = createSwaggerSpec({
           description: "The id of the probiotic",
           required: true,
           type: "integer",
-          default: "",
+        },
+        medicalConditionId: {
+          name: "id",
+          in: "path",
+          description: "The id of the medical condition",
+          required: true,
+          type: "integer",
         },
       },
       requestBodies: {
@@ -497,32 +517,17 @@ export const spec = createSwaggerSpec({
             },
           },
         },
-        RootProbiotic: {
+        AddPatientMedicalCondition: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
                 properties: {
-                  name: {
-                    type: "string",
-                    description: "The name of the probiotic",
-                    minLength: 1,
-                  },
-                  red: {
-                    type: "number",
-                    description: "The red threshold for probiotic results",
-                    minimum: 0,
-                  },
-                  yellow: {
-                    type: "number",
-                    description: "The yellow threshold for probiotic results",
-                    minimum: 0,
-                  },
-                  green: {
-                    type: "number",
-                    description: "The green threshold for probiotic results",
-                    minimum: 0,
+                  medicalConditionId: {
+                    type: "integer",
+                    description:
+                      "The unique identifier of the medical condition",
                   },
                 },
               },
@@ -754,11 +759,11 @@ export const spec = createSwaggerSpec({
           type: "object",
           properties: {
             id: {
-              type: "number",
+              type: "integer",
               description: "The unique identifier of the probiotic",
             },
             parentId: {
-              type: "number",
+              type: "integer",
               nullable: true,
               description:
                 "The unique identifier of the parent probiotic (if applicable)",
@@ -799,7 +804,7 @@ export const spec = createSwaggerSpec({
           type: "object",
           properties: {
             id: {
-              type: "number",
+              type: "integer",
               description: "The unique identifier of the probiotic brand",
             },
             name: {
@@ -823,7 +828,7 @@ export const spec = createSwaggerSpec({
           type: "object",
           properties: {
             id: {
-              type: "number",
+              type: "integer",
               description: "The unique identifier of the medical condition",
             },
             name: {

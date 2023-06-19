@@ -172,21 +172,9 @@ export const updatePatientSchema = z
   })
   .strict();
 
-export const createRootProbioticSchema = z
+export const addPatientMedicalConditionSchema = z
   .object({
-    name: z.string().trim().min(1),
-    red: z.number().min(0),
-    yellow: z.number().min(0),
-    green: z.number().min(0),
-  })
-  .strict();
-
-export const updateProbioticSchema = z
-  .object({
-    name: z.string().trim().min(1).optional(),
-    red: z.number().min(0).optional(),
-    yellow: z.number().min(0).optional(),
-    green: z.number().min(0).optional(),
+    medicalConditionId: z.number().int(),
   })
   .strict();
 

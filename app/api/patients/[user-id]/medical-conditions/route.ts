@@ -1,73 +1,45 @@
-import { NextResponse, type NextRequest } from "next/server";
-
-import { UserType } from "@/types/user";
-import { saltHashPassword } from "@/lib/auth";
+import { ApiResponse } from "@/types/api";
 import prisma from "@/lib/prisma";
-import { createPatientSchema } from "@/lib/schema";
-import { validator } from "@/app/api/validator";
+import { addPatientMedicalConditionSchema } from "@/lib/schema";
 
-export async function GET(
-  req,ctx
-) {
-  const action = async () => {
-    const patients = await prisma.patient.findUnique({
+import { validator } from "../validator";
+
+const GET = validator(async (req, ctx) => {
+  const userId = ctx.params["user-id"];
+
+  const medicalConditionPatient = await prisma.medicalConditionPatient.findMany(
+    {
       where: {
-        userId: params["user-id"],
+        patientId: userId,
       },
       include: {
-        medicalConditions: true,
+        medicalCondition: true,
       },
-    });
+    }
+  );
 
-    return NextResponse.json(
-      patients.map((patient) => {
-        const { user, userId, ...patientInfo } = patient;
-        const { password, salt, ...userInfo } = user;
-        return {
-          type: UserType.Patient,
-          ...userInfo,
-          ...patientInfo,
-        };
-      })
-    );
-  };
+  return ApiResponse.json(
+    medicalConditionPatient.map((mcp) => mcp.medicalCondition)
+  );
+});
 
-  return validator(action);
-}
+const POST = validator(async (req, ctx) => {
+  // Validate the request body against the schema
+  const body: unknown = await req.json();
+  const medicalConditionInfo = addPatientMedicalConditionSchema.parse(body);
+  const userId = ctx.params["user-id"];
 
-export async function POST(req: NextRequest) {
-  const action = async () => {
-    // Validate the request body against the schema
-    const body: unknown = await req.json();
-    const { ssn, gender, birthDate, ethnicity, ..._userInfo } =
-      createPatientSchema.parse(body);
+  const { medicalCondition } = await prisma.medicalConditionPatient.create({
+    data: {
+      patientId: userId,
+      ...medicalConditionInfo,
+    },
+    include: {
+      medicalCondition: true,
+    },
+  });
 
-    const patient = await prisma.patient.create({
-      data: {
-        user: {
-          create: {
-            ..._userInfo,
-            ...saltHashPassword(_userInfo.password),
-          },
-        },
-        ssn,
-        gender,
-        birthDate,
-        ethnicity,
-      },
-      include: {
-        user: true,
-      },
-    });
+  return ApiResponse.json(medicalCondition);
+});
 
-    const { user, userId, ...patientInfo } = patient;
-    const { password, salt, ...userInfo } = user;
-    return NextResponse.json({
-      type: UserType.Patient,
-      ...userInfo,
-      ...patientInfo,
-    });
-  };
-
-  return validator(action);
-}
+export { GET, POST };

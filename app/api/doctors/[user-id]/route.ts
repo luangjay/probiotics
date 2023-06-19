@@ -7,8 +7,9 @@ import { updateDoctorSchema } from "@/lib/schema";
 import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
-  const userId = ctx.params["user-id"] as string;
-  const doctor = await prisma.doctor.findUnique({
+  const userId = ctx.params["user-id"];
+
+  const doctor = await prisma.doctor.findUniqueOrThrow({
     where: {
       userId,
     },
@@ -16,9 +17,6 @@ const GET = validator(async (req, ctx) => {
       user: true,
     },
   });
-  if (doctor === null) {
-    return new ApiResponse(null, { status: 418 });
-  }
 
   const { user, userId: _, ...doctorInfo } = doctor;
   const { password, salt, ...userInfo } = user;
@@ -33,7 +31,7 @@ const PUT = validator(async (req, ctx) => {
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const { ..._userInfo } = updateDoctorSchema.parse(body);
-  const userId = ctx.params["user-id"] as string;
+  const userId = ctx.params["user-id"];
 
   const doctor = await prisma.doctor.update({
     where: {
@@ -51,9 +49,6 @@ const PUT = validator(async (req, ctx) => {
       user: true,
     },
   });
-  if (doctor === null) {
-    return new ApiResponse(null, { status: 418 });
-  }
 
   const { user, userId: _, ...doctorInfo } = doctor;
   const { password, salt, ...userInfo } = user;
@@ -65,12 +60,14 @@ const PUT = validator(async (req, ctx) => {
 });
 
 const DELETE = validator(async (req, ctx) => {
-  const userId = ctx.params["user-id"] as string;
+  const userId = ctx.params["user-id"];
+
   await prisma.user.delete({
     where: {
       id: userId,
     },
   });
+
   return ApiResponse.json(null);
 });
 

@@ -159,6 +159,7 @@ model MedicalConditionPatient {
   medicalCondition   MedicalCondition @relation(fields: [medicalConditionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   patient            Patient          @relation(fields: [patientId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
 
+  @@unique([medicalConditionId, patientId])
   @@map("medical_condition_patient")
 }
 

@@ -6,7 +6,7 @@ import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
   const id = ctx.params.id as string;
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findUniqueOrThrow({
     where: {
       id,
     },
@@ -17,9 +17,6 @@ const GET = validator(async (req, ctx) => {
     },
   });
 
-  if (user === null) {
-    return new ApiResponse(null, { status: 418 });
-  }
   const { admin, doctor, patient, password, salt, ...userInfo } = user;
   if (admin !== null) {
     const { userId, ...adminInfo } = admin;

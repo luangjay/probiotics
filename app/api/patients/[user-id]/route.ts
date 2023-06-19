@@ -7,8 +7,9 @@ import { updatePatientSchema } from "@/lib/schema";
 import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
-  const userId = ctx.params["user-id"] as string;
-  const patient = await prisma.patient.findUnique({
+  const userId = ctx.params["user-id"];
+
+  const patient = await prisma.patient.findUniqueOrThrow({
     where: {
       userId,
     },
@@ -16,9 +17,6 @@ const GET = validator(async (req, ctx) => {
       user: true,
     },
   });
-  if (patient === null) {
-    return new ApiResponse("Patient not found", { status: 404 });
-  }
 
   const { user, userId: _, ...patientInfo } = patient;
   const { password, salt, ...userInfo } = user;
@@ -31,7 +29,7 @@ const GET = validator(async (req, ctx) => {
 
 const PUT = validator(async (req, ctx) => {
   // Validate the request body against the schema
-  const userId = ctx.params["user-id"] as string;
+  const userId = ctx.params["user-id"];
   const body: unknown = await req.json();
   const { ssn, gender, birthDate, ethnicity, ..._userInfo } =
     updatePatientSchema.parse(body);
@@ -56,9 +54,6 @@ const PUT = validator(async (req, ctx) => {
       user: true,
     },
   });
-  if (patient === null) {
-    return new ApiResponse(null, { status: 418 });
-  }
 
   const { user, userId: _, ...patientInfo } = patient;
   const { password, salt, ...userInfo } = user;
@@ -70,12 +65,14 @@ const PUT = validator(async (req, ctx) => {
 });
 
 const DELETE = validator(async (req, ctx) => {
-  const userId = ctx.params["user-id"] as string;
+  const userId = ctx.params["user-id"];
+
   await prisma.user.delete({
     where: {
       id: userId,
     },
   });
+
   return ApiResponse.json(null);
 });
 

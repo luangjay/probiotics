@@ -5,18 +5,15 @@ import { validator } from "./validator";
 
 const DELETE = validator(async (req, ctx) => {
   // Validate the request body against the schema
-  const userId = ctx.params["user-id"];
-  const id = parseInt(ctx.params.id);
+  const id = ctx.params.id;
+  const brandId = parseInt(ctx.params["brand-id"]);
 
-  await prisma.medicalConditionPatient.delete({
+  await prisma.probioticBrandProbioticRecord.delete({
     where: {
-      medicalConditionId_patientId: {
-        medicalConditionId: id,
-        patientId: userId,
+      probioticBrandId_probioticRecordId: {
+        probioticBrandId: brandId,
+        probioticRecordId: id,
       },
-    },
-    include: {
-      medicalCondition: true,
     },
   });
 

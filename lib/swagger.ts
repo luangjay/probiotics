@@ -42,7 +42,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/users": {
         get: {
-          tags: ["User"],
+          tags: ["Users"],
           summary: "Get all users",
           responses: {
             "200": { description: "OK" },
@@ -52,7 +52,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/users/{id}": {
         get: {
-          tags: ["User"],
+          tags: ["Users"],
           summary: "Get a user by id",
           parameters: [{ $ref: "#/components/parameters/userId" }],
           responses: {
@@ -65,7 +65,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/admins": {
         get: {
-          tags: ["Admin"],
+          tags: ["Admins"],
           summary: "Get all admins",
           responses: {
             "200": { description: "OK" },
@@ -73,7 +73,7 @@ export const spec = createSwaggerSpec({
           },
         },
         post: {
-          tags: ["Admin"],
+          tags: ["Admins"],
           summary: "Create a new admin",
           requestBody: { $ref: "#/components/requestBodies/Admin" },
           responses: {
@@ -86,7 +86,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/admins/{user-id}": {
         get: {
-          tags: ["Admin"],
+          tags: ["Admins"],
           summary: "Get an admin by user id",
           parameters: [{ $ref: "#/components/parameters/adminId" }],
           responses: {
@@ -97,7 +97,7 @@ export const spec = createSwaggerSpec({
           },
         },
         put: {
-          tags: ["Admin"],
+          tags: ["Admins"],
           summary: "Update an admin by user id",
           parameters: [{ $ref: "#/components/parameters/adminId" }],
           requestBody: { $ref: "#/components/requestBodies/Admin" },
@@ -110,7 +110,7 @@ export const spec = createSwaggerSpec({
           },
         },
         delete: {
-          tags: ["Admin"],
+          tags: ["Admins"],
           summary: "Delete an admin by user id",
           parameters: [{ $ref: "#/components/parameters/adminId" }],
           responses: {
@@ -123,7 +123,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/doctors": {
         get: {
-          tags: ["Doctor"],
+          tags: ["Doctors"],
           summary: "Get all doctors",
           responses: {
             "200": { description: "OK" },
@@ -131,7 +131,7 @@ export const spec = createSwaggerSpec({
           },
         },
         post: {
-          tags: ["Doctor"],
+          tags: ["Doctors"],
           summary: "Create a new doctor",
           requestBody: { $ref: "#/components/requestBodies/Doctor" },
           responses: {
@@ -144,7 +144,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/doctors/{user-id}": {
         get: {
-          tags: ["Doctor"],
+          tags: ["Doctors"],
           summary: "Get a doctor by user id",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           responses: {
@@ -155,7 +155,7 @@ export const spec = createSwaggerSpec({
           },
         },
         put: {
-          tags: ["Doctor"],
+          tags: ["Doctors"],
           summary: "Update a doctor by user id",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           requestBody: { $ref: "#/components/requestBodies/Doctor" },
@@ -168,7 +168,7 @@ export const spec = createSwaggerSpec({
           },
         },
         delete: {
-          tags: ["Doctor"],
+          tags: ["Doctors"],
           summary: "Delete a doctor by user id",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           responses: {
@@ -181,7 +181,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/patients": {
         get: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Get all patients",
           responses: {
             "200": { description: "OK" },
@@ -189,7 +189,7 @@ export const spec = createSwaggerSpec({
           },
         },
         post: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Create a new patient",
           requestBody: { $ref: "#/components/requestBodies/Patient" },
           responses: {
@@ -202,7 +202,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/patients/{user-id}": {
         get: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Get a patient by user id",
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
@@ -213,7 +213,7 @@ export const spec = createSwaggerSpec({
           },
         },
         put: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Update a patient by user id",
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           requestBody: { $ref: "#/components/requestBodies/Patient" },
@@ -226,7 +226,7 @@ export const spec = createSwaggerSpec({
           },
         },
         delete: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Delete a patient by user id",
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
@@ -239,7 +239,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/patients/{user-id}/medical-conditions": {
         get: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Get a patient's medical conditions",
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
@@ -250,7 +250,7 @@ export const spec = createSwaggerSpec({
           },
         },
         post: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Add a patient's medical condition",
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           requestBody: {
@@ -265,13 +265,13 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/patients/{user-id}/medical-conditions/{id}": {
+      "/api/patients/{user-id}/medical-conditions/{condition-id}": {
         delete: {
-          tags: ["Patient"],
+          tags: ["Patients"],
           summary: "Remove a patient's medical condition",
           parameters: [
             { $ref: "#/components/parameters/patientId" },
-            { $ref: "#/components/parameters/medicalConditionId" },
+            { $ref: "#/components/parameters/conditionId" },
           ],
           responses: {
             "200": { description: "OK" },
@@ -283,7 +283,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/probiotics": {
         get: {
-          tags: ["Probiotic"],
+          tags: ["Probiotics"],
           summary: "Get all probiotics",
           responses: {
             "200": { description: "OK" },
@@ -293,9 +293,157 @@ export const spec = createSwaggerSpec({
       },
       "/api/probiotics/{id}": {
         get: {
-          tags: ["Probiotic"],
+          tags: ["Probiotics"],
           summary: "Get a probiotic by id",
           parameters: [{ $ref: "#/components/parameters/probioticId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotic-brands": {
+        get: {
+          tags: ["Probiotic Brands"],
+          summary: "Get all probiotic brands",
+          responses: {
+            "200": { description: "OK" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotic-brands/{id}": {
+        get: {
+          tags: ["Probiotic Brands"],
+          summary: "Get a probiotic brand by id",
+          parameters: [{ $ref: "#/components/parameters/probioticBrandId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/medical-conditions": {
+        get: {
+          tags: ["Medical Conditions"],
+          summary: "Get all medical conditions",
+          responses: {
+            "200": { description: "OK" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/medical-conditions/{id}": {
+        get: {
+          tags: ["Medical Conditions"],
+          summary: "Get a medical condition by id",
+          parameters: [{ $ref: "#/components/parameters/medicalConditionId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotic-records": {
+        get: {
+          tags: ["Probiotic Records"],
+          summary: "Get all probiotic records",
+          responses: {
+            "200": { description: "OK" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        post: {
+          tags: ["Probiotic Records"],
+          summary: "Create a new probiotic record",
+          requestBody: { $ref: "#/components/requestBodies/ProbioticRecord" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotic-records/{id}": {
+        get: {
+          tags: ["Probiotic Records"],
+          summary: "Get a probiotic record by id",
+          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        put: {
+          tags: ["Probiotic Records"],
+          summary: "Update a probiotic record by id",
+          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          requestBody: { $ref: "#/components/requestBodies/ProbioticRecord" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        delete: {
+          tags: ["Probiotic Records"],
+          summary: "Delete a probiotic record by id",
+          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotic-records/{id}/probiotic-brands": {
+        get: {
+          tags: ["Probiotic Records"],
+          summary: "Get a probiotic record's probiotic brands",
+          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        post: {
+          tags: ["Probiotic Records"],
+          summary: "Add a probiotic record's probiotic brand",
+          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          requestBody: {
+            $ref: "#/components/requestBodies/AddProbioticRecordProbioticBrand",
+          },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/probiotic-records/{id}/probiotic-brands/{brand-id}": {
+        delete: {
+          tags: ["Probiotic Records"],
+          summary: "Remove a probiotic record's probiotic brand",
+          parameters: [
+            { $ref: "#/components/parameters/probioticRecordId" },
+            { $ref: "#/components/parameters/brandId" },
+          ],
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
@@ -349,12 +497,40 @@ export const spec = createSwaggerSpec({
           required: true,
           type: "integer",
         },
+        probioticBrandId: {
+          name: "id",
+          in: "path",
+          description: "The id of the probiotic brand",
+          required: true,
+          type: "integer",
+        },
+        brandId: {
+          name: "brand-id",
+          in: "path",
+          description: "The id of the probiotic brand",
+          required: true,
+          type: "integer",
+        },
         medicalConditionId: {
           name: "id",
           in: "path",
           description: "The id of the medical condition",
           required: true,
           type: "integer",
+        },
+        conditionId: {
+          name: "condition-id",
+          in: "path",
+          description: "The id of the medical condition",
+          required: true,
+          type: "integer",
+        },
+        probioticRecordId: {
+          name: "id",
+          in: "path",
+          description: "The id of the probiotic record",
+          required: true,
+          type: "string",
         },
       },
       requestBodies: {
@@ -528,6 +704,55 @@ export const spec = createSwaggerSpec({
                     type: "integer",
                     description:
                       "The unique identifier of the medical condition",
+                  },
+                },
+              },
+            },
+          },
+        },
+        ProbioticRecord: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  doctorId: {
+                    type: "string",
+                    description:
+                      "The unique identifier of the doctor who created the probiotic record",
+                  },
+                  patientId: {
+                    type: "string",
+                    description:
+                      "The unique identifier of the patient who the probiotic record is for",
+                  },
+                  fileId: {
+                    type: "string",
+                    nullable: true,
+                    description:
+                      "The unique identifier of the file associated with the probiotic record",
+                  },
+                  result: {
+                    type: "object",
+                    description:
+                      "The probiotic record result, represented as a JSON value",
+                  },
+                },
+              },
+            },
+          },
+        },
+        AddProbioticRecordProbioticBrand: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  probioticBrandId: {
+                    type: "integer",
+                    description: "The unique identifier of the probiotic brand",
                   },
                 },
               },
@@ -870,7 +1095,7 @@ export const spec = createSwaggerSpec({
               type: "string",
               nullable: true,
               description:
-                "The unique identifier of the file associated with the probiotic record, if applicable",
+                "The unique identifier of the file associated with the probiotic record",
             },
             result: {
               type: "object",

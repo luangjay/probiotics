@@ -13,12 +13,15 @@ import { validator as baseValidator } from "../../validator";
 export function validator(handler: ApiHandler) {
   const validated = baseValidator(async (req: ApiRequest, ctx: ApiContext) => {
     const userId = ctx.params["user-id"];
-    const id = z.number().int().parse(parseInt(ctx.params.id));
+    const conditionId = z
+      .number()
+      .int()
+      .parse(parseInt(ctx.params["condition-id"]));
 
     const medicalCondition = await prisma.medicalConditionPatient.findUnique({
       where: {
         medicalConditionId_patientId: {
-          medicalConditionId: id,
+          medicalConditionId: conditionId,
           patientId: userId,
         },
       },

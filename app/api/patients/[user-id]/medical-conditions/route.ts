@@ -19,7 +19,7 @@ const GET = validator(async (req, ctx) => {
   );
 
   return ApiResponse.json(
-    medicalConditionPatient.map((mcp) => mcp.medicalCondition)
+    medicalConditionPatient.map((m21t) => m21t.medicalCondition)
   );
 });
 

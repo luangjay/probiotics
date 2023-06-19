@@ -178,6 +178,30 @@ export const addPatientMedicalConditionSchema = z
   })
   .strict();
 
+export const createProbioticRecordSchema = z
+  .object({
+    doctorId: z.string().cuid(),
+    patientId: z.string().cuid(),
+    fileId: z.string().cuid().nullable().optional(),
+    result: z.record(z.string(), z.number()),
+  })
+  .strict();
+
+export const updateProbioticRecordSchema = z
+  .object({
+    doctorId: z.string().cuid().optional(),
+    patientId: z.string().cuid().optional(),
+    fileId: z.string().cuid().nullable().optional(),
+    result: z.record(z.string(), z.number()).optional(),
+  })
+  .strict();
+
+export const addProbioticRecordProbioticBrandSchema = z
+  .object({
+    probioticBrandId: z.number().int(),
+  })
+  .strict();
+
 // export const doctorSchema = z.object({
 //   userId: z.string(),
 // });

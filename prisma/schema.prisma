@@ -146,6 +146,7 @@ model ProbioticBrandProbioticRecord {
   probioticBrand    ProbioticBrand  @relation(fields: [probioticBrandId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   probioticRecord   ProbioticRecord @relation(fields: [probioticRecordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
+  @@unique([probioticBrandId, probioticRecordId])
   @@map("probiotic_brand_probiotic_record")
 }
 

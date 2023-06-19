@@ -3,9 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export interface ApiRequest extends NextRequest {}
 
 export interface ApiContext {
-  params: {
-    [x: string]: string;
-  };
+  params: Record<string, string>;
 }
 
 export class ApiResponse extends NextResponse {}

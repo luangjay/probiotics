@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
-  const id = ctx.params.id as string;
+  const id = ctx.params.id;
   const user = await prisma.user.findUniqueOrThrow({
     where: {
       id,

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function Indicator() {
+const Indicator = () => {
   if (process.env.NODE_ENV === "production") return <></>;
 
   return (
@@ -15,4 +15,6 @@ export function Indicator() {
       </Link>
     </div>
   );
-}
+};
+
+export { Indicator };

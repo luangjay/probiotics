@@ -83,7 +83,7 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/admins/{userId}": {
+      "/api/admins/{user-id}": {
         get: {
           tags: ["Admin"],
           summary: "Get an admin by user id",
@@ -139,7 +139,7 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/doctors/{userId}": {
+      "/api/doctors/{user-id}": {
         get: {
           tags: ["Doctor"],
           summary: "Get a doctor by user id",
@@ -195,7 +195,7 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/patients/{userId}": {
+      "/api/patients/{user-id}": {
         get: {
           tags: ["Patient"],
           summary: "Get a patient by user id",
@@ -305,7 +305,7 @@ export const spec = createSwaggerSpec({
           default: "",
         },
         adminId: {
-          name: "userId",
+          name: "user-id",
           in: "path",
           description: "The user id of the admin",
           required: true,
@@ -313,7 +313,7 @@ export const spec = createSwaggerSpec({
           default: "",
         },
         doctorId: {
-          name: "userId",
+          name: "user-id",
           in: "path",
           description: "The user id of the doctor",
           required: true,
@@ -321,7 +321,7 @@ export const spec = createSwaggerSpec({
           default: "",
         },
         patientId: {
-          name: "userId",
+          name: "user-id",
           in: "path",
           description: "The user id of the patient",
           required: true,

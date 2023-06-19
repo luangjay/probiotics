@@ -1,36 +1,29 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
-import { handler } from "@/lib/api";
+import { ApiResponse } from "@/types/api";
 import prisma from "@/lib/prisma";
 import { createRootProbioticSchema } from "@/lib/schema";
 
-// import { createProbioticSchema } from "@/lib/schema";
+import { validator } from "../validator";
 
-export async function GET() {
-  const action = async () => {
-    const probiotics = await prisma.probiotic.findMany();
+const GET = validator(async () => {
+  const probiotics = await prisma.probiotic.findMany();
+  return ApiResponse.json(probiotics);
+});
 
-    return NextResponse.json(probiotics);
-  };
+const POST = validator(async (req: NextRequest) => {
+  // Validate the request body against the schema
+  const body: unknown = await req.json();
+  const probioticInfo = createRootProbioticSchema.parse(body);
 
-  return handler(action);
-}
+  const probiotic = await prisma.probiotic.create({
+    data: {
+      parentId: null,
+      ...probioticInfo,
+    },
+  });
 
-export async function POST(req: NextRequest) {
-  const action = async () => {
-    // Validate the request body against the schema
-    const body: unknown = await req.json();
-    const probioticInfo = createRootProbioticSchema.parse(body);
+  return ApiResponse.json(probiotic);
+});
 
-    const probiotic = await prisma.probiotic.create({
-      data: {
-        parentId: null,
-        ...probioticInfo,
-      },
-    });
-
-    return NextResponse.json(probiotic);
-  };
-
-  return handler(action);
-}
+export { GET, POST };

@@ -1,97 +1,52 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { z } from "zod";
-
-import { handler } from "@/lib/api";
+import { ApiResponse } from "@/types/api";
 import prisma from "@/lib/prisma";
 import { updateProbioticSchema } from "@/lib/schema";
 
-// import { updateProbioticSchema } from "@/lib/schema";
+import { validator } from "./validator";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const action = async () => {
-    const id = z.number().int().parse(parseInt(params.id));
-    const probiotic = await prisma.probiotic.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        parent: true,
-        children: true,
-      },
-    });
+const GET = validator(async (req, ctx) => {
+  const id = parseInt(ctx.params.id as string);
+  const probiotic = await prisma.probiotic.findUnique({
+    where: {
+      id,
+    },
+  });
+  if (probiotic === null) {
+    return new ApiResponse("Probiotic not found", { status: 404 });
+  }
 
-    if (probiotic === null) {
-      return new NextResponse("Probiotic not found", { status: 404 });
-    }
-    return NextResponse.json(probiotic);
-  };
+  return ApiResponse.json(probiotic);
+});
 
-  return handler(action);
-}
+const PUT = validator(async (req, ctx) => {
+  // Validate the request body against the schema
+  const id = parseInt(ctx.params.id as string);
+  const body: unknown = await req.json();
+  const probioticInfo = updateProbioticSchema.parse(body);
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const action = async () => {
-    // Validate the request body against the schema
-    const id = z.number().int().parse(parseInt(params.id));
-    const body: unknown = await req.json();
-    const probioticInfo = updateProbioticSchema.parse(body);
+  const probiotic = await prisma.probiotic.update({
+    where: {
+      id,
+    },
+    data: {
+      ...probioticInfo,
+    },
+  });
+  if (probiotic === null) {
+    return new ApiResponse("Probiotic not found", { status: 404 });
+  }
 
-    const _probiotic = await prisma.probiotic.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        parent: true,
-        children: true,
-      },
-    });
-    if (_probiotic === null) {
-      return new NextResponse("Probiotic not found", { status: 404 });
-    }
+  return ApiResponse.json(probiotic);
+});
 
-    const probiotic = await prisma.probiotic.update({
-      where: {
-        id,
-      },
-      data: {
-        ...probioticInfo,
-      },
-    });
+const DELETE = validator(async (req, ctx) => {
+  const id = parseInt(ctx.params.id as string);
+  await prisma.probiotic.delete({
+    where: {
+      id,
+    },
+  });
+  return ApiResponse.json(null);
+});
 
-    return NextResponse.json(probiotic);
-  };
-
-  return handler(action);
-}
-
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const action = async () => {
-    const id = z.number().int().parse(parseInt(params.id));
-    const probiotic = await prisma.probiotic.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (probiotic === null) {
-      return new NextResponse("Probiotic not found", { status: 404 });
-    }
-
-    await prisma.probiotic.delete({
-      where: {
-        id: parseInt(params.id),
-      },
-    });
-    return NextResponse.json(null);
-  };
-
-  return handler(action);
-}
+export { GET, PUT, DELETE };

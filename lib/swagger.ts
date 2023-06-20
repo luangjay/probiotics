@@ -71,6 +71,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all admins",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -191,7 +192,7 @@ export const spec = createSwaggerSpec({
       "/api/doctors/{user-id}/probiotic-records": {
         get: {
           tags: ["Doctors"],
-          summary: "Get a dcotor's probiotic records",
+          summary: "Get a doctor's probiotic records",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           responses: {
             "200": { description: "OK" },

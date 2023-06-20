@@ -13,57 +13,91 @@ export default withAuth(
     const redirect = NextResponse.redirect(new URL("/", req.url));
     const unauthorize = new NextResponse("Unauthorized", { status: 401 });
 
-    // Redirect users with token in register and login pages
-    switch (path[1]) {
-      case "/register":
-      case "/login":
-        return token ? redirect : next;
-    }
+    console.log(path);
+    console.log(path);
 
-    // Authorize api paths
-    if (path[1] === "api") {
-      switch (path[2]) {
-        case "users":
-          return token?.type === UserType.Admin ? next : unauthorize;
-        case "admins":
-          if (!path[3]) {
-            switch (method) {
-              case "GET":
-                return token?.type === UserType.Admin ? next : unauthorize;
+    switch (path[1]) {
+      // Redirect users with token in register and login pages
+      case "register":
+      case "login":
+        return path.length === 2 && token ? redirect : next;
+
+      // Authorize api paths
+      case "api":
+        switch (path[2]) {
+          case "users":
+            return path.length <= 4 && token?.type !== UserType.Admin
+              ? unauthorize
+              : next;
+          case "admins":
+            if (!path[3]) {
+              switch (method) {
+                case "GET":
+                  return path.length === 3 && token?.type !== UserType.Admin
+                    ? unauthorize
+                    : next;
+              }
+            } else {
+              switch (method) {
+                case "GET":
+                  return path.length === 4 && token?.type !== UserType.Admin
+                    ? unauthorize
+                    : next;
+                case "PUT":
+                case "DELETE":
+                  return path.length === 4 && token?.sub !== path[3]
+                    ? unauthorize
+                    : next;
+              }
             }
-          } else {
-            switch (method) {
-              case "GET":
-                return token?.type === UserType.Admin ? next : unauthorize;
-              case "PUT":
-              case "DELETE":
-                return token?.sub === path[3] ? next : unauthorize;
+          case "doctors":
+            if (!path[3]) {
+              switch (method) {
+                case "POST":
+                  return next;
+              }
+            } else {
+              switch (method) {
+                case "PUT":
+                case "DELETE":
+                  return path.length === 4 &&
+                    token?.type !== UserType.Admin &&
+                    token?.sub !== path[3]
+                    ? unauthorize
+                    : next;
+              }
             }
-          }
-        case "doctors":
-          if (!path[3]) {
-            switch (method) {
-              case "POST":
+          case "patients":
+            return next; // TODO
+          case "probiotics":
+            return path.length <= 4 &&
+              token?.type !== UserType.Admin &&
+              token?.type !== UserType.Doctor
+              ? unauthorize
+              : next;
+          case "probiotic-brands":
+            return path.length <= 4 &&
+              token?.type !== UserType.Admin &&
+              token?.type !== UserType.Doctor
+              ? unauthorize
+              : next;
+          case "medical-conditions":
+            return path.length <= 4 &&
+              token?.type !== UserType.Admin &&
+              token?.type !== UserType.Doctor
+              ? unauthorize
+              : next;
+          case "probiotic-records":
+            return next; // TODO
+          default:
+            switch (token?.type) {
+              case UserType.Admin:
+              case UserType.Doctor:
                 return next;
+              default:
+                return unauthorize;
             }
-          } else {
-            switch (method) {
-              case "PUT":
-              case "DELETE":
-                return token?.type === UserType.Admin || token?.sub === path[3]
-                  ? next
-                  : unauthorize;
-            }
-          }
-        default:
-          switch (token?.type) {
-            case UserType.Admin:
-            case UserType.Doctor:
-              return next;
-            default:
-              return unauthorize;
-          }
-      }
+        }
     }
 
     return next;

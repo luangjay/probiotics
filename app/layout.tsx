@@ -7,11 +7,13 @@ import localFont from "next/font/local";
 
 const fontSans = localFont({
   src: "../assets/fonts/Inter.var.woff2",
+  display: "block",
   variable: "--font-sans",
 });
 
 const fontMono = localFont({
   src: "../assets/fonts/Jack-Regular.woff2",
+  display: "block",
   variable: "--font-mono",
 });
 

@@ -188,6 +188,20 @@ export const spec = createSwaggerSpec({
           },
         },
       },
+      "/api/doctors/{user-id}/probiotic-records": {
+        get: {
+          tags: ["Doctors"],
+          summary: "Get a dcotor's probiotic records",
+          parameters: [{ $ref: "#/components/parameters/doctorId" }],
+          responses: {
+            "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
       "/api/patients": {
         get: {
           tags: ["Patients"],
@@ -241,6 +255,20 @@ export const spec = createSwaggerSpec({
         delete: {
           tags: ["Patients"],
           summary: "Delete a patient by user id",
+          parameters: [{ $ref: "#/components/parameters/patientId" }],
+          responses: {
+            "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
+            "400": { description: "Bad request" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
+      "/api/patients/{user-id}/probiotic-records": {
+        get: {
+          tags: ["Patients"],
+          summary: "Get a patient's probiotic records",
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
             "200": { description: "OK" },

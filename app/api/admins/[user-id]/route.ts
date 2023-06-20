@@ -8,6 +8,9 @@ import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
   const userId = ctx.params["user-id"];
+  if (req.token?.type !== UserType.Admin) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
 
   const admin = await prisma.admin.findUniqueOrThrow({
     where: {
@@ -28,10 +31,14 @@ const GET = validator(async (req, ctx) => {
 });
 
 const PUT = validator(async (req, ctx) => {
+  const userId = ctx.params["user-id"];
+  if (req.token?.sub !== userId) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
+
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const { ..._userInfo } = updateAdminSchema.parse(body);
-  const userId = ctx.params["user-id"];
 
   const admin = await prisma.admin.update({
     where: {
@@ -61,6 +68,9 @@ const PUT = validator(async (req, ctx) => {
 
 const DELETE = validator(async (req, ctx) => {
   const userId = ctx.params["user-id"];
+  if (req.token?.sub !== userId) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
 
   await prisma.user.delete({
     where: {

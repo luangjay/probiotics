@@ -28,8 +28,9 @@ const GET = validator(async (req, ctx) => {
 });
 
 const PUT = validator(async (req, ctx) => {
-  // Validate the request body against the schema
   const userId = ctx.params["user-id"];
+
+  // Validate the request body against the schema
   const body: unknown = await req.json();
   const { ssn, gender, birthDate, ethnicity, ..._userInfo } =
     updatePatientSchema.parse(body);

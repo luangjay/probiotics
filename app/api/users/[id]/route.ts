@@ -6,6 +6,9 @@ import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
   const id = ctx.params.id;
+  if (req.token?.type !== UserType.Admin) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
   const user = await prisma.user.findUniqueOrThrow({
     where: {
       id,

@@ -9,11 +9,19 @@ import {
   type ApiHandler,
   type ApiRequest,
 } from "@/types/api";
+import { UserType } from "@/types/user";
 
 export function validator(handler: ApiHandler) {
   const validated = async (req: ApiRequest, ctx: ApiContext) => {
     try {
       req.token = await getToken({ req });
+      if (
+        req.token?.type !== UserType.Admin &&
+        req.token?.type !== UserType.Doctor &&
+        !(req.method === "POST" && req.nextUrl.pathname === "/api/doctors")
+      ) {
+        return new ApiResponse("Unauthorized", { status: 401 });
+      }
       const response = await handler(req, ctx);
       return response;
     } catch (error) {

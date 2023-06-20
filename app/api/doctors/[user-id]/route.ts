@@ -28,10 +28,14 @@ const GET = validator(async (req, ctx) => {
 });
 
 const PUT = validator(async (req, ctx) => {
+  const userId = ctx.params["user-id"];
+  if (req.token?.type !== UserType.Admin && req.token?.sub !== userId) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
+
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const { ..._userInfo } = updateDoctorSchema.parse(body);
-  const userId = ctx.params["user-id"];
 
   const doctor = await prisma.doctor.update({
     where: {
@@ -61,6 +65,9 @@ const PUT = validator(async (req, ctx) => {
 
 const DELETE = validator(async (req, ctx) => {
   const userId = ctx.params["user-id"];
+  if (req.token?.type !== UserType.Admin && req.token?.sub !== userId) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
 
   await prisma.user.delete({
     where: {

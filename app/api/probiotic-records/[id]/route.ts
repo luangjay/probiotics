@@ -17,10 +17,11 @@ const GET = validator(async (req, ctx) => {
 });
 
 const PUT = validator(async (req, ctx) => {
+  const id = ctx.params.id;
+
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const probioticRecordInfo = updateProbioticRecordSchema.parse(body);
-  const id = ctx.params.id;
 
   const probioticRecord = await prisma.probioticRecord.update({
     where: {

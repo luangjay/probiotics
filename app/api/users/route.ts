@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 
 import { validator } from "../validator";
 
-const GET = validator(async () => {
+const GET = validator(async (req) => {
+  if (req.token?.type !== UserType.Admin) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
   const users = await prisma.user.findMany({
     include: {
       admin: true,

@@ -6,7 +6,10 @@ import { createAdminSchema } from "@/lib/schema";
 
 import { validator } from "../validator";
 
-const GET = validator(async () => {
+const GET = validator(async (req) => {
+  if (req.token?.type !== UserType.Admin) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
   const admins = await prisma.admin.findMany({
     include: {
       user: true,
@@ -27,6 +30,10 @@ const GET = validator(async () => {
 });
 
 const POST = validator(async (req) => {
+  if (req.token?.type !== UserType.Admin) {
+    return new ApiResponse("Unauthorized", { status: 401 });
+  }
+
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const { ..._userInfo } = createAdminSchema.parse(body);

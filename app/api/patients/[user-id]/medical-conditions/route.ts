@@ -24,10 +24,11 @@ const GET = validator(async (req, ctx) => {
 });
 
 const POST = validator(async (req, ctx) => {
+  const userId = ctx.params["user-id"];
+
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const medicalConditionInfo = addPatientMedicalConditionSchema.parse(body);
-  const userId = ctx.params["user-id"];
 
   const { medicalCondition } = await prisma.medicalConditionPatient.create({
     data: {

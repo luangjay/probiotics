@@ -23,10 +23,11 @@ const GET = validator(async (req, ctx) => {
 });
 
 const POST = validator(async (req, ctx) => {
+  const id = ctx.params.id;
+
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const probioticBrandInfo = addProbioticRecordProbioticBrandSchema.parse(body);
-  const id = ctx.params.id;
 
   const { probioticBrand } = await prisma.probioticBrandProbioticRecord.create({
     data: {

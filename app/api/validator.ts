@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { getToken } from "next-auth/jwt";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -12,6 +13,7 @@ import {
 export function validator(handler: ApiHandler) {
   const validated = async (req: ApiRequest, ctx: ApiContext) => {
     try {
+      req.token = await getToken({ req });
       const response = await handler(req, ctx);
       return response;
     } catch (error) {

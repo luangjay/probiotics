@@ -46,6 +46,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all users",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -58,6 +59,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -79,6 +81,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
           },
@@ -92,6 +95,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -104,6 +108,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
@@ -116,6 +121,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -127,6 +133,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all doctors",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -162,6 +169,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
@@ -174,6 +182,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -185,6 +194,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all patients",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -195,6 +205,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
           },
@@ -208,6 +219,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -220,6 +232,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
@@ -231,6 +244,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
@@ -244,6 +258,7 @@ export const spec = createSwaggerSpec({
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
@@ -259,6 +274,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
@@ -276,6 +292,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -287,6 +304,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all probiotics",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -299,6 +317,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -310,6 +329,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all probiotic brands",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -322,6 +342,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -333,6 +354,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all medical conditions",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -345,6 +367,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -356,6 +379,7 @@ export const spec = createSwaggerSpec({
           summary: "Get all probiotic records",
           responses: {
             "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
             "500": { description: "Internal server error" },
           },
         },
@@ -366,6 +390,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
           },
@@ -379,6 +404,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -391,6 +417,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
@@ -403,6 +430,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -416,6 +444,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -430,6 +459,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "409": { description: "Conflict" },
             "500": { description: "Internal server error" },
@@ -447,6 +477,7 @@ export const spec = createSwaggerSpec({
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -468,6 +499,7 @@ export const spec = createSwaggerSpec({
           description: "The id of the user",
           required: true,
           type: "string",
+          default: "",
         },
         adminId: {
           name: "user-id",
@@ -475,6 +507,7 @@ export const spec = createSwaggerSpec({
           description: "The user id of the admin",
           required: true,
           type: "string",
+          default: "",
         },
         doctorId: {
           name: "user-id",
@@ -482,6 +515,7 @@ export const spec = createSwaggerSpec({
           description: "The user id of the doctor",
           required: true,
           type: "string",
+          default: "",
         },
         patientId: {
           name: "user-id",
@@ -489,6 +523,7 @@ export const spec = createSwaggerSpec({
           description: "The user id of the patient",
           required: true,
           type: "string",
+          default: "",
         },
         probioticId: {
           name: "id",
@@ -496,6 +531,7 @@ export const spec = createSwaggerSpec({
           description: "The id of the probiotic",
           required: true,
           type: "integer",
+          default: "",
         },
         probioticBrandId: {
           name: "id",
@@ -503,6 +539,7 @@ export const spec = createSwaggerSpec({
           description: "The id of the probiotic brand",
           required: true,
           type: "integer",
+          default: "",
         },
         brandId: {
           name: "brand-id",
@@ -510,6 +547,7 @@ export const spec = createSwaggerSpec({
           description: "The id of the probiotic brand",
           required: true,
           type: "integer",
+          default: "",
         },
         medicalConditionId: {
           name: "id",
@@ -517,6 +555,7 @@ export const spec = createSwaggerSpec({
           description: "The id of the medical condition",
           required: true,
           type: "integer",
+          default: "",
         },
         conditionId: {
           name: "condition-id",
@@ -524,6 +563,7 @@ export const spec = createSwaggerSpec({
           description: "The id of the medical condition",
           required: true,
           type: "integer",
+          default: "",
         },
         probioticRecordId: {
           name: "id",
@@ -531,6 +571,7 @@ export const spec = createSwaggerSpec({
           description: "The id of the probiotic record",
           required: true,
           type: "string",
+          default: "",
         },
       },
       requestBodies: {
@@ -954,29 +995,6 @@ export const spec = createSwaggerSpec({
               type: "string",
               format: "date-time",
               description: "The date and time the user was last updated",
-            },
-          },
-        },
-        File: {
-          type: "object",
-          properties: {
-            id: {
-              type: "string",
-              description: "The unique identifier of the file",
-            },
-            uri: {
-              type: "string",
-              description: "The URI of the file",
-            },
-            createdAt: {
-              type: "string",
-              format: "date-time",
-              description: "The date and time the file was created",
-            },
-            updatedAt: {
-              type: "string",
-              format: "date-time",
-              description: "The date and time the file was last updated",
             },
           },
         },

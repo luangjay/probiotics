@@ -67,6 +67,9 @@ dependencies:
   react:
     specifier: 18.2.0
     version: 18.2.0
+  react-data-grid:
+    specifier: 7.0.0-beta.34
+    version: 7.0.0-beta.34(react-dom@18.2.0)(react@18.2.0)
   react-dom:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
@@ -4254,6 +4257,17 @@ packages:
       copy-to-clipboard: 3.3.3
       prop-types: 15.8.1
       react: 18.2.0
+    dev: false
+
+  /react-data-grid@7.0.0-beta.34(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-OwOP77vabb47xhbvHCXJ2QwFHsfduoLJhgXncGe0gIjrrwJ9xr2SdfEe/U6KAfHnLuBDxCDoY0SOgfJiOQtd+Q==}
+    peerDependencies:
+      react: ^18.0
+      react-dom: ^18.0
+    dependencies:
+      clsx: 1.2.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react-debounce-input@3.3.0(react@18.2.0):

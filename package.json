@@ -35,6 +35,7 @@
     "next-swagger-doc": "^0.4.0",
     "postcss": "8.4.24",
     "react": "18.2.0",
+    "react-data-grid": "7.0.0-beta.34",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.44.3",
     "swagger-ui-react": "^5.0.0",

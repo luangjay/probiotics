@@ -72,16 +72,6 @@ model Patient {
   @@map("patients")
 }
 
-// 42004
-model File {
-  id        String   @id @default(cuid())
-  uri       String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("files")
-}
-
 // 42005
 model Probiotic {
   id        Int         @id @default(autoincrement())
@@ -125,7 +115,7 @@ model ProbioticRecord {
   id              String                          @id @default(cuid())
   doctorId        String                          @map("doctor_id")
   patientId       String                          @map("patient_id")
-  fileId          String?                         @map("file_id")
+  fileUri         String?                         @map("file_uri")
   result          Json
   createdAt       DateTime                        @default(now()) @map("created_at")
   updatedAt       DateTime                        @updatedAt @map("updated_at")

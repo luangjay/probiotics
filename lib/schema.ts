@@ -1,55 +1,27 @@
 import { Gender } from "@prisma/client";
 import { z } from "zod";
 
-export const minUsername = 4;
-export const minPassword = 4;
-export const maxUsername = 16;
-export const maxPassword = 16;
-export const regexUsername = /^[a-zA-Z0-9_.]*$/;
-export const regexSsn = /^\d+$/;
-export const patternUsername = "^[a-zA-Z0-9_.]*$";
-export const patternSsn = "^[0-9]+$";
-export const enumGender = ["Male", "Female", "Others"];
+import { csvFileType, xlsFileType, xlsxFileType } from "./utils";
 
-export const loginSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(minUsername)
-    .max(maxUsername)
-    .regex(regexUsername),
-  password: z.string().min(minPassword).max(maxPassword),
-});
-
-// export const userSchema = z
-//   .object({
-//     username: z
-//       .string()
-//       .trim()
-//       .min(minUsername)
-//       .max(maxUsername)
-//       .regex(regexUsername),
-//     password: z.string().min(minPassword).max(maxPassword),
-//     email: z.preprocess((field) => {
-//       if (field === undefined) return undefined;
-//       if (typeof field !== "string" || field.trim() === "") return null;
-//       return field;
-//     }, z.string().trim().email().toLowerCase().nullable().optional()),
-//     prefix: z.string().trim().min(1),
-//     firstName: z.string().trim().min(1),
-//     lastName: z.string().trim().min(1),
-//   })
-//   .strict();
+export const MIN_USERNAME = 4;
+export const MIN_PASSWORD = 4;
+export const MAX_USERNAME = 16;
+export const MAX_PASSWORD = 16;
+export const REGEX_USERNAME = /^[a-zA-Z0-9_.]*$/;
+export const REGEX_SSN = /^\d+$/;
+export const PATTERN_USERNAME = "^[a-zA-Z0-9_.]*$";
+export const PATTERN_SSN = "^[0-9]+$";
+export const ENUM_GENDER = ["Male", "Female", "Others"];
 
 export const createAdminSchema = z
   .object({
     username: z
       .string()
       .trim()
-      .min(minUsername)
-      .max(maxUsername)
-      .regex(regexUsername),
-    password: z.string().min(minPassword).max(maxPassword),
+      .min(MIN_USERNAME)
+      .max(MAX_USERNAME)
+      .regex(REGEX_USERNAME),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
@@ -66,11 +38,11 @@ export const updateAdminSchema = z
     username: z
       .string()
       .trim()
-      .min(minUsername)
-      .max(maxUsername)
-      .regex(regexUsername)
+      .min(MIN_USERNAME)
+      .max(MAX_USERNAME)
+      .regex(REGEX_USERNAME)
       .optional(),
-    password: z.string().min(minPassword).max(maxPassword).optional(),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD).optional(),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
@@ -87,10 +59,10 @@ export const createDoctorSchema = z
     username: z
       .string()
       .trim()
-      .min(minUsername)
-      .max(maxUsername)
-      .regex(regexUsername),
-    password: z.string().min(minPassword).max(maxPassword),
+      .min(MIN_USERNAME)
+      .max(MAX_USERNAME)
+      .regex(REGEX_USERNAME),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
@@ -107,11 +79,11 @@ export const updateDoctorSchema = z
     username: z
       .string()
       .trim()
-      .min(minUsername)
-      .max(maxUsername)
-      .regex(regexUsername)
+      .min(MIN_USERNAME)
+      .max(MAX_USERNAME)
+      .regex(REGEX_USERNAME)
       .optional(),
-    password: z.string().min(minPassword).max(maxPassword).optional(),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD).optional(),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
@@ -128,10 +100,10 @@ export const createPatientSchema = z
     username: z
       .string()
       .trim()
-      .min(minUsername)
-      .max(maxUsername)
-      .regex(regexUsername),
-    password: z.string().min(minPassword).max(maxPassword),
+      .min(MIN_USERNAME)
+      .max(MAX_USERNAME)
+      .regex(REGEX_USERNAME),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
@@ -140,7 +112,7 @@ export const createPatientSchema = z
     prefix: z.string().trim().min(1),
     firstName: z.string().trim().min(1),
     lastName: z.string().trim().min(1),
-    ssn: z.string().trim().min(1).regex(regexSsn),
+    ssn: z.string().trim().min(1).regex(REGEX_SSN),
     gender: z.nativeEnum(Gender),
     birthDate: z.string().datetime(),
     ethnicity: z.string().trim().min(1).nullable().optional(),
@@ -152,11 +124,11 @@ export const updatePatientSchema = z
     username: z
       .string()
       .trim()
-      .min(minUsername)
-      .max(maxUsername)
-      .regex(regexUsername)
+      .min(MIN_USERNAME)
+      .max(MAX_USERNAME)
+      .regex(REGEX_USERNAME)
       .optional(),
-    password: z.string().min(minPassword).max(maxPassword).optional(),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD).optional(),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
@@ -165,7 +137,7 @@ export const updatePatientSchema = z
     prefix: z.string().trim().min(1).optional(),
     firstName: z.string().trim().min(1).optional(),
     lastName: z.string().trim().min(1).optional(),
-    ssn: z.string().trim().min(1).regex(regexSsn).optional(),
+    ssn: z.string().trim().min(1).regex(REGEX_SSN).optional(),
     gender: z.nativeEnum(Gender).optional(),
     birthDate: z.string().datetime().optional(),
     ethnicity: z.string().trim().min(1).nullable().optional(),
@@ -202,76 +174,57 @@ export const addProbioticRecordProbioticBrandSchema = z
   })
   .strict();
 
-// export const doctorSchema = z.object({
-//   userId: z.string(),
-// });
-
-export const patientSchema = z.object({
-  userId: z.string(),
-  ssn: z.string(),
-  gender: z.nativeEnum(Gender),
-  birthDate: z.date(),
-  ethnicity: z.string().nullable(),
+export const fileSchema = z.custom<File>().superRefine((file, ctx) => {
+  if (file?.type !== csvFileType) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Only .csv files are accepted.",
+    });
+  }
+  if (file?.size > 2 << 20) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.too_big,
+      type: "array",
+      message: "Maximum file size is 1 MB.",
+      maximum: 2 << 20, // 1 MB
+      inclusive: true,
+    });
+  }
 });
 
-export const adminSchema = z.object({
-  userId: z.string(),
+export const loginSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(MIN_USERNAME)
+    .max(MAX_USERNAME)
+    .regex(REGEX_USERNAME),
+  password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
 });
 
-export const fileSchema = z.object({
-  id: z.string(),
-  uri: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const probioticSchema = z.object({
-  id: z.number(),
-  parentId: z.number().nullable(),
-  name: z.string(),
-  red: z.number(),
-  yellow: z.number(),
-  green: z.number(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const probioticBrandSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const medicalConditionSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const probioticRecordSchema = z.object({
-  id: z.string(),
-  doctorId: z.string(),
-  patientId: z.string(),
-  fileId: z.string().nullable(),
-  result: z.any().optional(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const probioticBrandProbioticRecordSchema = z.object({
-  id: z.number(),
-  probioticBrandId: z.number(),
-  probioticRecordId: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const medicalConditionPatientSchema = z.object({
-  id: z.number(),
-  medicalConditionId: z.number(),
-  patientId: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+export const uploadFileSchema = z.object({
+  fileList: z.custom<FileList>().superRefine((fileList, ctx) => {
+    const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
+    if (!file) {
+      return ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Only .csv files are accepted.",
+      });
+    }
+    if (![csvFileType, xlsFileType, xlsxFileType].includes(file.type)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Only .csv, .xls, and .xlsx files are accepted.",
+      });
+    }
+    if (file.size > 2 << 20) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.too_big,
+        type: "array",
+        message: "Maximum file size is 1 MB.",
+        maximum: 2 << 20, // 1 MB
+        inclusive: true,
+      });
+    }
+  }),
 });

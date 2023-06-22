@@ -9,7 +9,7 @@ import { type z } from "zod";
 
 import { createDoctorSchema } from "@/lib/schema";
 
-type FormData = z.infer<typeof createDoctorSchema>;
+type RegisterData = z.infer<typeof createDoctorSchema>;
 
 export default function Register() {
   const {
@@ -17,12 +17,12 @@ export default function Register() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormData>({
+  } = useForm<RegisterData>({
     resolver: zodResolver(createDoctorSchema),
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  async function onSubmit(data: FormData) {
+  const onSubmit = async (data: RegisterData) => {
     setIsLoading(true);
     const { username, password } = data;
     const response = await fetch("/api/doctors", {
@@ -38,7 +38,7 @@ export default function Register() {
     }
     setIsLoading(false);
     reset();
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center">

@@ -1,13 +1,13 @@
 import { createSwaggerSpec } from "next-swagger-doc";
 
 import {
-  enumGender,
-  maxPassword,
-  maxUsername,
-  minPassword,
-  minUsername,
-  patternSsn,
-  patternUsername,
+  ENUM_GENDER,
+  MAX_PASSWORD,
+  MAX_USERNAME,
+  MIN_PASSWORD,
+  MIN_USERNAME,
+  PATTERN_SSN,
+  PATTERN_USERNAME,
 } from "./schema";
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -465,6 +465,36 @@ export const spec = createSwaggerSpec({
           },
         },
       },
+      "/api/probiotic-records/{id}/file": {
+        get: {
+          tags: ["Probiotic Records"],
+          summary: "Get a probiotic record's file",
+          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        post: {
+          tags: ["Probiotic Records"],
+          summary: "Add a probiotic record's file",
+          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          requestBody: {
+            $ref: "#/components/requestBodies/AddProbioticRecordFile",
+          },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+      },
       "/api/probiotic-records/{id}/probiotic-brands": {
         get: {
           tags: ["Probiotic Records"],
@@ -614,15 +644,15 @@ export const spec = createSwaggerSpec({
                   username: {
                     type: "string",
                     description: "The username of the admin",
-                    minLength: minUsername,
-                    maxLength: maxUsername,
-                    pattern: patternUsername,
+                    minLength: MIN_USERNAME,
+                    maxLength: MAX_USERNAME,
+                    pattern: PATTERN_USERNAME,
                   },
                   password: {
                     type: "string",
                     description: "The password of the admin",
-                    minLength: minPassword,
-                    maxLength: maxPassword,
+                    minLength: MIN_PASSWORD,
+                    maxLength: MAX_PASSWORD,
                   },
                   email: {
                     type: "string",
@@ -659,15 +689,15 @@ export const spec = createSwaggerSpec({
                   username: {
                     type: "string",
                     description: "The username of the doctor",
-                    minLength: minUsername,
-                    maxLength: maxUsername,
-                    pattern: patternUsername,
+                    minLength: MIN_USERNAME,
+                    maxLength: MAX_USERNAME,
+                    pattern: PATTERN_USERNAME,
                   },
                   password: {
                     type: "string",
                     description: "The password of the doctor",
-                    minLength: minPassword,
-                    maxLength: maxPassword,
+                    minLength: MIN_PASSWORD,
+                    maxLength: MAX_PASSWORD,
                   },
                   email: {
                     type: "string",
@@ -704,15 +734,15 @@ export const spec = createSwaggerSpec({
                   username: {
                     type: "string",
                     description: "The username of the patient",
-                    minLength: minUsername,
-                    maxLength: maxUsername,
-                    pattern: patternUsername,
+                    minLength: MIN_USERNAME,
+                    maxLength: MAX_USERNAME,
+                    pattern: PATTERN_USERNAME,
                   },
                   password: {
                     type: "string",
                     description: "The password of the patient",
-                    minLength: minPassword,
-                    maxLength: maxPassword,
+                    minLength: MIN_PASSWORD,
+                    maxLength: MAX_PASSWORD,
                   },
                   email: {
                     type: "string",
@@ -739,11 +769,11 @@ export const spec = createSwaggerSpec({
                     description: "The last name of the patient",
                     minLength: 1,
                     maxLength: 16,
-                    pattern: patternSsn,
+                    pattern: PATTERN_SSN,
                   },
                   gender: {
                     type: "string",
-                    enum: enumGender,
+                    enum: ENUM_GENDER,
                     description: "The last name of the patient",
                     minLength: 1,
                   },
@@ -823,6 +853,23 @@ export const spec = createSwaggerSpec({
                   probioticBrandId: {
                     type: "integer",
                     description: "The unique identifier of the probiotic brand",
+                  },
+                },
+              },
+            },
+          },
+        },
+        AddProbioticRecordFile: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  file: {
+                    type: "string",
+                    format: "binary",
+                    default: "",
                   },
                 },
               },
@@ -998,7 +1045,7 @@ export const spec = createSwaggerSpec({
             ssn: {
               type: "string",
               description: "The social security number of the patient",
-              pattern: patternSsn,
+              pattern: PATTERN_SSN,
             },
             gender: {
               type: "string",

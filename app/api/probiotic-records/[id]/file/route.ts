@@ -1,4 +1,5 @@
 import { ApiResponse } from "@/types/api";
+import prisma from "@/lib/prisma";
 import { fileSchema } from "@/lib/schema";
 import { getCsv, uploadCsv } from "@/lib/utils";
 
@@ -19,24 +20,18 @@ const POST = validator(async (req, ctx) => {
   const formData = await req.formData();
   const file = fileSchema.parse(formData.get("file"));
 
-  await uploadCsv(file, "probiotic-records", id);
+  const fileUri = await uploadCsv(file, "probiotic-records", id);
 
-  // const probioticRecord = await prisma.probioticRecord.update({
-  //   where: {
-  //     id,
-  //   },
-  //   data: {
-  //     file: {
-  //       create: {
-  //         uri: "",
-  //       },
-  //     },
-  //   },
-  // });
+  await prisma.probioticRecord.update({
+    where: {
+      id,
+    },
+    data: {
+      fileUri,
+    },
+  });
 
-  // const a = await req.formData();
-
-  return ApiResponse.json(null);
+  return new ApiResponse(fileUri);
 });
 
 export { GET, POST };

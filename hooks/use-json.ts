@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
+import type { RowData } from "@/types/data-sheet";
 import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/utils";
 
 export function useJson(file?: File) {
   const [reader, setReader] = useState<FileReader>();
-  const [json, setJson] = useState<[string, number][]>();
+  const [json, setJson] = useState<RowData[]>();
 
   useEffect(() => {
     const reader = new FileReader();
@@ -17,9 +18,7 @@ export function useJson(file?: File) {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
 
-      const json = XLSX.utils.sheet_to_json<[string, number]>(sheet, {
-        header: 1,
-      });
+      const json = XLSX.utils.sheet_to_json<RowData>(sheet);
       setJson(json);
     };
 

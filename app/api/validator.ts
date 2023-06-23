@@ -17,7 +17,7 @@ export function validator(handler: ApiHandler) {
       req.token = await getToken({ req });
       if (
         req.token?.type &&
-        [UserType.Admin, UserType.Doctor].includes(req.token?.type) &&
+        ![UserType.Admin, UserType.Doctor].includes(req.token?.type) &&
         !(req.method === "POST" && req.nextUrl.pathname === "/api/doctors")
       ) {
         return new ApiResponse("Unauthorized", { status: 401 });

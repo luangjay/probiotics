@@ -7,9 +7,9 @@ import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
-import { createDoctorSchema } from "@/lib/schema";
+import { doctorSchema } from "@/lib/schema";
 
-type RegisterData = z.infer<typeof createDoctorSchema>;
+type RegisterData = z.infer<typeof doctorSchema>;
 
 export default function Register() {
   const {
@@ -18,7 +18,7 @@ export default function Register() {
     formState: { errors },
     reset,
   } = useForm<RegisterData>({
-    resolver: zodResolver(createDoctorSchema),
+    resolver: zodResolver(doctorSchema),
   });
   const [isLoading, setIsLoading] = useState(false);
 

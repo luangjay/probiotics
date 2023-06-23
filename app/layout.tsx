@@ -32,15 +32,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen flex flex-col bg-background font-sans antialiased",
           fontSans.variable,
           fontMono.variable
         )}
       >
-        <div>
-          <div>{children}</div>
-          <Indicator />
-        </div>
+        <div className="flex-1 flex flex-col">{children}</div>
+        <Indicator />
       </body>
     </html>
   );

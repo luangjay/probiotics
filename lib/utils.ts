@@ -50,6 +50,7 @@ export async function uploadCsv(
   if (!response.ok) {
     throw new Error("Upload failed");
   }
+  return csvUri(entity, id);
 }
 
 export async function deleteCsv(entity: string, id: string) {
@@ -60,15 +61,22 @@ export async function deleteCsv(entity: string, id: string) {
 function s3Params(entity: string, id: string) {
   if (!process.env.S3_PUBLIC_URL || !process.env.S3_BUCKET) {
     throw new Error(
-      `❌ Invalid environment variables: 
-      ${!process.env.S3_PUBLIC_URL ? "S3_PUBLIC_URL, " : ""}
-      ${!process.env.S3_BUCKET ? "S3_BUCKET" : ""}`
+      `❌ Invalid environment variables: ${
+        !process.env.S3_PUBLIC_URL ? "S3_PUBLIC_URL, " : ""
+      }${!process.env.S3_BUCKET ? "S3_BUCKET" : ""}`
     );
   }
   return {
     Bucket: process.env.S3_BUCKET,
     Key: `${entity}/${id}.csv`,
   };
+}
+
+function csvUri(entity: string, id: string) {
+  if (!process.env.S3_PUBLIC_URL) {
+    throw new Error("❌ Invalid environment variables: S3_PUBLIC_URL");
+  }
+  return `${process.env.S3_PUBLIC_URL}/${entity}/${id}.csv`;
 }
 
 async function streamToString(stream: Readable) {

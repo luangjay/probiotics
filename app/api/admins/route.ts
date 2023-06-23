@@ -2,7 +2,7 @@ import { ApiResponse } from "@/types/api";
 import { UserType } from "@/types/user";
 import { saltHashPassword } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { createAdminSchema } from "@/lib/schema";
+import { adminSchema } from "@/lib/schema";
 
 import { validator } from "../validator";
 
@@ -36,7 +36,7 @@ const POST = validator(async (req) => {
 
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const { ..._userInfo } = createAdminSchema.parse(body);
+  const { ..._userInfo } = adminSchema.parse(body);
 
   const admin = await prisma.admin.create({
     data: {

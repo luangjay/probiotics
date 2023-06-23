@@ -11,6 +11,11 @@ export default withAuth(
         ? NextResponse.redirect(new URL("/", req.url))
         : NextResponse.next();
     }
+    if (pathname === "/patients") {
+      return !token
+        ? NextResponse.redirect(new URL("/", req.url))
+        : NextResponse.next();
+    }
 
     return NextResponse.next();
   },
@@ -24,5 +29,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/register", "/login", "/api/:path*"],
+  matcher: ["/register", "/login", "/api/:path*", "/patients"],
 };

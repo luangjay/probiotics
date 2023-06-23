@@ -1,4 +1,3 @@
 export interface RowData {
-  key: string;
-  value: number;
+  [key: string]: number;
 }

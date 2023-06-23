@@ -2,7 +2,7 @@ import { ApiResponse } from "@/types/api";
 import { UserType } from "@/types/user";
 import { saltHashPassword } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { createDoctorSchema } from "@/lib/schema";
+import { doctorSchema } from "@/lib/schema";
 
 import { validator } from "../validator";
 
@@ -29,7 +29,7 @@ const GET = validator(async () => {
 const POST = validator(async (req) => {
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const { ..._userInfo } = createDoctorSchema.parse(body);
+  const { ..._userInfo } = doctorSchema.parse(body);
 
   const doctor = await prisma.doctor.create({
     data: {

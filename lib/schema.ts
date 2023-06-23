@@ -13,7 +13,7 @@ export const PATTERN_USERNAME = "^[a-zA-Z0-9_.]*$";
 export const PATTERN_SSN = "^[0-9]+$";
 export const ENUM_GENDER = ["Male", "Female", "Others"];
 
-export const createAdminSchema = z
+export const adminSchema = z
   .object({
     username: z
       .string()
@@ -54,7 +54,7 @@ export const updateAdminSchema = z
   })
   .strict();
 
-export const createDoctorSchema = z
+export const doctorSchema = z
   .object({
     username: z
       .string()
@@ -95,7 +95,7 @@ export const updateDoctorSchema = z
   })
   .strict();
 
-export const createPatientSchema = z
+export const patientSchema = z
   .object({
     username: z
       .string()
@@ -150,7 +150,7 @@ export const addPatientMedicalConditionSchema = z
   })
   .strict();
 
-export const createProbioticRecordSchema = z
+export const probioticRecordSchema = z
   .object({
     doctorId: z.string().cuid(),
     patientId: z.string().cuid(),
@@ -192,39 +192,43 @@ export const fileSchema = z.custom<File>().superRefine((file, ctx) => {
   }
 });
 
-export const loginSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(MIN_USERNAME)
-    .max(MAX_USERNAME)
-    .regex(REGEX_USERNAME),
-  password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
-});
+export const loginSchema = z
+  .object({
+    username: z
+      .string()
+      .trim()
+      .min(MIN_USERNAME)
+      .max(MAX_USERNAME)
+      .regex(REGEX_USERNAME),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
+  })
+  .strict();
 
-export const uploadFileSchema = z.object({
-  fileList: z.custom<FileList>().superRefine((fileList, ctx) => {
-    const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
-    if (!file) {
-      return ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Only .csv files are accepted.",
-      });
-    }
-    if (![csvFileType, xlsFileType, xlsxFileType].includes(file.type)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Only .csv, .xls, and .xlsx files are accepted.",
-      });
-    }
-    if (file.size > 2 << 20) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.too_big,
-        type: "array",
-        message: "Maximum file size is 1 MB.",
-        maximum: 2 << 20, // 1 MB
-        inclusive: true,
-      });
-    }
-  }),
-});
+export const uploadFileSchema = z
+  .object({
+    fileList: z.custom<FileList>().superRefine((fileList, ctx) => {
+      const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
+      if (!file) {
+        return ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Required",
+        });
+      }
+      if (![csvFileType, xlsFileType, xlsxFileType].includes(file.type)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Only .csv, .xls, and .xlsx files are accepted",
+        });
+      }
+      if (file.size > 2 << 20) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.too_big,
+          type: "array",
+          message: "Maximum file size is 1 MB",
+          maximum: 2 << 20, // 1 MB
+          inclusive: true,
+        });
+      }
+    }),
+  })
+  .strict();

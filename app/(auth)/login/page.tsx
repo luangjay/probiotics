@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Button, Icons, Input } from "@/ui";
+import { Button, Icons, Input } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
@@ -42,7 +42,7 @@ export default function Register() {
         className="flex w-full max-w-sm flex-col gap-4"
       >
         {/* {isError && <p className="text-sm text-destructive">Login failed</p>} */}
-        <h2 className="mx-auto text-5xl leading-normal font-bold">LOGO</h2>
+        <h2 className="mx-auto text-5xl font-bold leading-normal">LOGO</h2>
         <Input
           id="username"
           key="username"

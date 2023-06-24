@@ -1,17 +1,32 @@
 import prisma from "@/lib/prisma";
-
+import { UserType, type PatientInfo } from "@/types/user";
 import PatientList from "./patient-list";
 
 export default async function Page() {
-  const response = await fetch("http://localhost:3000/api/patients");
-  const patients = await response.json();
-
-  console.log(patients);
+  const patients = await getPatients();
 
   return (
-    <div>
+    <div className="flex h-full flex-col gap-4">
       <h2>Patients</h2>
       <PatientList patients={patients} />
     </div>
   );
+}
+
+async function getPatients(): Promise<PatientInfo[]> {
+  const patients = await prisma.patient.findMany({
+    include: {
+      user: true,
+    },
+  });
+
+  return patients.map((patient) => {
+    const { user, userId, ...patientInfo } = patient;
+    const { password, salt, ...userInfo } = user;
+    return {
+      type: UserType.Patient,
+      ...userInfo,
+      ...patientInfo,
+    };
+  });
 }

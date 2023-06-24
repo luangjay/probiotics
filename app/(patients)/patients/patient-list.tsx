@@ -1,176 +1,96 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
-import DataGrid, {
-  type Column,
-  type RenderHeaderCellProps,
-} from "react-data-grid";
-import { type z } from "zod";
+import { FilterRenderer } from "@/components/renderers/filter-renderer";
+import { cn } from "@/lib/utils";
+import { type PatientInfo } from "@/types/user";
+import { useMemo } from "react";
+import DataGrid, { type Column } from "react-data-grid";
+import { useForm, useWatch } from "react-hook-form";
 
-import { type patientSchema } from "@/lib/schema";
-
-type PatientData = z.infer<typeof patientSchema>;
-
-interface Row extends PatientData {}
-
-interface Filter
-  extends Omit<Row, "password" | "salt" | "ssn" | "gender" | "birthDate"> {}
-
-// Context is needed to read filter values otherwise columns are
-// re-created when filters are changed and filter loses focus
-const FilterContext = createContext<Filter | undefined>(undefined);
-
-function inputStopPropagation(event: React.KeyboardEvent<HTMLInputElement>) {
-  if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
-    event.stopPropagation();
-  }
+interface PatientListProps {
+  patients: PatientInfo[];
 }
 
-function selectStopPropagation(event: React.KeyboardEvent<HTMLSelectElement>) {
-  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
-    event.stopPropagation();
-  }
-}
+export default function PatientList({ patients }: PatientListProps) {
+  const { register, control } = useForm<PatientInfo>({ mode: "onChange" });
+  const filters = useWatch<PatientInfo>({ control });
 
-interface Props {
-  patients: PatientData[];
-}
-
-export default function PatientList({ patients: rows }: Props) {
-  const [filters, setFilters] = useState<Filter>({
-    username: "",
-    prefix: "",
-    firstName: "",
-    lastName: "",
-  });
-
-  const columns = useMemo((): readonly Column<Row>[] => {
+  const columns = useMemo<readonly Column<PatientInfo>[]>(() => {
     return [
       {
-        key: "username",
-        name: "Username",
+        key: "ssn",
+        name: "SSN",
+        headerCellClass: "",
+        renderHeaderCell: (p) => (
+          <FilterRenderer<PatientInfo> {...p}>
+            <input {...p} {...register("ssn")} className="w-full" />
+          </FilterRenderer>
+        ),
+        cellClass: cn("font-mono"),
       },
       {
         key: "prefix",
         name: "Prefix",
+        headerCellClass: "",
         renderHeaderCell: (p) => (
-          <FilterRenderer<Row> {...p}>
-            {({ filters, ...rest }) => (
-              <input
-                {...rest}
-                value={filters.prefix}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    prefix: e.target.value,
-                  })
-                }
-                onKeyDown={inputStopPropagation}
-              />
-            )}
+          <FilterRenderer<PatientInfo> {...p}>
+            <input {...p} {...register("prefix")} className="w-full" />
           </FilterRenderer>
         ),
+        cellClass: "",
       },
       {
         key: "firstName",
         name: "First Name",
+        headerCellClass: "",
         renderHeaderCell: (p) => (
-          <FilterRenderer<Row> {...p}>
-            {({ filters, ...rest }) => (
-              <input
-                {...rest}
-                value={filters.firstName}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    firstName: e.target.value,
-                  })
-                }
-                onKeyDown={inputStopPropagation}
-              />
-            )}
+          <FilterRenderer<PatientInfo> {...p}>
+            <input {...p} {...register("firstName")} className="w-full" />
           </FilterRenderer>
         ),
       },
       {
         key: "lastName",
         name: "Last Name",
+        headerCellClass: "",
         renderHeaderCell: (p) => (
-          <FilterRenderer<Row> {...p}>
-            {({ filters, ...rest }) => (
-              <input
-                {...rest}
-                value={filters.lastName}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    lastName: e.target.value,
-                  })
-                }
-                onKeyDown={inputStopPropagation}
-              />
-            )}
+          <FilterRenderer<PatientInfo> {...p}>
+            <input
+              {...register("lastName")}
+              className="w-full"
+              onClick={(e) => void e.stopPropagation()}
+            />
           </FilterRenderer>
         ),
       },
     ];
-  }, []);
+  }, [register]);
 
-  const filteredRows = useMemo(() => {
-    return rows.filter((row) => {
+  const filteredPatientInfos = useMemo(() => {
+    return patients.filter((row) => {
+      const { ssn, prefix, firstName, lastName } = filters;
       return (
-        (filters?.username ? row.username.includes(filters.username) : true) &&
-        (filters?.prefix ? row.prefix.includes(filters.prefix) : true) &&
-        (filters?.firstName
-          ? row.firstName.includes(filters.firstName)
-          : true) &&
-        (filters?.lastName ? row.lastName.includes(filters.lastName) : true)
+        (ssn ? row.ssn.includes(ssn) : true) &&
+        (prefix ? row.prefix.includes(prefix) : true) &&
+        (firstName ? row.firstName.includes(firstName) : true) &&
+        (lastName ? row.lastName.includes(lastName) : true)
       );
     });
-  }, [rows, filters]);
-
-  function clearFilters() {
-    setFilters({
-      username: "",
-      prefix: "",
-      firstName: "",
-      lastName: "",
-    });
-  }
+  }, [patients, filters]);
 
   return (
-    <div className="">
-      <FilterContext.Provider value={filters}>
-        <DataGrid
-          columns={columns}
-          rows={filteredRows}
-          renderers={{
-            noRowsFallback: <>Loading...</>,
-          }}
-          rowKeyGetter={(row) => row.username}
-          headerRowHeight={64}
-          rowHeight={32}
-          className="w-full h-full rdg-light"
-        />
-      </FilterContext.Provider>
-    </div>
-  );
-}
-
-function FilterRenderer<R>({
-  tabIndex,
-  column,
-  children,
-}: RenderHeaderCellProps<R> & {
-  children: (args: { tabIndex: number; filters: Filter }) => React.ReactElement;
-}) {
-  const filters = useContext(FilterContext)!;
-  return (
-    <div className="flex flex-col">
-      <div className="flex-1">{column.name}</div>
-      <div className="flex-1 border border-red-500">
-        {children({ tabIndex, filters })}
-      </div>
+    <div className="flex flex-1 flex-col overflow-auto">
+      <DataGrid
+        columns={columns}
+        rows={filteredPatientInfos}
+        renderers={{
+          noRowsFallback: <>Nothing to show...</>,
+        }}
+        rowKeyGetter={(row) => row.username}
+        headerRowHeight={80}
+        rowHeight={40}
+        className="rdg-light flex-1 gap-px  "
+      />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
   MIN_USERNAME,
   PATTERN_SSN,
   PATTERN_USERNAME,
-} from "./schema";
+} from "@/lib/schema";
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const spec = createSwaggerSpec({

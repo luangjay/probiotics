@@ -1,19 +1,15 @@
+import { Indicator } from "@/components/ui/indicator";
 import { cn } from "@/lib/utils";
-import { Indicator } from "@/ui/indicator";
-
 import "@/styles/globals.css";
-
 import localFont from "next/font/local";
 
 const fontSans = localFont({
   src: "../assets/fonts/Inter.var.woff2",
-  display: "block",
   variable: "--font-sans",
 });
 
 const fontMono = localFont({
   src: "../assets/fonts/Jack-Regular.woff2",
-  display: "block",
   variable: "--font-mono",
 });
 
@@ -32,12 +28,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body
         className={cn(
-          "min-h-screen flex flex-col bg-background font-sans antialiased",
+          "flex min-h-screen flex-col bg-background font-sans antialiased",
           fontSans.variable,
           fontMono.variable
         )}
       >
-        <div className="flex-1 flex flex-col">{children}</div>
+        <div className="flex flex-1 flex-col">{children}</div>
         <Indicator />
       </body>
     </html>

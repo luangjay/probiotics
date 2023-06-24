@@ -25,8 +25,8 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (credentials === undefined) return null;
         const { username, password } = credentials;
-        const currentUser = await getCurrentUser({ username, password });
-        return currentUser;
+        const u = await validateUser({ username, password });
+        return u;
       },
     }),
   ],
@@ -43,16 +43,16 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ token, session }) {
       const { sub: id } = token;
-      const currentUser = await getCurrentUser({ id });
-      if (currentUser !== null) {
-        session.user = currentUser;
+      const u = await validateUser({ id });
+      if (u !== null) {
+        session.user = u;
       }
       return session;
     },
   },
 };
 
-export async function getSessionUser() {
+export async function getCurrentUser() {
   const session = await getServerSession(authOptions);
   return session?.user;
 }
@@ -70,7 +70,7 @@ interface GetCurrentUserInput {
   password?: string;
 }
 
-async function getCurrentUser({
+async function validateUser({
   id,
   username,
   password,

@@ -88,11 +88,7 @@ async function seedAdmins({ reset, clear, count }: SeedOptions) {
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.user.deleteMany({
-        where: {
-          NOT: {
-            admin: null,
-          },
-        },
+        where: !reset ? { NOT: { admin: null } } : undefined,
       });
       if (reset) return;
     }
@@ -156,11 +152,7 @@ async function seedDoctors({ reset, clear, count }: SeedOptions) {
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.user.deleteMany({
-        where: {
-          NOT: {
-            doctor: null,
-          },
-        },
+        where: { NOT: { doctor: null } },
       });
       if (reset) return;
     }
@@ -194,11 +186,7 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.user.deleteMany({
-        where: {
-          NOT: {
-            patient: null,
-          },
-        },
+        where: { NOT: { patient: null } },
       });
       if (reset) return;
     }

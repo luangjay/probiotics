@@ -4,11 +4,9 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="container flex flex-1 border border-green-500">
-      <section className="max-w-xs p-12 flex-1 w-full border border-black overflow-auto">
-        sidetab
-      </section>
-      <section className="w-full p-12 flex-1 border border-black overflow-auto">
+    <div className="container flex flex-1 gap-12">
+      <section className="w-[200px] lg:py-8">sidetab</section>
+      <section className="h-screen w-full flex-1 overflow-auto lg:py-8">
         {children}
       </section>
     </div>

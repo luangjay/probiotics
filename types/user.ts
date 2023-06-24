@@ -6,18 +6,18 @@ export enum UserType {
   Admin = "Admin",
 }
 
-export type UserInfo = Omit<
+export type PartialUserInfo = Omit<
   User,
   "password" | "salt" | "createdAt" | "updatedAt"
 >;
 
-export type DoctorInfo = Omit<Doctor, "userId">;
+export type AdminInfo = { type: UserType.Admin } & PartialUserInfo &
+  Omit<Admin, "userId">;
 
-export type PatientInfo = Omit<Patient, "userId">;
+export type DoctorInfo = { type: UserType.Doctor } & PartialUserInfo &
+  Omit<Doctor, "userId">;
 
-export type AdminInfo = Omit<Admin, "userId">;
+export type PatientInfo = { type: UserType.Patient } & PartialUserInfo &
+  Omit<Patient, "userId">;
 
-export type UserTypeInfo =
-  | ({ type: UserType.Doctor } & DoctorInfo)
-  | ({ type: UserType.Patient } & PatientInfo)
-  | ({ type: UserType.Admin } & AdminInfo);
+export type UserInfo = AdminInfo | DoctorInfo | PatientInfo;

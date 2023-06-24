@@ -1,7 +1,7 @@
 import { Gender } from "@prisma/client";
 import { z } from "zod";
 
-import { csvFileType, xlsFileType, xlsxFileType } from "./utils";
+import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/s3";
 
 export const MIN_USERNAME = 4;
 export const MIN_PASSWORD = 4;

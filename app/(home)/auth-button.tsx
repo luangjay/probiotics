@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Button } from "@/ui";
+import { Button } from "@/components/ui";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface AuthButtonProps {
   isLoggedIn: boolean;

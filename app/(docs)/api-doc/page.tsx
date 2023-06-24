@@ -1,5 +1,4 @@
 import { spec } from "@/lib/swagger";
-
 import Swagger from "./swagger";
 
 export default function IndexPage() {

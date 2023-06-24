@@ -1,4 +1,4 @@
-import type { UserInfo, UserType, UserTypeInfo } from "@/types/user";
+import { type UserInfo, type UserType } from "@/types/user";
 
 declare module "next-auth/jwt" {
   /**
@@ -39,5 +39,5 @@ declare module "next-auth" {
    * [`jwt` callback](https://next-auth.js.org/configuration/callbacks#jwt-callback) |
    * [`profile` OAuth provider callback](https://next-auth.js.org/configuration/providers#using-a-custom-provider)
    */
-  type User = UserInfo & UserTypeInfo;
+  type User = UserInfo;
 }

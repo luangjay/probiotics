@@ -3,15 +3,16 @@
 import { FilterRenderer } from "@/components/renderers/filter-renderer";
 import { cn } from "@/lib/utils";
 import { type PatientInfo } from "@/types/user";
+import Link from "next/link";
 import { useMemo } from "react";
 import DataGrid, { type Column } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
-  patients: PatientInfo[];
+  data: PatientInfo[];
 }
 
-export default function PatientList({ patients }: PatientListProps) {
+export default function PatientList({ data }: PatientListProps) {
   const { register, control } = useForm<PatientInfo>({ mode: "onChange" });
   const filters = useWatch<PatientInfo>({ control });
 
@@ -55,19 +56,25 @@ export default function PatientList({ patients }: PatientListProps) {
         headerCellClass: "",
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
-            <input
-              {...register("lastName")}
-              className="w-full"
-              onClick={(e) => void e.stopPropagation()}
-            />
+            <input {...p} {...register("lastName")} className="w-full" />
           </FilterRenderer>
         ),
+      },
+      {
+        key: "actions",
+        name: "Actions",
+        renderCell: ({ row }) => (
+          <Link href={`/patients/${row.id}`} className="h-full w-full">
+            A
+          </Link>
+        ),
+        cellClass: cn(""),
       },
     ];
   }, [register]);
 
   const filteredPatientInfos = useMemo(() => {
-    return patients.filter((row) => {
+    return data.filter((row) => {
       const { ssn, prefix, firstName, lastName } = filters;
       return (
         (ssn ? row.ssn.includes(ssn) : true) &&
@@ -76,17 +83,18 @@ export default function PatientList({ patients }: PatientListProps) {
         (lastName ? row.lastName.includes(lastName) : true)
       );
     });
-  }, [patients, filters]);
+  }, [data, filters]);
 
   return (
     <div className="flex flex-1 flex-col overflow-auto">
+      <h2>Patients</h2>
       <DataGrid
         columns={columns}
         rows={filteredPatientInfos}
         renderers={{
           noRowsFallback: <>Nothing to show...</>,
         }}
-        rowKeyGetter={(row) => row.username}
+        rowKeyGetter={(row) => row.id}
         headerRowHeight={80}
         rowHeight={40}
         className="rdg-light flex-1 gap-px  "

@@ -5,22 +5,22 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 interface AuthButtonProps {
-  isLoggedIn: boolean;
+  authenticated: boolean;
 }
 
-export function AuthButton({ isLoggedIn }: AuthButtonProps) {
+export function AuthButton({ authenticated }: AuthButtonProps) {
   const router = useRouter();
   return (
     <Button
       onClick={() => {
-        if (!isLoggedIn) {
+        if (!authenticated) {
           router.push("/login");
         } else {
           void signOut();
         }
       }}
     >
-      {!isLoggedIn ? "Login" : "Logout"}
+      {!authenticated ? "Login" : "Logout"}
     </Button>
   );
 }

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import DataGrid, { type Column } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
+import AddPatientDialog from "./add-patient-dialog";
 
 interface PatientListProps {
   data: PatientInfo[];
@@ -97,8 +98,9 @@ export default function PatientList({ data }: PatientListProps) {
         rowKeyGetter={(row) => row.id}
         headerRowHeight={80}
         rowHeight={40}
-        className="rdg-light flex-1 gap-px  "
+        className="rdg-light flex-1 gap-px"
       />
+      <AddPatientDialog />
     </div>
   );
 }

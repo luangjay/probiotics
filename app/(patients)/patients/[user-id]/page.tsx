@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import { UserType, type DoctorInfo, type PatientInfo } from "@/types/user";
 import { type ProbioticRecord } from "@prisma/client";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import ProbioticRecords from "./probiotic-records";
 
 interface PageProps {
@@ -10,7 +12,8 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  const patient = await getPatient(params["user-id"]);
+  const userId = params["user-id"];
+  const { probioticRecords, ...patient } = await getPatient(userId);
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -20,7 +23,8 @@ export default async function Page({ params }: PageProps) {
       <p>{patient.ssn}</p>
       <p>{patient.gender}</p>
       <p>{patient.birthDate.toLocaleDateString()}</p>
-      <ProbioticRecords data={patient.probioticRecords} />
+      <Link href={`${userId}/time-series`}>Time-series</Link>
+      <ProbioticRecords data={probioticRecords} />
     </div>
   );
 }
@@ -30,47 +34,51 @@ async function getPatient(userId: string): Promise<
     probioticRecords: (ProbioticRecord & { doctor: DoctorInfo })[];
   }
 > {
-  const patient = await prisma.patient.findUniqueOrThrow({
-    where: {
-      userId,
-    },
-    include: {
-      user: true,
-      probioticRecords: {
-        include: {
-          doctor: {
-            include: {
-              user: true,
+  try {
+    const patient = await prisma.patient.findUniqueOrThrow({
+      where: {
+        userId,
+      },
+      include: {
+        user: true,
+        probioticRecords: {
+          include: {
+            doctor: {
+              include: {
+                user: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  const {
-    user,
-    userId: _,
-    probioticRecords: _probioticRecords,
-    ...pPatient
-  } = patient;
-  const { password, salt, ...pUserPatient } = user;
-  const probioticRecords = _probioticRecords.map((probioticRecord) => {
-    const { doctor, ...pProbioticRecord } = probioticRecord;
-    const { user } = doctor;
-    const { password, salt, createdAt, updatedAt, ...pUserDoctor } = user;
+    const {
+      user,
+      userId: _,
+      probioticRecords: _probioticRecords,
+      ...pPatient
+    } = patient;
+    const { password, salt, ...pUserPatient } = user;
+    const probioticRecords = _probioticRecords.map((probioticRecord) => {
+      const { doctor, ...pProbioticRecord } = probioticRecord;
+      const { user } = doctor;
+      const { password, salt, createdAt, updatedAt, ...pUserDoctor } = user;
+      return {
+        ...pProbioticRecord,
+        doctor: {
+          type: UserType.Doctor as const,
+          ...pUserDoctor,
+        },
+      };
+    });
     return {
-      ...pProbioticRecord,
-      doctor: {
-        type: UserType.Doctor as const,
-        ...pUserDoctor,
-      },
+      type: UserType.Patient as const,
+      ...pPatient,
+      ...pUserPatient,
+      probioticRecords,
     };
-  });
-  return {
-    type: UserType.Patient as const,
-    ...pPatient,
-    ...pUserPatient,
-    probioticRecords,
-  };
+  } catch (error) {
+    notFound();
+  }
 }

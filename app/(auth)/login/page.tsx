@@ -1,12 +1,14 @@
 "use client";
 
-import { Button, Icons, Input } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
+import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/lib/schema";
 
 type FormData = z.infer<typeof loginSchema>;
@@ -68,7 +70,7 @@ export default function Register() {
           <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
         <Button type="submit" disabled={isLoading}>
-          {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+          {isLoading && <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />}
           Login
         </Button>
       </form>

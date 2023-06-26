@@ -1,4 +1,4 @@
-import { buttonVariants } from "@/components/ui";
+import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";
 import { AuthButton } from "./auth-button";

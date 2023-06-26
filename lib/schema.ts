@@ -8,6 +8,8 @@ export const MIN_PASSWORD = 4;
 export const MAX_USERNAME = 16;
 export const MAX_PASSWORD = 16;
 export const REGEX_USERNAME = /^[a-zA-Z0-9_.]*$/;
+export const REGEX_FIRSTNAME = /^[a-zA-Z]+$/;
+export const REGEX_LASTNAME = /^[a-zA-Z]+$/;
 export const REGEX_SSN = /^\d+$/;
 export const PATTERN_USERNAME = "^[a-zA-Z0-9_.]*$";
 export const PATTERN_SSN = "^[0-9]+$";
@@ -28,8 +30,8 @@ export const adminSchema = z
       return field;
     }, z.string().trim().email().toLowerCase().nullable().optional()),
     prefix: z.string().trim().min(1),
-    firstName: z.string().trim().min(1),
-    lastName: z.string().trim().min(1),
+    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME),
+    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME),
   })
   .strict();
 
@@ -49,8 +51,8 @@ export const updateAdminSchema = z
       return field;
     }, z.string().trim().email().toLowerCase().nullable().optional()),
     prefix: z.string().trim().min(1).optional(),
-    firstName: z.string().trim().min(1).optional(),
-    lastName: z.string().trim().min(1).optional(),
+    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME).optional(),
+    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME).optional(),
   })
   .strict();
 
@@ -69,8 +71,8 @@ export const doctorSchema = z
       return field;
     }, z.string().trim().email().toLowerCase().nullable().optional()),
     prefix: z.string().trim().min(1),
-    firstName: z.string().trim().min(1),
-    lastName: z.string().trim().min(1),
+    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME),
+    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME),
   })
   .strict();
 
@@ -90,8 +92,8 @@ export const updateDoctorSchema = z
       return field;
     }, z.string().trim().email().toLowerCase().nullable().optional()),
     prefix: z.string().trim().min(1).optional(),
-    firstName: z.string().trim().min(1).optional(),
-    lastName: z.string().trim().min(1).optional(),
+    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME).optional(),
+    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME).optional(),
   })
   .strict();
 
@@ -110,11 +112,11 @@ export const patientSchema = z
       return field;
     }, z.string().trim().email().toLowerCase().nullable().optional()),
     prefix: z.string().trim().min(1),
-    firstName: z.string().trim().min(1),
-    lastName: z.string().trim().min(1),
+    firstName: z.string().trim().min(1).regex(REGEX_LASTNAME),
+    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME),
     ssn: z.string().trim().min(1).regex(REGEX_SSN),
     gender: z.nativeEnum(Gender),
-    birthDate: z.string().datetime(),
+    birthDate: z.date().or(z.string().datetime()),
     ethnicity: z.string().trim().min(1).nullable().optional(),
   })
   .strict();
@@ -135,8 +137,8 @@ export const updatePatientSchema = z
       return field;
     }, z.string().trim().email().toLowerCase().nullable().optional()),
     prefix: z.string().trim().min(1).optional(),
-    firstName: z.string().trim().min(1).optional(),
-    lastName: z.string().trim().min(1).optional(),
+    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME).optional(),
+    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME).optional(),
     ssn: z.string().trim().min(1).regex(REGEX_SSN).optional(),
     gender: z.nativeEnum(Gender).optional(),
     birthDate: z.string().datetime().optional(),
@@ -150,12 +152,21 @@ export const addPatientMedicalConditionSchema = z
   })
   .strict();
 
+export const resultSchema = z.array(
+  z
+    .object({
+      key: z.string(),
+      value: z.number(),
+    })
+    .strict()
+);
+
 export const probioticRecordSchema = z
   .object({
     doctorId: z.string().cuid(),
     patientId: z.string().cuid(),
     fileId: z.string().cuid().nullable().optional(),
-    result: z.record(z.string(), z.number()),
+    result: resultSchema,
   })
   .strict();
 
@@ -164,7 +175,7 @@ export const updateProbioticRecordSchema = z
     doctorId: z.string().cuid().optional(),
     patientId: z.string().cuid().optional(),
     fileId: z.string().cuid().nullable().optional(),
-    result: z.record(z.string(), z.number()).optional(),
+    result: resultSchema,
   })
   .strict();
 

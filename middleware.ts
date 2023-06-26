@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
 import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
+import { UserType } from "./types/user";
 
 export default withAuth(
   function middleware(req) {
@@ -12,7 +13,7 @@ export default withAuth(
         : NextResponse.next();
     }
     if (pathname === "/patients") {
-      return !token
+      return token?.type !== UserType.Admin && token?.type !== UserType.Doctor
         ? NextResponse.redirect(new URL("/", req.url))
         : NextResponse.next();
     }

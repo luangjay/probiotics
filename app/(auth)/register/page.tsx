@@ -1,6 +1,8 @@
 "use client";
 
-import { Button, Icons, Input } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
+import { Input } from "@/components/ui/input";
 import { doctorSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -44,7 +46,7 @@ export default function Register() {
       <form
         id="register-form"
         noValidate
-        onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
+        onSubmit={(...a) => void handleSubmit(onSubmit)(...a)}
         className="flex w-full max-w-sm flex-col gap-4"
       >
         <h2 className="mx-auto text-5xl font-bold leading-normal">LOGO</h2>
@@ -118,7 +120,7 @@ export default function Register() {
           <p className="text-sm text-destructive">{errors.email.message}</p>
         )}
         <Button type="submit" disabled={isLoading}>
-          {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+          {isLoading && <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />}
           Register
         </Button>
       </form>

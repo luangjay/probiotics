@@ -354,8 +354,9 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
           entries
         );
         const result = Array.from({ length: entries }, (_, idx) => ({
-          [_probioticNames[idx]]: faker.number.int({ min: 0, max: 999 }),
-        })).reduce((acc, cur) => ({ ...acc, ...cur }), {});
+          key: _probioticNames[idx],
+          value: faker.number.int({ min: 0, max: 999 }),
+        }));
 
         // Create probiotic records
         return tx.probioticRecord.create({
@@ -372,7 +373,7 @@ async function seedProbioticBrandProbioticRecord({
   count,
 }: SeedOptions) {
   // Options
-  faker.seed(42009);
+  faker.seed(42004);
 
   // Initialize
   const probioticBrands = await prisma.probioticBrand.findMany();

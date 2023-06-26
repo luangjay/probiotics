@@ -10,7 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// enums
 enum Gender {
   Male   @map("male")
   Female @map("female")
@@ -19,8 +18,6 @@ enum Gender {
   @@map("genders")
 }
 
-// models
-// 42000
 model User {
   id        String    @id @default(cuid())
   username  String    @unique
@@ -41,7 +38,6 @@ model User {
   @@map("users")
 }
 
-// 42001
 model Admin {
   userId String @id @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -49,7 +45,6 @@ model Admin {
   @@map("admins")
 }
 
-// 42002
 model Doctor {
   userId           String            @id @map("user_id")
   user             User              @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -58,7 +53,6 @@ model Doctor {
   @@map("doctors")
 }
 
-// 42003
 model Patient {
   userId            String                    @id @map("user_id")
   ssn               String
@@ -72,7 +66,6 @@ model Patient {
   @@map("patients")
 }
 
-// 42005
 model Probiotic {
   id        Int         @id @default(autoincrement())
   parentId  Int?        @map("parent_id")
@@ -88,7 +81,6 @@ model Probiotic {
   @@map("probiotics")
 }
 
-// 42006
 model ProbioticBrand {
   id               Int                             @id @default(autoincrement())
   name             String
@@ -99,7 +91,6 @@ model ProbioticBrand {
   @@map("probiotic_brands")
 }
 
-// 42007
 model MedicalCondition {
   id        Int                       @id @default(autoincrement())
   name      String
@@ -110,7 +101,6 @@ model MedicalCondition {
   @@map("medical_conditions")
 }
 
-// 42008
 model ProbioticRecord {
   id              String                          @id @default(cuid())
   doctorId        String                          @map("doctor_id")
@@ -126,7 +116,6 @@ model ProbioticRecord {
   @@map("probiotic_records")
 }
 
-// 42009
 model ProbioticBrandProbioticRecord {
   id                Int             @id @default(autoincrement())
   probioticBrandId  Int             @map("probiotic_brand_id")
@@ -140,7 +129,6 @@ model ProbioticBrandProbioticRecord {
   @@map("probiotic_brand_probiotic_record")
 }
 
-// 42010
 model MedicalConditionPatient {
   id                 Int              @id @default(autoincrement())
   medicalConditionId Int              @map("medical_condition_id")
@@ -154,7 +142,6 @@ model MedicalConditionPatient {
   @@map("medical_condition_patient")
 }
 
-// NextAuth
 model Account {
   id                String  @id @default(cuid())
   userId            String

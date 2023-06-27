@@ -10,8 +10,15 @@ export function FilterRenderer<T>({
 }: FilterRendererProps<T>) {
   return (
     <>
-      <div className="h-[40px] font-semibold leading-[40px]">{column.name}</div>
-      <div className="flex h-[40px] py-1 font-normal">{children}</div>
+      <div
+        className="flex h-[39px] items-center px-2 font-semibold leading-[38px] text-accent-foreground"
+        style={{
+          borderBlockEnd: "1px solid var(--accent-foreground)",
+        }}
+      >
+        {column.name}
+      </div>
+      <div className="flex h-[40px] px-2 py-1 font-normal">{children}</div>
     </>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import { FilterRenderer } from "@/components/renderers/filter-renderer";
-import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 import { type PatientInfo } from "@/types/user";
+import { cx } from "cva";
 import Link from "next/link";
-import { useMemo } from "react";
-import DataGrid, { type Column } from "react-data-grid";
+import { useEffect, useMemo, useState } from "react";
+import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 import AddPatientDialog from "./add-patient-dialog";
 
@@ -14,6 +15,8 @@ interface PatientListProps {
 }
 
 export default function PatientList({ data }: PatientListProps) {
+  const [loading, setLoading] = useState(true);
+  const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
   const { register, control } = useForm<PatientInfo>({ mode: "onChange" });
   const filters = useWatch<PatientInfo>({ control });
 
@@ -22,29 +25,31 @@ export default function PatientList({ data }: PatientListProps) {
       {
         key: "ssn",
         name: "SSN",
-        headerCellClass: "",
+        width: "20%",
+        headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
             <input {...p} {...register("ssn")} className="w-full" />
           </FilterRenderer>
         ),
-        cellClass: cn("font-mono"),
+        cellClass: cx("font-mono"),
       },
       {
         key: "prefix",
         name: "Prefix",
-        headerCellClass: "",
+        width: "20%",
+        headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
             <input {...p} {...register("prefix")} className="w-full" />
           </FilterRenderer>
         ),
-        cellClass: "",
       },
       {
         key: "firstName",
         name: "First Name",
-        headerCellClass: "",
+        width: "20%",
+        headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
             <input {...p} {...register("firstName")} className="w-full" />
@@ -54,29 +59,33 @@ export default function PatientList({ data }: PatientListProps) {
       {
         key: "lastName",
         name: "Last Name",
-        headerCellClass: "",
+        width: "20%",
+        headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
-            <input {...p} {...register("lastName")} className="w-full" />
+            <Input
+              {...p}
+              {...register("lastName")}
+              className="focus-visible h-full w-full rounded-sm bg-background px-2 focus-visible:outline-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
           </FilterRenderer>
         ),
-        sortable: true,
       },
       {
         key: "actions",
         name: "Actions",
+        width: "20%",
         renderCell: ({ row }) => (
           <Link href={`/patients/${row.id}`} className="h-full w-full">
             A
           </Link>
         ),
-        cellClass: cn(""),
       },
     ],
     [register]
   );
 
-  const filteredPatientInfos = useMemo<PatientInfo[]>(
+  const filtered = useMemo<PatientInfo[]>(
     () =>
       data.filter((row) => {
         const { ssn, prefix, firstName, lastName } = filters;
@@ -90,18 +99,42 @@ export default function PatientList({ data }: PatientListProps) {
     [data, filters]
   );
 
+  const gridElement = useMemo(
+    () => (
+      <DataGrid
+        rows={filtered}
+        columns={columns}
+        headerRowHeight={80}
+        rowHeight={40}
+        defaultColumnOptions={{
+          sortable: true,
+        }}
+        rowKeyGetter={(row) => row.id}
+        sortColumns={sortColumns}
+        onSortColumnsChange={setSortColumns}
+        className="rdg-light flex-1"
+      />
+    ),
+    [columns, filtered, sortColumns]
+  );
+
+  useEffect(() => {
+    setLoading(false);
+  }, [gridElement]);
+
   return (
     <div className="flex flex-1 flex-col overflow-auto">
       <h2>Patients</h2>
-      <DataGrid
-        columns={columns}
-        rows={filteredPatientInfos}
-        rowKeyGetter={(row) => row.id}
-        headerRowHeight={80}
-        rowHeight={40}
-        className="rdg-light flex-1"
-      />
-      <AddPatientDialog />
+      {!loading ? (
+        gridElement
+      ) : (
+        <div className="flex flex-1 items-center justify-center">
+          Loading...
+        </div>
+      )}
+      <div className="flex justify-center">
+        <AddPatientDialog />
+      </div>
     </div>
   );
 }

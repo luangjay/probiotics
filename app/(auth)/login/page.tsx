@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
@@ -10,30 +9,34 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/lib/schema";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type FormData = z.infer<typeof loginSchema>;
 
 export default function Register() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(loginSchema),
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState(false);
 
   async function onSubmit(data: FormData) {
-    setIsLoading(true);
     const { username, password } = data;
     const signInResult = await signIn("credentials", {
       username,
       password,
-      callbackUrl: "/",
+      redirect: false,
     });
-    setIsError(!signInResult?.ok);
-    setIsLoading(false);
+    if (signInResult?.error) {
+      setError(true);
+    } else {
+      router.push("/patients");
+    }
   }
 
   return (
@@ -43,7 +46,9 @@ export default function Register() {
         onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        {/* {isError && <p className="text-sm text-destructive">Login failed</p>} */}
+        {error && (
+          <p className="text-center text-sm text-destructive">Login failed</p>
+        )}
         <h2 className="mx-auto text-5xl font-bold leading-normal">LOGO</h2>
         <Input
           id="username"
@@ -52,7 +57,7 @@ export default function Register() {
           type="text"
           autoCapitalize="none"
           autoCorrect="off"
-          disabled={isLoading}
+          disabled={isSubmitting}
           {...register("username")}
         />
         {errors?.username && (
@@ -69,8 +74,10 @@ export default function Register() {
         {errors?.password && (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
-        <Button type="submit" disabled={isLoading}>
-          {isLoading && <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && (
+            <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
+          )}
           Login
         </Button>
       </form>

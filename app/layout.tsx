@@ -10,9 +10,8 @@ const fontSans = localFont({
 });
 
 const fontMono = localFont({
-  src: "../assets/fonts/JackNerdFont-Regular.woff2",
+  src: "../assets/fonts/Jack-Regular.woff2",
   display: "swap",
-  
   variable: "--font-mono",
 });
 

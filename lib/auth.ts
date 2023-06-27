@@ -3,8 +3,8 @@ import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
 import { getServerSession, type NextAuthOptions, type User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { UserType } from "@/types/user";
 import { prisma } from "@/lib/prisma";
+import { UserType } from "@/types/user";
 
 export const authOptions: NextAuthOptions = {
   session: {

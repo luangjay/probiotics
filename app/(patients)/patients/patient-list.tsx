@@ -25,41 +25,39 @@ export default function PatientList({ data }: PatientListProps) {
       {
         key: "ssn",
         name: "SSN",
-        width: "20%",
         headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
             <input {...p} {...register("ssn")} className="w-full" />
           </FilterRenderer>
         ),
-        cellClass: cx("font-mono"),
+        cellClass: cx("border-b border-r"),
       },
       {
         key: "prefix",
         name: "Prefix",
-        width: "20%",
         headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
             <input {...p} {...register("prefix")} className="w-full" />
           </FilterRenderer>
         ),
+        cellClass: cx("border-b border-r"),
       },
       {
         key: "firstName",
         name: "First Name",
-        width: "20%",
         headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
             <input {...p} {...register("firstName")} className="w-full" />
           </FilterRenderer>
         ),
+        cellClass: cx("border-b border-r"),
       },
       {
         key: "lastName",
         name: "Last Name",
-        width: "20%",
         headerCellClass: cx("p-0"),
         renderHeaderCell: (p) => (
           <FilterRenderer<PatientInfo> {...p}>
@@ -70,16 +68,17 @@ export default function PatientList({ data }: PatientListProps) {
             />
           </FilterRenderer>
         ),
+        cellClass: cx("border-b border-r"),
       },
       {
         key: "actions",
         name: "Actions",
-        width: "20%",
         renderCell: ({ row }) => (
           <Link href={`/patients/${row.id}`} className="h-full w-full">
             A
           </Link>
         ),
+        cellClass: cx("border-b border-r"),
       },
     ],
     [register]
@@ -102,6 +101,8 @@ export default function PatientList({ data }: PatientListProps) {
   const gridElement = useMemo(
     () => (
       <DataGrid
+        direction="ltr"
+        className="rdg-light flex-1 overflow-scroll border"
         rows={filtered}
         columns={columns}
         headerRowHeight={80}
@@ -112,7 +113,6 @@ export default function PatientList({ data }: PatientListProps) {
         rowKeyGetter={(row) => row.id}
         sortColumns={sortColumns}
         onSortColumnsChange={setSortColumns}
-        className="rdg-light flex-1"
       />
     ),
     [columns, filtered, sortColumns]

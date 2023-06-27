@@ -2,6 +2,7 @@ import { Indicator } from "@/components/ui/indicator";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import localFont from "next/font/local";
+import "react-data-grid/lib/styles.css";
 
 const fontSans = localFont({
   src: "../assets/fonts/Inter.var.woff2",

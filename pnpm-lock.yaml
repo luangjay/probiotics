@@ -81,8 +81,8 @@ dependencies:
     specifier: ^18.2.0
     version: 18.2.0
   react-data-grid:
-    specifier: 7.0.0-canary.48
-    version: 7.0.0-canary.48(react-dom@18.2.0)(react@18.2.0)
+    specifier: 7.0.0-beta.32
+    version: 7.0.0-beta.32(react-dom@18.2.0)(react@18.2.0)
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
@@ -5433,11 +5433,11 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-data-grid@7.0.0-canary.48(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-ey5ZYC9UovotjI7zHbKxhK22JT8oIb4ksv+0n1bdhTH9ztkJvDiAb+/r1XmmcFmhwf3SonSplayolKVtbNiq7w==}
+  /react-data-grid@7.0.0-beta.32(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-S+lkAENpH57ZyV28rpM2ncjK8Wzat/zRy7rTqY2NhEh9V19sE/wQGcjQJdaYjOZnovSHv7cVfpFeWXf3YdIpNQ==}
     peerDependencies:
-      react: ^16.14 || ^17.0
-      react-dom: ^16.14 || ^17.0
+      react: ^18.0
+      react-dom: ^18.0
     dependencies:
       clsx: 1.2.1
       react: 18.2.0

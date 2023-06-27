@@ -34,7 +34,7 @@ export default function Results({ results, keys }: ResultsProps) {
         rowKeyGetter={(row) => row.key}
         headerRowHeight={80}
         rowHeight={40}
-        className="rdg-light flex-1 gap-px"
+        className="rdg-light flex-1"
       />
     </div>
   );

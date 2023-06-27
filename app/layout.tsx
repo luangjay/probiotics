@@ -5,11 +5,14 @@ import localFont from "next/font/local";
 
 const fontSans = localFont({
   src: "../assets/fonts/Inter.var.woff2",
+  display: "swap",
   variable: "--font-sans",
 });
 
 const fontMono = localFont({
-  src: "../assets/fonts/Jack-Regular.woff2",
+  src: "../assets/fonts/JackNerdFont-Regular.woff2",
+  display: "swap",
+  
   variable: "--font-mono",
 });
 

@@ -587,11 +587,11 @@ async function getOptions() {
       clear: options.reset || options.clear,
       admins: options.admins || 5,
       doctors: options.doctors || 10,
-      patients: options.patients || 10,
+      patients: options.patients || 40,
       probiotics: options.probiotics || 40,
       probiotic_brands: options.probiotic_brands || 40,
       medical_conditions: options.medical_conditions || 40,
-      probiotic_records: options.probiotic_records || 80,
+      probiotic_records: options.probiotic_records || 100,
       probiotic_brand_probiotic_record:
         options.probiotic_brand_probiotic_record || 80,
       medical_condition_patient: options.medical_condition_patient || 20,

@@ -4,6 +4,7 @@ import PatientList from "./patient-list";
 
 export default async function Page() {
   const patients = await getPatients();
+  console.log(patients);
 
   return (
     <div className="flex h-full flex-col gap-4">

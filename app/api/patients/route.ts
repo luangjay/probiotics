@@ -1,8 +1,8 @@
-import { ApiResponse } from "@/types/api";
-import { UserType } from "@/types/user";
 import { saltHashPassword } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { patientSchema } from "@/lib/schema";
+import { ApiResponse } from "@/types/api";
+import { UserType } from "@/types/user";
 
 import { validator } from "../validator";
 

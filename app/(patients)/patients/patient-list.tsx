@@ -17,8 +17,8 @@ export default function PatientList({ data }: PatientListProps) {
   const { register, control } = useForm<PatientInfo>({ mode: "onChange" });
   const filters = useWatch<PatientInfo>({ control });
 
-  const columns = useMemo<readonly Column<PatientInfo>[]>(() => {
-    return [
+  const columns = useMemo<Column<PatientInfo>[]>(
+    () => [
       {
         key: "ssn",
         name: "SSN",
@@ -60,6 +60,7 @@ export default function PatientList({ data }: PatientListProps) {
             <input {...p} {...register("lastName")} className="w-full" />
           </FilterRenderer>
         ),
+        sortable: true,
       },
       {
         key: "actions",
@@ -71,20 +72,23 @@ export default function PatientList({ data }: PatientListProps) {
         ),
         cellClass: cn(""),
       },
-    ];
-  }, [register]);
+    ],
+    [register]
+  );
 
-  const filteredPatientInfos = useMemo(() => {
-    return data.filter((row) => {
-      const { ssn, prefix, firstName, lastName } = filters;
-      return (
-        (ssn ? row.ssn.includes(ssn) : true) &&
-        (prefix ? row.prefix.includes(prefix) : true) &&
-        (firstName ? row.firstName.includes(firstName) : true) &&
-        (lastName ? row.lastName.includes(lastName) : true)
-      );
-    });
-  }, [data, filters]);
+  const filteredPatientInfos = useMemo<PatientInfo[]>(
+    () =>
+      data.filter((row) => {
+        const { ssn, prefix, firstName, lastName } = filters;
+        return (
+          (ssn ? row.ssn.includes(ssn) : true) &&
+          (prefix ? row.prefix.includes(prefix) : true) &&
+          (firstName ? row.firstName.includes(firstName) : true) &&
+          (lastName ? row.lastName.includes(lastName) : true)
+        );
+      }),
+    [data, filters]
+  );
 
   return (
     <div className="flex flex-1 flex-col overflow-auto">
@@ -92,13 +96,10 @@ export default function PatientList({ data }: PatientListProps) {
       <DataGrid
         columns={columns}
         rows={filteredPatientInfos}
-        renderers={{
-          noRowsFallback: <>Nothing to show...</>,
-        }}
         rowKeyGetter={(row) => row.id}
         headerRowHeight={80}
         rowHeight={40}
-        className="rdg-light flex-1 gap-px"
+        className="rdg-light flex-1"
       />
       <AddPatientDialog />
     </div>

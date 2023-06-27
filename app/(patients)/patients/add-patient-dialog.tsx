@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { patientSchema } from "@/lib/schema";
 import { faker } from "@faker-js/faker";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
@@ -14,12 +15,13 @@ import { type z } from "zod";
 type CreatePatientData = z.infer<typeof patientSchema>;
 
 export default function AddPatientDialog() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
     setValue,
     reset,
   } = useForm<CreatePatientData>({
@@ -36,13 +38,14 @@ export default function AddPatientDialog() {
     });
     if (response.ok) {
       setOpen(false);
+      router.refresh();
       reset();
     }
   };
 
   useEffect(() => {
     setValue("password", faker.internet.password());
-  }, [setValue]);
+  }, [setValue, open]);
 
   useEffect(() => {
     setValue("username", faker.internet.userName({ firstName, lastName }));
@@ -60,26 +63,39 @@ export default function AddPatientDialog() {
         </Dialog.Description>
         <form onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}>
           <fieldset className="flex flex-col items-center gap-2">
-            <Input id="prefix" placeholder="prefix" {...register("prefix")} />
+            <Input
+              id="prefix"
+              key="prefix"
+              placeholder="prefix"
+              {...register("prefix")}
+            />
             <p className="text-destructive">{errors.prefix?.message}</p>
             <Input
               id="firstName"
+              key="firstName"
               placeholder="firstName"
               {...register("firstName")}
             />
             <p className="text-destructive">{errors.firstName?.message}</p>
             <Input
               id="lastName"
+              key="lastName"
               placeholder="lastName"
               {...register("lastName")}
             />
             <p className="text-destructive">{errors.lastName?.message}</p>
-            <Input id="ssn" placeholder="ssn" {...register("ssn")} />
+            <Input id="ssn" key="ssn" placeholder="ssn" {...register("ssn")} />
             <p className="text-destructive">{errors.ssn?.message}</p>
-            <Input id="gender" placeholder="gender" {...register("gender")} />
+            <Input
+              id="gender"
+              key="gender"
+              placeholder="gender"
+              {...register("gender")}
+            />
             <p className="text-destructive">{errors.gender?.message}</p>
             <Input
               id="birthDate"
+              key="birthDate"
               type="datetime-local"
               placeholder="birthDate"
               {...register("birthDate", { valueAsDate: true })}
@@ -87,12 +103,14 @@ export default function AddPatientDialog() {
             <p className="text-destructive">{errors.birthDate?.message}</p>
             <Input
               id="ethnicity"
+              key="ethnicity"
               placeholder="ethnicity"
               {...register("ethnicity")}
             />
             <p className="text-destructive">{errors.ethnicity?.message}</p>
+            <p className="text-destructive">{JSON.stringify(isValid)}</p>
           </fieldset>
-          <div className="mt-2 flex justify-end">
+          <div className="mt-2 flex justify-center">
             {/* <Dialog.Close asChild> */}
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (

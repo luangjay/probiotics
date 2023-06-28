@@ -1,7 +1,7 @@
 "use client";
 
-import { FilterRenderer } from "@/components/renderers/filter-renderer";
 import { Input } from "@/components/ui/input";
+import { filtered, sorted } from "@/lib/rdg";
 import { type PatientInfo } from "@/types/user";
 import { cx } from "cva";
 import Link from "next/link";
@@ -14,61 +14,34 @@ interface PatientListProps {
   data: PatientInfo[];
 }
 
+interface Filter {
+  filter: string;
+}
+
 export default function PatientList({ data }: PatientListProps) {
   const [loading, setLoading] = useState(true);
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
-  const { register, control } = useForm<PatientInfo>({ mode: "onChange" });
-  const filters = useWatch<PatientInfo>({ control });
+  const { register, control } = useForm<Filter>({ mode: "onChange" });
+  const { filter } = useWatch<Filter>({ control });
 
   const columns = useMemo<Column<PatientInfo>[]>(
     () => [
       {
         key: "ssn",
         name: "SSN",
-        headerCellClass: cx("p-0"),
-        renderHeaderCell: (p) => (
-          <FilterRenderer<PatientInfo> {...p}>
-            <input {...p} {...register("ssn")} className="w-full" />
-          </FilterRenderer>
-        ),
-        cellClass: cx("border-b border-r"),
+        cellClass: cx("font-mono"),
       },
       {
         key: "prefix",
         name: "Prefix",
-        headerCellClass: cx("p-0"),
-        renderHeaderCell: (p) => (
-          <FilterRenderer<PatientInfo> {...p}>
-            <input {...p} {...register("prefix")} className="w-full" />
-          </FilterRenderer>
-        ),
-        cellClass: cx("border-b border-r"),
       },
       {
         key: "firstName",
         name: "First Name",
-        headerCellClass: cx("p-0"),
-        renderHeaderCell: (p) => (
-          <FilterRenderer<PatientInfo> {...p}>
-            <input {...p} {...register("firstName")} className="w-full" />
-          </FilterRenderer>
-        ),
-        cellClass: cx("border-b border-r"),
       },
       {
         key: "lastName",
         name: "Last Name",
-        headerCellClass: cx("p-0"),
-        renderHeaderCell: (p) => (
-          <FilterRenderer<PatientInfo> {...p}>
-            <Input
-              {...p}
-              {...register("lastName")}
-              className="focus-visible h-full w-full rounded-sm bg-background px-2 focus-visible:outline-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </FilterRenderer>
-        ),
-        cellClass: cx("border-b border-r"),
       },
       {
         key: "actions",
@@ -78,44 +51,49 @@ export default function PatientList({ data }: PatientListProps) {
             A
           </Link>
         ),
-        cellClass: cx("border-b border-r"),
       },
     ],
-    [register]
+    []
   );
 
-  const filtered = useMemo<PatientInfo[]>(
-    () =>
-      data.filter((row) => {
-        const { ssn, prefix, firstName, lastName } = filters;
-        return (
-          (ssn ? row.ssn.includes(ssn) : true) &&
-          (prefix ? row.prefix.includes(prefix) : true) &&
-          (firstName ? row.firstName.includes(firstName) : true) &&
-          (lastName ? row.lastName.includes(lastName) : true)
-        );
-      }),
-    [data, filters]
+  const rows = useMemo(
+    () => filtered(sorted(data, sortColumns), filter || ""),
+    [data, sortColumns, filter]
   );
+
+  // const filtered = useMemo<PatientInfo[]>(
+  //   () =>
+  //     data.filter((row) => {
+  //       const { ssn, prefix, firstName, lastName } = filters;
+  //       return (
+  //         (ssn ? row.ssn.includes(ssn) : true) &&
+  //         (prefix ? row.prefix.includes(prefix) : true) &&
+  //         (firstName ? row.firstName.includes(firstName) : true) &&
+  //         (lastName ? row.lastName.includes(lastName) : true)
+  //       );
+  //     }),
+  //   [data, filters]
+  // );
 
   const gridElement = useMemo(
     () => (
       <DataGrid
         direction="ltr"
-        className="rdg-light flex-1 overflow-scroll border"
-        rows={filtered}
+        className="rdg-light mx-1 my-4 flex-1"
+        rows={rows}
         columns={columns}
-        headerRowHeight={80}
+        headerRowHeight={40}
         rowHeight={40}
         defaultColumnOptions={{
           sortable: true,
         }}
+        // rowClass={() => "hover:bg-red-500"}
         rowKeyGetter={(row) => row.id}
         sortColumns={sortColumns}
         onSortColumnsChange={setSortColumns}
       />
     ),
-    [columns, filtered, sortColumns]
+    [rows, columns, sortColumns]
   );
 
   useEffect(() => {
@@ -123,8 +101,11 @@ export default function PatientList({ data }: PatientListProps) {
   }, [gridElement]);
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto">
-      <h2>Patients</h2>
+    <div className="flex h-full flex-col overflow-auto">
+      <h2 className="mx-1 text-2xl font-semibold">Patients</h2>
+      <div className="mx-1 flex justify-end">
+        <Input className="w-1/4" {...register("filter")}></Input>
+      </div>
       {!loading ? (
         gridElement
       ) : (

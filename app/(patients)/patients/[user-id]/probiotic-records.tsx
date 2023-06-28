@@ -54,7 +54,7 @@ export default function ProbioticRecords({ data }: ProbioticRecordsProps) {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto">
+    <div className="flex flex-1 flex-col gap-4 overflow-auto">
       <h3 className="text-xl font-semibold leading-normal">
         Probiotic Records
       </h3>
@@ -67,7 +67,7 @@ export default function ProbioticRecords({ data }: ProbioticRecordsProps) {
         rowKeyGetter={(row) => row.id}
         headerRowHeight={80}
         rowHeight={40}
-        className="rdg-light flex-1 gap-px"
+        className="rdg-light flex-1"
       />
     </div>
   );

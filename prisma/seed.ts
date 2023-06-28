@@ -59,23 +59,21 @@ async function seed({
     case "probiotics":
       await seedProbiotics({ reset, clear, count });
       break;
-    case "probiotic_brands":
+    case "probiotic-brands":
       await seedProbioticBrands({ reset, clear, count });
       break;
-    case "medical_conditions":
+    case "medical-conditions":
       await seedMedicalConditions({ reset, clear, count });
       break;
-    case "probiotic_records":
+    case "probiotic-records":
       await seedProbioticRecords({ reset, clear, count });
       break;
-    case "probiotic_brand_probiotic_record":
+    case "probiotic-brand-probiotic-record":
       await seedProbioticBrandProbioticRecord({ reset, clear, count });
       break;
-    case "medical_condition_patient":
+    case "medical-condition-patient":
       await seedMedicalConditionPatient({ reset, clear, count });
       break;
-    default:
-      throw new Error("Invalid option");
   }
   console.timeEnd(`${reset ? "Reset" : `Seeded ${count}`} ${option} in`);
 }
@@ -332,7 +330,7 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
   // Initialize
   const doctors = await prisma.doctor.findMany();
   const patients = await prisma.patient.findMany();
-  const probiotics = await prisma.probioticBrand.findMany();
+  const probiotics = await prisma.probiotic.findMany();
 
   const doctorIds = doctors.map((doctor) => doctor.userId);
   const patientIds = patients.map((patient) => patient.userId);
@@ -558,11 +556,11 @@ async function getOptions() {
       doctors: { type: "number", default: 0 },
       patients: { type: "number", default: 0 },
       probiotics: { type: "number", default: 0 },
-      probiotic_brands: { type: "number", default: 0 },
-      medical_conditions: { type: "number", default: 0 },
-      probiotic_records: { type: "number", default: 0 },
-      probiotic_brand_probiotic_record: { type: "number", default: 0 },
-      medical_condition_patient: { type: "number", default: 0 },
+      "probiotic-brands": { type: "number", default: 0 },
+      "medical-conditions": { type: "number", default: 0 },
+      "probiotic-records": { type: "number", default: 0 },
+      "probiotic-brand-probiotic-record": { type: "number", default: 0 },
+      "medical-condition-patient": { type: "number", default: 0 },
     })
     .coerce({
       admins: (count: number) =>
@@ -571,12 +569,13 @@ async function getOptions() {
       patients: (count: number) => clamp(count, 0, 40),
       probiotics: (count: number) =>
         clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
-      probiotic_brands: (count: number) =>
+      "probiotic-brands": (count: number) =>
         clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
-      medical_conditions: (count: number) => clamp(count, 0, 80),
-      probiotic_records: (count: number) => clamp(count, 0, 400),
-      probiotic_brand_probiotic_record: (count: number) => clamp(count, 0, 400),
-      medical_condition_patient: (count: number) => clamp(count, 0, 80),
+      "medical-conditions": (count: number) => clamp(count, 0, 80),
+      "probiotic-records": (count: number) => clamp(count, 0, 400),
+      "probiotic-brand-probiotic-record": (count: number) =>
+        clamp(count, 0, 400),
+      "medical-condition-patient": (count: number) => clamp(count, 0, 80),
     })
     .parseAsync();
 
@@ -589,12 +588,12 @@ async function getOptions() {
       doctors: options.doctors || 10,
       patients: options.patients || 40,
       probiotics: options.probiotics || 40,
-      probiotic_brands: options.probiotic_brands || 40,
-      medical_conditions: options.medical_conditions || 40,
-      probiotic_records: options.probiotic_records || 100,
-      probiotic_brand_probiotic_record:
-        options.probiotic_brand_probiotic_record || 80,
-      medical_condition_patient: options.medical_condition_patient || 20,
+      "probiotic-brands": options["probiotic-brands"] || 40,
+      "medical-conditions": options["medical-conditions"] || 40,
+      "probiotic-records": options["probiotic-brands"] || 100,
+      "probiotic-brand-probiotic-record":
+        options["probiotic-brand-probiotic-record"] || 80,
+      "medical-condition-patient": options["medical-condition-patient"] || 20,
     };
   }
   return {
@@ -604,12 +603,12 @@ async function getOptions() {
     doctors: options.doctors || 0,
     patients: options.patients || 0,
     probiotics: options.probiotics || 0,
-    probiotic_brands: options.probiotic_brands || 0,
-    medical_conditions: options.medical_conditions || 0,
-    probiotic_records: options.probiotic_records || 0,
-    probiotic_brand_probiotic_record:
-      options.probiotic_brand_probiotic_record || 0,
-    medical_condition_patient: options.medical_condition_patient || 0,
+    "probiotic-brands": options["probiotic-brands"] || 0,
+    "medical-conditions": options["medical-conditions"] || 0,
+    "probiotic-records": options["probiotic-records"] || 0,
+    "probiotic-brand-probiotic-record":
+      options["probiotic-brand-probiotic-record"] || 0,
+    "medical-condition-patient": options["medical-condition-patient"] || 0,
   };
 }
 /* eslint-enable @typescript-eslint/naming-convention */

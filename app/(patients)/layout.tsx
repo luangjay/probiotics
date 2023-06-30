@@ -6,16 +6,14 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="container flex flex-1 gap-12">
-      <section className="w-[200px] lg:py-8">
-        <div className="fixed flex h-screen flex-col gap-4">
+    <div className="container flex h-screen gap-12 py-8">
+      <section className="w-[200px]">
+        <div className="fixed flex flex-col gap-4">
           <Link href="/">Home</Link>
           <Link href="/patients">Patients</Link>
         </div>
       </section>
-      <section className="h-screen w-full flex-1 overflow-auto lg:py-8">
-        {children}
-      </section>
+      <section className="flex-1 overflow-auto">{children}</section>
     </div>
   );
 }

@@ -94,8 +94,8 @@
   --rdg-border-color: #ddd;
   --rdg-summary-border-color: #aaa;
   --rdg-background-color: hsl(0deg 0% 100%);
-  --rdg-header-background-color: var(--accent);
-  --rdg-row-hover-background-color: var(--primary-foreground);
+  --rdg-header-background-color: hsl(0deg 0% 97.5%);
+  --rdg-row-hover-background-color: hsl(0deg 0% 96%);
   --rdg-row-selected-background-color: hsl(207deg 76% 92%);
   --rdg-row-selected-hover-background-color: hsl(207deg 76% 88%);
   --rdg-checkbox-color: hsl(207deg 100% 29%);
@@ -128,9 +128,18 @@
 }
 
 .rdg-cell {
-  @apply border-b border-r px-2;
+  border-color: var(--rdg-border-color);
+  @apply border-b border-r px-2 shadow-none;
+}
+
+.rdg-cell[aria-selected="true"] > .rdg-checkbox-label > .rdg-checkbox {
+  border-color: var(--rdg-checkbox-focus-color);
 }
 
 .rdg-sort-arrow {
   @apply h-full align-middle;
+}
+
+.rdg-checkbox {
+  @apply border-2;
 }

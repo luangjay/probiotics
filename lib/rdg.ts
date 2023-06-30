@@ -9,20 +9,22 @@ const numberColumns = new Set<string | number | symbol>(["ssn"]);
 
 const dateColumns = new Set<string | number | symbol>(["birthDate"]);
 
-export function filtered<R extends Row>(rows: R[], filter: string) {
+export function filtered<R extends Row>(rows: R[], filter?: string | null) {
+  if (!filter) return rows;
   const t = filter.toLowerCase().split(/\s+/);
   if (t.length === 0) return rows;
   return rows.filter((row) =>
     t.reduce(
       (acc, cur) =>
+        acc &&
         Object.keys(row).some((key) => {
           const val = row[key as keyof R];
           if (typeof val === "string") {
-            return acc && val.toLowerCase().includes(cur);
+            return val.toLowerCase().includes(cur);
           }
-          return true;
+          return false;
         }),
-      false
+      true
     )
   );
 }

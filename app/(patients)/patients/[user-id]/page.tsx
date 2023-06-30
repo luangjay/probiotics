@@ -1,6 +1,7 @@
+import { buttonVariants } from "@/components/ui/button";
 import prisma from "@/lib/prisma";
 import { UserType, type DoctorInfo, type PatientInfo } from "@/types/user";
-import { type ProbioticRecord } from "@prisma/client";
+import { type MedicalCondition, type ProbioticRecord } from "@prisma/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProbioticRecords from "./probiotic-records";
@@ -16,14 +17,26 @@ export default async function Page({ params }: PageProps) {
   const { probioticRecords, ...patient } = await getPatient(userId);
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 text-sm">
       <h2 className="text-2xl font-bold">
         {patient.prefix} {patient.firstName} {patient.lastName}
       </h2>
-      <p>{patient.ssn}</p>
-      <p>{patient.gender}</p>
-      <p>{patient.birthDate.toLocaleDateString()}</p>
-      <Link href={`${userId}/time-series`}>Time-series</Link>
+      <div className="space-y-2">
+        <p>SSN: {patient.ssn}</p>
+        <p>Gender: {patient.gender}</p>
+        <p>Birth date: {patient.birthDate.toLocaleDateString()}</p>
+        <p>Ethnicity: {patient.ethnicity}</p>
+        <p>
+          Medical conditions:{" "}
+          {patient.medicalConditions.map((m14n) => m14n.name).join(", ")}
+        </p>
+        <Link
+          href={`${userId}/time-series`}
+          className={buttonVariants({ size: "sm", variant: "ghost" })}
+        >
+          Time series
+        </Link>
+      </div>
       <ProbioticRecords data={probioticRecords} />
     </div>
   );
@@ -32,6 +45,7 @@ export default async function Page({ params }: PageProps) {
 async function getPatient(userId: string): Promise<
   PatientInfo & {
     probioticRecords: (ProbioticRecord & { doctor: DoctorInfo })[];
+    medicalConditions: MedicalCondition[];
   }
 > {
   try {
@@ -50,6 +64,11 @@ async function getPatient(userId: string): Promise<
             },
           },
         },
+        medicalConditions: {
+          include: {
+            medicalCondition: true,
+          },
+        },
       },
     });
 
@@ -57,6 +76,7 @@ async function getPatient(userId: string): Promise<
       user,
       userId: _,
       probioticRecords: _probioticRecords,
+      medicalConditions: _medicalConditions,
       ...pPatient
     } = patient;
     const { password, salt, ...pUserPatient } = user;
@@ -72,11 +92,15 @@ async function getPatient(userId: string): Promise<
         },
       };
     });
+    const medicalConditions = _medicalConditions.map(
+      (m14n) => m14n.medicalCondition
+    );
     return {
       type: UserType.Patient as const,
       ...pPatient,
       ...pUserPatient,
       probioticRecords,
+      medicalConditions,
     };
   } catch (error) {
     notFound();

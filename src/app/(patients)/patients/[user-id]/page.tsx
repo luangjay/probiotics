@@ -14,29 +14,16 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
-  const { probioticRecords, ...patient } = await getPatient(userId);
+  const { probioticRecords } = await getPatient(userId);
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
-      <h2 className="text-2xl font-bold">
-        {patient.prefix} {patient.firstName} {patient.lastName}
-      </h2>
-      <div className="space-y-2">
-        <p>SSN: {patient.ssn}</p>
-        <p>Gender: {patient.gender}</p>
-        <p>Birth date: {patient.birthDate.toLocaleDateString()}</p>
-        <p>Ethnicity: {patient.ethnicity}</p>
-        <p>
-          Medical conditions:{" "}
-          {patient.medicalConditions.map((m14n) => m14n.name).join(", ")}
-        </p>
-        <Link
-          href={`${userId}/time-series`}
-          className={buttonVariants({ size: "sm", variant: "ghost" })}
-        >
-          Time series
-        </Link>
-      </div>
+      <Link
+        href={`${userId}/time-series`}
+        className={buttonVariants({ size: "sm", variant: "ghost" })}
+      >
+        Time series
+      </Link>
       <ProbioticRecords data={probioticRecords} />
     </div>
   );

@@ -1,21 +1,16 @@
 "use client";
 
-import { noRowsFallback } from "@/components/rdg/no-rows-fallback";
-import { renderRow } from "@/components/rdg/render-row";
-import { selectColumn } from "@/components/rdg/select-column";
-import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRowSelection } from "@/hooks/use-row-selection";
+import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filtered, sorted } from "@/lib/rdg";
-import { cn } from "@/lib/utils";
-import { type RowKeyGetter } from "@/types/rdg";
 import { type PatientInfo } from "@/types/user";
 import { cx } from "cva";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import DataGrid, { type Column, type SortColumn } from "react-data-grid";
+import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 import AddPatientDialog from "./add-patient-dialog";
+import { selectPatientColumn } from "./select-patient-column";
 
 interface PatientListProps {
   data: PatientInfo[];
@@ -29,9 +24,15 @@ export default function PatientList({ data }: PatientListProps) {
   const [loading, setLoading] = useState(true);
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
+  // Component mounted
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
   // Select rows
-  const { key: selectedRowKey } = useRowSelection();
-  const rowKeyGetter: RowKeyGetter<PatientInfo> = (row) => row.id;
+  const { patient: selectedPatient, setPatient: setSelectedPatient } =
+    useSelectPatientStore();
+  const rowKeyGetter = (row: PatientInfo) => row.id;
 
   // Filter rows
   const { register, control } = useForm<Filter>({ mode: "onChange" });
@@ -40,7 +41,7 @@ export default function PatientList({ data }: PatientListProps) {
   // Columns
   const columns = useMemo<Column<PatientInfo>[]>(
     () => [
-      selectColumn({ rowKeyGetter }),
+      selectPatientColumn,
       {
         key: "ssn",
         name: "SSN",
@@ -64,17 +65,14 @@ export default function PatientList({ data }: PatientListProps) {
         renderCell: ({ row }) => (
           <Link
             href={`/patients/${row.id}`}
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "px-2 py-0 text-xs"
-            )}
+            onClick={() => void setSelectedPatient(row)}
           >
             View
           </Link>
         ),
       },
     ],
-    []
+    [setSelectedPatient]
   );
 
   const rows = useMemo(
@@ -83,46 +81,55 @@ export default function PatientList({ data }: PatientListProps) {
   );
 
   const gridElement = useMemo(
-    () => (
-      <DataGrid
-        direction="ltr"
-        className="rdg-light mx-1 my-4 flex-1"
-        rows={rows}
-        columns={columns}
-        headerRowHeight={40}
-        rowHeight={40}
-        defaultColumnOptions={{
-          sortable: true,
-        }}
-        renderers={{
-          noRowsFallback,
-          renderRow: (key, p) => renderRow<PatientInfo>(key, p, selectedRowKey),
-        }}
-        rowKeyGetter={rowKeyGetter}
-        sortColumns={sortColumns}
-        onSortColumnsChange={setSortColumns}
-      />
-    ),
-    [rows, columns, sortColumns, selectedRowKey]
+    () =>
+      loading ? (
+        <div className="mx-1 flex flex-1 items-center justify-center">
+          Loading...
+        </div>
+      ) : (
+        <DataGrid
+          direction="ltr"
+          className="rdg-light mx-1 my-4 flex-1"
+          rows={rows}
+          columns={columns}
+          headerRowHeight={40}
+          rowHeight={40}
+          defaultColumnOptions={{
+            sortable: true,
+          }}
+          renderers={{
+            noRowsFallback: (
+              <div style={{ textAlign: "center", gridColumn: "1/-1" }}>
+                Nothing to show (´・ω・`)
+              </div>
+            ),
+            renderRow: (key, p) =>
+              key !== selectedPatient?.id ? (
+                <Row {...p} key={key} />
+              ) : (
+                <Row {...p} aria-selected key={key} />
+              ),
+          }}
+          rowKeyGetter={rowKeyGetter}
+          sortColumns={sortColumns}
+          onSortColumnsChange={setSortColumns}
+        />
+      ),
+    [loading, rows, columns, sortColumns, selectedPatient]
   );
-
-  useEffect(() => {
-    setLoading(false);
-  }, []);
 
   return (
     <div className="flex h-full flex-col overflow-auto">
       <h2 className="mx-1 text-2xl font-semibold">Patients</h2>
       <div className="mx-1 flex justify-end">
-        <Input className="w-1/4" {...register("filter")}></Input>
+        <Input
+          {...register("filter")}
+          id="filter"
+          className="w-1/4"
+          placeholder="Filter"
+        />
       </div>
-      {!loading ? (
-        gridElement
-      ) : (
-        <div className="mx-1 flex flex-1 items-center justify-center">
-          Loading...
-        </div>
-      )}
+      {gridElement}
       <div className="flex justify-center">
         <AddPatientDialog />
       </div>

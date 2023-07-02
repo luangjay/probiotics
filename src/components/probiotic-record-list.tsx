@@ -1,13 +1,14 @@
 "use client";
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
+import { sorted } from "@/lib/rdg";
 import { fullName } from "@/lib/user";
 import { cn } from "@/lib/utils";
 import { type DoctorInfo, type PatientInfo } from "@/types/user";
 import { type ProbioticRecord } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import DataGrid, { type Column } from "react-data-grid";
+import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 
 interface ProbioticRecordListProps {
   patient: PatientInfo & { fullName: string };
@@ -16,11 +17,12 @@ interface ProbioticRecordListProps {
 
 export function ProbioticRecordList({
   patient: _patient,
-  probioticRecords: rows,
+  probioticRecords,
 }: ProbioticRecordListProps) {
   // States
   const [loading, setLoading] = useState(false);
   const { setPatient } = useSelectPatientStore();
+  const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
@@ -67,29 +69,44 @@ export function ProbioticRecordList({
     ];
   }, []);
 
+  const rows = useMemo(
+    () => sorted(probioticRecords, sortColumns),
+    [probioticRecords, sortColumns]
+  );
+
   const gridElement = useMemo(
     () =>
       loading ? (
         <>Loading...</>
       ) : (
         <DataGrid
+          direction="ltr"
+          className="rdg-light flex-1"
           rows={rows}
           columns={columns}
-          renderers={{
-            noRowsFallback: <>Nothing to show...</>,
-          }}
-          rowKeyGetter={(row) => row.id}
-          headerRowHeight={80}
+          headerRowHeight={40}
           rowHeight={40}
-          className="rdg-light flex-1"
+          rowKeyGetter={(row) => row.id}
+          // sortColumns={sortColumns}
+          // onSortColumnsChange={setSortColumns}
+          defaultColumnOptions={{
+            sortable: true,
+          }}
+          renderers={{
+            noRowsFallback: (
+              <div style={{ textAlign: "center", gridColumn: "1/-1" }}>
+                Nothing to show (´・ω・`)
+              </div>
+            ),
+          }}
         />
       ),
     [loading, rows, columns]
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-4 overflow-auto">
-      <h3 className="flex h-[40px] items-center text-2xl font-semibold leading-normal">
+    <div className="flex h-full flex-col gap-4 p-1">
+      <h3 className="flex h-[40px] items-center text-2xl font-semibold">
         Probiotic Records
       </h3>
       {gridElement}

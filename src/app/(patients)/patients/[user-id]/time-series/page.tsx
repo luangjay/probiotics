@@ -11,12 +11,15 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
   const { probioticRecords, ...patient } = await getPatient(userId);
-  const {keys, timeSeriesResults} = await getTimeSeriesResults(probioticRecords);
+  const { keys, timeSeriesResults } = await getTimeSeriesResults(
+    probioticRecords
+  );
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
       <TimeSeriesResults
         patient={patient}
+        keys={keys}
         timeSeriesResults={timeSeriesResults}
       />
     </div>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { alias } from "@/lib/probiotic";
+import { sorted } from "@/lib/rdg";
 import { type PatientInfo } from "@/types/user";
 import { useEffect, useMemo, useState } from "react";
-import DataGrid, { type Column } from "react-data-grid";
+import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 
 interface TimeSeriesResultsProps {
   patient: PatientInfo & { fullName: string };
@@ -18,11 +18,12 @@ interface TimeSeriesResultsProps {
 export function TimeSeriesResults({
   patient: _patient,
   keys,
-  timeSeriesResults: rows,
+  timeSeriesResults,
 }: TimeSeriesResultsProps) {
   // States
   const [loading, setLoading] = useState(true);
   const { setPatient } = useSelectPatientStore();
+  const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
@@ -41,7 +42,7 @@ export function TimeSeriesResults({
           return {
             key,
             name: "Probiotic",
-            renderCell: ({ row }) => alias(row.probiotic),
+            sortable: true,
           };
         }
         return {
@@ -52,29 +53,41 @@ export function TimeSeriesResults({
     [keys]
   );
 
+  const rows = useMemo(
+    () => sorted(timeSeriesResults, sortColumns),
+    [timeSeriesResults, sortColumns]
+  );
+
   const gridElement = useMemo(
     () =>
       loading ? (
         <>Loading...</>
       ) : (
         <DataGrid
+          direction="ltr"
+          className="rdg-light flex-1"
           rows={rows}
           columns={columns}
-          renderers={{
-            noRowsFallback: <>Nothing to show...</>,
-          }}
-          rowKeyGetter={(row) => row.key}
-          headerRowHeight={80}
+          headerRowHeight={40}
           rowHeight={40}
-          className="rdg-light flex-1"
+          rowKeyGetter={(row) => row.key}
+          sortColumns={sortColumns}
+          onSortColumnsChange={setSortColumns}
+          renderers={{
+            noRowsFallback: (
+              <div style={{ textAlign: "center", gridColumn: "1/-1" }}>
+                Nothing to show (´・ω・`)
+              </div>
+            ),
+          }}
         />
       ),
-    [loading, rows, columns]
+    [loading, rows, columns, sortColumns]
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-4 overflow-auto">
-      <h3 className="flex h-[40px] items-center text-2xl font-semibold leading-normal">
+    <div className="flex h-full flex-col gap-4 p-1">
+      <h3 className="flex h-[40px] items-center text-2xl font-semibold">
         Probiotic Records
       </h3>
       {gridElement}

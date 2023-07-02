@@ -2,6 +2,7 @@
 
 import { CreatePatientDialog } from "@/components/create-patient-dialog";
 import { selectPatientColumn } from "@/components/select-patient-column";
+import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filtered, sorted } from "@/lib/rdg";
@@ -11,7 +12,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
-import { Icons } from "./ui/icons";
 
 interface PatientListProps {
   patients: (PatientInfo & { fullName: string })[];
@@ -99,11 +99,14 @@ export function PatientList({ patients }: PatientListProps) {
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light my-4 flex-1"
+          className="rdg-light flex-1"
           rows={rows}
           columns={columns}
           headerRowHeight={40}
           rowHeight={40}
+          rowKeyGetter={(row) => row.id}
+          sortColumns={sortColumns}
+          onSortColumnsChange={setSortColumns}
           defaultColumnOptions={{
             sortable: true,
           }}
@@ -120,16 +123,13 @@ export function PatientList({ patients }: PatientListProps) {
                 <Row {...p} aria-selected key={key} />
               ),
           }}
-          rowKeyGetter={(row) => row.id}
-          sortColumns={sortColumns}
-          onSortColumnsChange={setSortColumns}
         />
       ),
     [loading, rows, columns, selectedPatient, sortColumns]
   );
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col gap-4 p-1">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Patients</h2>
         <Input

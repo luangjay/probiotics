@@ -1,5 +1,14 @@
-import { getProbiotics } from "@/lib/probiotic";
+import prisma from "@/lib/prisma";
+import { alias } from "@/lib/probiotic";
 import { type ProbioticRecord } from "@prisma/client";
+
+export async function getProbiotics() {
+  const probiotics = await prisma.probiotic.findMany();
+  return probiotics.map((probiotic) => ({
+    ...probiotic,
+    alias: alias(probiotic.name),
+  }));
+}
 
 export async function getTimeSeriesResults(
   probioticRecords: ProbioticRecord[]
@@ -11,20 +20,9 @@ export async function getTimeSeriesResults(
   }[];
 }> {
   const probiotics = await getProbiotics();
-  // const probioticIdxs = new Map(
-  //   Array.from(probiotics, (val, idx) => [val, idx])
-  // );
-
-  // const timepoints = probioticRecords.map(
-  //   (probioticRecord) => probioticRecord.createdAt
-  // );
-  // const results = probioticRecords.map(
-  //   (probioticRecord) =>
-  //     probioticRecord.result as { key: string; value: number | null }[]
-  // );
   const keys = new Set<string>();
 
-  const table: (number | null)[][] = probiotics.map((probiotic) =>
+  const table = probiotics.map((probiotic) =>
     probioticRecords.map((probioticRecord) => {
       const result = probioticRecord.result as {
         [name: string]: number | undefined;
@@ -34,41 +32,34 @@ export async function getTimeSeriesResults(
       if (value === undefined) {
         return null;
       }
-      keys.add(key);
+      keys.add(alias(key));
       return value;
     })
   );
 
-  const results = probiotics
-    .map((probiotic, idx) => {
-      if (!keys.has(probiotic.name)) {
-        return null;
-      }
-      const values = table[idx];
-      return Object.fromEntries(
-        values.map((value, idx) => [
-          probioticRecords[idx].createdAt.toLocaleString(),
-          value,
-        ])
-      );
-    })
-    .filter((result) => result !== null) as {
-    [timepoint: string]: number | null;
-  }[];
+  const results = probiotics.map((probiotic, idx) => {
+    if (!keys.has(probiotic.alias)) {
+      return null;
+    }
+    const values = table[idx];
+    return Object.fromEntries(
+      values.map((value, idx) => [
+        probioticRecords[idx].createdAt.toLocaleString(),
+        value,
+      ])
+    );
+  });
+
+  const timeSeriesResults = probiotics
+    .map((probiotic, idx) => ({
+      probiotic: probiotic.alias,
+      ...results[idx],
+    }))
+    .filter((result) => keys.has(result.probiotic));
 
   return {
-    keys: [
-      "probiotic",
-      ...probiotics
-        .filter((probiotic) => keys.has(probiotic.name))
-        .map((probiotic) => probiotic.name),
-    ],
-    timeSeriesResults: probiotics
-      .filter((probiotic) => keys.has(probiotic.name))
-      .map((probiotic, idx) => ({
-        probiotic: probiotic.name,
-        ...results[idx],
-      })),
+    keys: Object.keys(timeSeriesResults[0] ?? {}),
+    timeSeriesResults,
   };
 }
 

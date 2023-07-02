@@ -15,7 +15,7 @@ export default function Layout({ children }: LayoutProps) {
           <SelectedPatient />
         </div>
       </section>
-      <section className="flex-1">{children}</section>
+      <section className="flex-1 overflow-auto">{children}</section>
     </div>
   );
 }

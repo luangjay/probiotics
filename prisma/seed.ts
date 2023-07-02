@@ -372,7 +372,7 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
       if (reset) return;
     }
     await Promise.all(
-      Array.from({ length: count }, () => {
+      Array.from({ length: count }, (_, idx) => {
         // Probiotic record fields
         const doctorId = faker.helpers.arrayElement(doctorIds);
         const patientId = faker.helpers.arrayElement(patientIds);
@@ -387,7 +387,12 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
 
         // Create probiotic records
         return tx.probioticRecord.create({
-          data: { doctorId, patientId, result },
+          data: {
+            doctorId,
+            patientId,
+            result,
+            createdAt: new Date(Date.now() - (count - idx) * 60 * 60 * 1000),
+          },
         });
       })
     );

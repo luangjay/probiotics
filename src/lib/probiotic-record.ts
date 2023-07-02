@@ -1,43 +1,118 @@
+import { getProbiotics } from "@/lib/probiotic";
 import { type ProbioticRecord } from "@prisma/client";
-import { getProbiotics } from "./probiotic";
 
-export async function getTimeSeriesResults(probioticRecords: ProbioticRecord[]) {
-  const probiotics = await getProbiotics()
+export async function getTimeSeriesResults(
+  probioticRecords: ProbioticRecord[]
+): Promise<{
+  keys: string[];
+  timeSeriesResults: {
+    probiotic: string;
+    [timepoint: string]: string | number;
+  }[];
+}> {
+  const probiotics = await getProbiotics();
+  // const probioticIdxs = new Map(
+  //   Array.from(probiotics, (val, idx) => [val, idx])
+  // );
 
-  
-  const results = probioticRecords.map(
-    (probioticRecord) =>
-      probioticRecord.result as { key: string; value: number | null }[]
+  // const timepoints = probioticRecords.map(
+  //   (probioticRecord) => probioticRecord.createdAt
+  // );
+  // const results = probioticRecords.map(
+  //   (probioticRecord) =>
+  //     probioticRecord.result as { key: string; value: number | null }[]
+  // );
+  const keys = new Set<string>();
+
+  const table: (number | null)[][] = probiotics.map((probiotic) =>
+    probioticRecords.map((probioticRecord) => {
+      const result = probioticRecord.result as {
+        [name: string]: number | undefined;
+      };
+      const key = probiotic.name;
+      const value = result[key];
+      if (value === undefined) {
+        return null;
+      }
+      keys.add(key);
+      return value;
+    })
   );
 
-  const keys = new Set<string>();
-  const table: {
-    [key: string]: { key: string; [value: string]: string | number | null };
-  } = {};
-
-  results.forEach((result, idx) => {
-    result.forEach((probiotic) => {
-      const { key, value } = probiotic;
-      keys.add(probiotic.key);
-
-      if (!table[key]) {
-        table[key] = { key, [`value${idx + 1}`]: value };
-      } else {
-        table[key][`value${idx + 1}`] = value;
+  const results = probiotics
+    .map((probiotic, idx) => {
+      if (!keys.has(probiotic.name)) {
+        return null;
       }
-    });
-  });
-
-  results.forEach((result, idx) => {
-    keys.forEach((key) => {
-      if (!result.some((probiotic) => probiotic.key === key)) {
-        table[key][`value${idx + 1}`] = null;
-      }
-    });
-  });
+      const values = table[idx];
+      return Object.fromEntries(
+        values.map((value, idx) => [
+          probioticRecords[idx].createdAt.toLocaleString(),
+          value,
+        ])
+      );
+    })
+    .filter((result) => result !== null) as {
+    [timepoint: string]: number | null;
+  }[];
 
   return {
-    results: Object.values(table),
-    keys: Object.keys(Object.values(table)[0] ?? {}) ?? [],
+    keys: [
+      "probiotic",
+      ...probiotics
+        .filter((probiotic) => keys.has(probiotic.name))
+        .map((probiotic) => probiotic.name),
+    ],
+    timeSeriesResults: probiotics
+      .filter((probiotic) => keys.has(probiotic.name))
+      .map((probiotic, idx) => ({
+        probiotic: probiotic.name,
+        ...results[idx],
+      })),
   };
 }
+
+// import { getProbiotics } from "@/lib/probiotic";
+// import { type ProbioticRecord } from "@prisma/client";
+
+// export async function getTimeSeriesResults(
+//   probioticRecords: ProbioticRecord[]
+// ) {
+//   const probiotics = await getProbiotics();
+
+//   const results = probioticRecords.map(
+//     (probioticRecord) =>
+//       probioticRecord.result as { key: string; value: number | null }[]
+//   );
+
+//   const keys = new Set<string>();
+//   const table: {
+//     [key: string]: { key: string; [value: string]: string | number | null };
+//   } = {};
+
+//   results.forEach((result, idx) => {
+//     result.forEach((probiotic) => {
+//       const { key, value } = probiotic;
+//       keys.add(probiotic.key);
+
+//       if (!table[key]) {
+//         table[key] = { key, [`value${idx + 1}`]: value };
+//       } else {
+//         table[key][`value${idx + 1}`] = value;
+//       }
+//     });
+//   });
+
+//   results.forEach((result, idx) => {
+//     keys.forEach((key) => {
+//       if (!result.some((probiotic) => probiotic.key === key)) {
+//         table[key][`value${idx + 1}`] = null;
+//       }
+//     });
+//   });
+
+//   return {
+//     results: Object.values(table),
+//     keys: Object.keys(Object.values(table)[0] ?? {}) ?? [],
+//   };
+// }

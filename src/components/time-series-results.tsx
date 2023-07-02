@@ -6,18 +6,19 @@ import { type PatientInfo } from "@/types/user";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
 
-type Result = { key: string; [value: string]: string | number | null };
-
 interface TimeSeriesResultsProps {
   patient: PatientInfo & { fullName: string };
-  timeSeriesResults: Result[];
   keys: string[];
+  timeSeriesResults: {
+    probiotic: string;
+    [timepoint: string]: string | number;
+  }[];
 }
 
 export function TimeSeriesResults({
   patient: _patient,
-  timeSeriesResults: rows,
   keys,
+  timeSeriesResults: rows,
 }: TimeSeriesResultsProps) {
   // States
   const [loading, setLoading] = useState(true);
@@ -28,19 +29,24 @@ export function TimeSeriesResults({
 
   useEffect(() => void setPatient(_patient), [setPatient, _patient]);
 
-  const columns = useMemo<readonly Column<Result>[]>(
+  const columns = useMemo<
+    readonly Column<{
+      probiotic: string;
+      [timepoint: string]: string | number;
+    }>[]
+  >(
     () =>
-      keys.map((key, idx) => {
-        if (key === "key") {
+      keys.map((key) => {
+        if (key === "probiotic") {
           return {
             key,
             name: "Probiotic",
-            renderCell: ({ row }) => <>{alias(row.key)}</>,
+            renderCell: ({ row }) => alias(row.probiotic),
           };
         }
         return {
           key,
-          name: `Timepoint ${idx}`,
+          name: key,
         };
       }),
     [keys]

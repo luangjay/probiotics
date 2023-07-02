@@ -376,15 +376,14 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
         // Probiotic record fields
         const doctorId = faker.helpers.arrayElement(doctorIds);
         const patientId = faker.helpers.arrayElement(patientIds);
-        const entries = faker.number.int({ min: 20, max: 40 });
-        const _probioticNames = faker.helpers.arrayElements(
-          probioticNames,
-          entries
+        const length = faker.number.int({ min: 20, max: 40 });
+        const names = faker.helpers.arrayElements(probioticNames, length);
+        const result = Object.fromEntries(
+          Array.from({ length }, (_, idx) => [
+            names[idx],
+            faker.number.int({ min: 0, max: 999 }),
+          ])
         );
-        const result = Array.from({ length: entries }, (_, idx) => ({
-          probiotic: _probioticNames[idx],
-          value: faker.number.int({ min: 0, max: 999 }),
-        }));
 
         // Create probiotic records
         return tx.probioticRecord.create({

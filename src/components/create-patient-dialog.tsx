@@ -14,7 +14,7 @@ import { type z } from "zod";
 
 type CreatePatientData = z.infer<typeof patientSchema>;
 
-export default function AddPatientDialog() {
+export function CreatePatientDialog() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const {

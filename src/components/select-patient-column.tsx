@@ -24,7 +24,7 @@ export const selectPatientColumn: Column<any, any> = {
 
 function HeaderPatientRenderer({
   tabIndex,
-}: RenderHeaderCellProps<PatientInfo, any>) {
+}: RenderHeaderCellProps<PatientInfo & { fullName: string }, any>) {
   return (
     <SelectCellFormatter
       disabled
@@ -41,7 +41,7 @@ function HeaderPatientRenderer({
 function SelectPatientRenderer({
   row,
   tabIndex,
-}: RenderCellProps<PatientInfo, any>) {
+}: RenderCellProps<PatientInfo & { fullName: string }, any>) {
   const { patient, setPatient } = useSelectPatientStore();
   const selected = patient?.id === row.id;
   return (

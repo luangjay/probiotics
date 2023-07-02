@@ -2,8 +2,8 @@ import { type PatientInfo } from "@/types/user";
 import { create } from "zustand";
 
 interface SelectPatientStore {
-  patient?: PatientInfo;
-  setPatient: (patient?: PatientInfo) => void;
+  patient?: PatientInfo & { fullName: string };
+  setPatient: (patient?: PatientInfo & { fullName: string }) => void;
 }
 
 export const useSelectPatientStore = create<SelectPatientStore>((set) => ({

@@ -45,7 +45,8 @@ async function seed({
     throw new Error("Invalid type");
   }
   if (!reset && count === 0) return;
-  console.time(`${reset ? "Reset" : `Seeded ${count}`} ${option} in`);
+  const tag = `${reset ? "Reset" : `Seeded ${count}`} ${option} in`;
+  console.time(tag);
   switch (option) {
     case "admins":
       await seedAdmins({ reset, clear, count });
@@ -75,7 +76,7 @@ async function seed({
       await seedMedicalConditionPatient({ reset, clear, count });
       break;
   }
-  console.timeEnd(`${reset ? "Reset" : `Seeded ${count}`} ${option} in`);
+  console.timeEnd(tag);
 }
 
 async function seedAdmins({ reset, clear, count }: SeedOptions) {
@@ -210,6 +211,7 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
             ? Gender.Male
             : Gender.Female
           : Gender.Others;
+        const ethnicity = faker.location.country();
 
         // Create patients
         return tx.patient.create({
@@ -220,6 +222,7 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
             ssn,
             birthDate,
             gender,
+            ethnicity,
           },
         });
       })
@@ -227,56 +230,83 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
   });
 }
 
+// async function seedProbiotics({ reset, clear, count }: SeedOptions) {
+//   // Options
+//   faker.seed(42005);
+//   const rootCount = 5;
+
+//   return prisma.$transaction(async (tx) => {
+//     if (clear) {
+//       await tx.probiotic.deleteMany();
+//       if (reset) return;
+//     }
+//     // Initialize probiotic roots
+//     const probioticIds = await Promise.all(
+//       Array.from({ length: rootCount }, async (_, idx) => {
+//         // Probiotic fields
+//         const name = idx.toString();
+//         const red = faker.number.int({ min: 0, max: 333 });
+//         const yellow = faker.number.int({ min: red, max: 666 });
+//         const green = faker.number.int({ min: yellow, max: 999 });
+
+//         // Create probiotics
+//         const probiotic = await tx.probiotic.create({
+//           data: { name, red, yellow, green },
+//         });
+//         return probiotic.id;
+//       })
+//     );
+
+//     // Id of the first probiotic created
+//     const offset = probioticIds[0];
+
+//     // Populate probiotic tree
+//     for (let idx = rootCount; idx < count; idx++) {
+//       // Probiotic fields
+//       const parentId = faker.number.int({
+//         min: offset,
+//         max: offset + idx - 1,
+//       });
+//       const { name: parentName } = await tx.probiotic.findUniqueOrThrow({
+//         where: { id: parentId },
+//       });
+//       const name = `${parentName} ${idx.toString()}`;
+//       const red = faker.number.int({ min: 0, max: 333 });
+//       const yellow = faker.number.int({ min: red, max: 666 });
+//       const green = faker.number.int({ min: yellow, max: 999 });
+
+//       // Create probiotics
+//       await tx.probiotic.create({
+//         data: { parentId, name, red, yellow, green },
+//       });
+//     }
+//   });
+// }
+
 async function seedProbiotics({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42005);
-  const rootCount = 5;
+  const pool = probioticPool();
 
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.probiotic.deleteMany();
       if (reset) return;
     }
-    // Initialize probiotic roots
-    const probioticIds = await Promise.all(
-      Array.from({ length: rootCount }, async (_, idx) => {
+    await Promise.all(
+      Array.from({ length: count }, (_, idx) => {
         // Probiotic fields
-        const name = idx.toString();
+        const name = pool[idx];
         const red = faker.number.int({ min: 0, max: 333 });
         const yellow = faker.number.int({ min: red, max: 666 });
         const green = faker.number.int({ min: yellow, max: 999 });
 
         // Create probiotics
-        const probiotic = await tx.probiotic.create({
+        return tx.probiotic.create({
           data: { name, red, yellow, green },
         });
-        return probiotic.id;
       })
     );
-
-    // Id of the first probiotic created
-    const offset = probioticIds[0];
-
-    // Populate probiotic tree
-    for (let idx = rootCount; idx < count; idx++) {
-      // Probiotic fields
-      const parentId = faker.number.int({
-        min: offset,
-        max: offset + idx - 1,
-      });
-      const { name: parentName } = await tx.probiotic.findUniqueOrThrow({
-        where: { id: parentId },
-      });
-      const name = `${parentName} ${idx.toString()}`;
-      const red = faker.number.int({ min: 0, max: 333 });
-      const yellow = faker.number.int({ min: red, max: 666 });
-      const green = faker.number.int({ min: yellow, max: 999 });
-
-      // Create probiotics
-      await tx.probiotic.create({
-        data: { parentId, name, red, yellow, green },
-      });
-    }
   });
 }
 
@@ -307,7 +337,7 @@ async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
   const pool = medicalConditionPool();
 
   // Medical condition fields
-  const names = faker.helpers.uniqueArray(pool, count);
+  const names = [...pool].slice(0, count);
 
   // Create medical conditions
   return prisma.$transaction(async (tx) => {
@@ -352,7 +382,7 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
           entries
         );
         const result = Array.from({ length: entries }, (_, idx) => ({
-          key: _probioticNames[idx],
+          probiotic: _probioticNames[idx],
           value: faker.number.int({ min: 0, max: 999 }),
         }));
 
@@ -445,6 +475,70 @@ async function seedMedicalConditionPatient({
 }
 
 /* Custom pools */
+function probioticPool() {
+  return [
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides caccae",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides clarus",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides dorei",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides eggerthii",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides faecis",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides finegoldii",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides massiliensis",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides ovatus",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides thetaiotaomicron",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides uniformis",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides vulgatus",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Barnesiella;Barnesiella intestinihominis",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Butyricimonas;Butyricimonas paravirosa",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Odoribacter;Odoribacter laneus",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides distasonis",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides merdae",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Prevotellaceae;Prevotella;Prevotella copri",
+    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Rikenellaceae;Alistipes;Alistipes senegalensis",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Eubacteriaceae;Eubacterium;Eubacterium coprostanoligenes",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Anaerostipes;Anaerostipes hadrus",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Blautia;Blautia obeum",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium amygdalinum",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium clostridioforme",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium indolis",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium saccharolyticum",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium contortum",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium fissicatena",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVb;Clostridium lactatifermentans",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Dorea;Dorea longicatena",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Fusicatenibacter;Fusicatenibacter saccharivoran",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnobacterium;Lachnobacterium bovis",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospira;Lachnospira pectinoschiza",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium eligens",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium hallii",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium ruminantium",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium xylanophilum",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Lachnospira pectinoschiza",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Ruminococcus gnavus",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Roseburia;Roseburia inulinivorans",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Ruminococcus2;Ruminococcus torques",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Peptococcaceae;Desulfonispora;Desulfonispora thiosulfatigenes",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Anaerotruncus;Anaerotruncus colihominis",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Butyricicoccus;Butyricicoccus pullicaecorum",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Clostridium IV;Eubacterium siraeum",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Faecalibacterium;Faecalibacterium prausnitzii",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Flavonifractor;Flavonifractor plautii",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Gemmiger;Gemmiger formicilis",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Intestinimonas;Intestinimonas butyriciproducens",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Oscillibacter;Oscillibacter valericigenes",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Ruminococcus;Ruminococcus callidus",
+    "Bacteria;Firmicutes;Negativicutes;Selenomonadales;Acidaminococcaceae;Phascolarctobacterium;Phascolarctobacterium faecium",
+    "Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Clostridium rectum",
+    "Bacteria;Proteobacteria;Alphaproteobacteria;Kiloniellales;Kiloniellaceae;Kiloniella;Kiloniella laminariae",
+    "Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Sutterellaceae;Parasutterella;Parasutterella excrementihominis",
+    "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Bilophila;Bilophila wadsworthia",
+    "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Desulfovibrio;Desulfovibrio fairfieldensis",
+    "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Escherichia/Shigella;Escherichia coli",
+    "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Klebsiella;Klebsiella pneumoniae",
+    "Bacteria;Verrucomicrobia;Verrucomicrobiae;Verrucomicrobiales;Verrucomicrobiaceae;Akkermansia;Akkermansia muciniphila",
+  ] as const;
+}
+
 function medicalConditionPool() {
   return [
     "High blood pressure",
@@ -567,8 +661,7 @@ async function getOptions() {
         clamp(count > 0 ? Math.max(1, count) : 0, 0, 20),
       doctors: (count: number) => clamp(count, 0, 40),
       patients: (count: number) => clamp(count, 0, 40),
-      probiotics: (count: number) =>
-        clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
+      probiotics: (count: number) => clamp(count, 0, 59),
       "probiotic-brands": (count: number) =>
         clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
       "medical-conditions": (count: number) => clamp(count, 0, 80),
@@ -587,7 +680,7 @@ async function getOptions() {
       admins: options.admins || 5,
       doctors: options.doctors || 10,
       patients: options.patients || 40,
-      probiotics: options.probiotics || 40,
+      probiotics: options.probiotics || 59,
       "probiotic-brands": options["probiotic-brands"] || 40,
       "medical-conditions": options["medical-conditions"] || 40,
       "probiotic-records": options["probiotic-brands"] || 100,

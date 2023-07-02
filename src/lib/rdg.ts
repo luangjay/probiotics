@@ -22,6 +22,9 @@ export function filtered<R extends Row>(rows: R[], filter?: string | null) {
           if (typeof val === "string") {
             return val.toLowerCase().includes(cur);
           }
+          if (val instanceof Date) {
+            return val.toLocaleDateString().includes(cur);
+          }
           return false;
         }),
       true

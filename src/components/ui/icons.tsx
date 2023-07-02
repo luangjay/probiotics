@@ -7,6 +7,7 @@ import {
   Command,
   CreditCard,
   File,
+  FileEdit,
   FileText,
   HelpCircle,
   Image,
@@ -69,4 +70,5 @@ export const Icons = {
   ),
   Twitter: Twitter,
   Check: Check,
+  Record: FileEdit,
 };

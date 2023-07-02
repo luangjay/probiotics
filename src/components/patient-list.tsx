@@ -1,83 +1,93 @@
 "use client";
 
+import { CreatePatientDialog } from "@/components/create-patient-dialog";
+import { selectPatientColumn } from "@/components/select-patient-column";
 import { Input } from "@/components/ui/input";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filtered, sorted } from "@/lib/rdg";
+import { cn } from "@/lib/utils";
 import { type PatientInfo } from "@/types/user";
-import { cx } from "cva";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
-import AddPatientDialog from "./add-patient-dialog";
-import { selectPatientColumn } from "./select-patient-column";
+import { Icons } from "./ui/icons";
 
 interface PatientListProps {
-  data: PatientInfo[];
+  patients: (PatientInfo & { fullName: string })[];
 }
 
 interface Filter {
   filter: string;
 }
 
-export default function PatientList({ data }: PatientListProps) {
+export function PatientList({ patients }: PatientListProps) {
+  // States
   const [loading, setLoading] = useState(true);
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   // Component mounted
-  useEffect(() => {
-    setLoading(false);
-  }, []);
+  useEffect(() => void setLoading(false), []);
 
   // Select rows
-  const { patient: selectedPatient, setPatient: setSelectedPatient } =
-    useSelectPatientStore();
-  const rowKeyGetter = (row: PatientInfo) => row.id;
+  const { patient: selectedPatient } = useSelectPatientStore();
 
   // Filter rows
   const { register, control } = useForm<Filter>({ mode: "onChange" });
   const { filter } = useWatch<Filter>({ control });
 
   // Columns
-  const columns = useMemo<Column<PatientInfo>[]>(
+  const columns = useMemo<Column<PatientInfo & { fullName: string }>[]>(
     () => [
       selectPatientColumn,
       {
-        key: "ssn",
-        name: "SSN",
-        cellClass: cx("font-mono"),
+        key: "fullName",
+        name: "Name",
       },
       {
-        key: "prefix",
-        name: "Prefix",
+        key: "gender",
+        name: "Gender",
+        width: "20%",
       },
       {
-        key: "firstName",
-        name: "First Name",
+        key: "birthDate",
+        name: "Birth Date",
+        renderCell: ({ row }) => <>{row.birthDate.toLocaleDateString()}</>,
+        width: "20%",
       },
       {
-        key: "lastName",
-        name: "Last Name",
+        key: "ethnicity",
+        name: "Ethnicity",
+        width: "20%",
       },
       {
         key: "actions",
-        name: "Actions",
+        name: "",
+        minWidth: 40,
+        maxWidth: 40,
+        width: 40,
+        cellClass: cn("!p-0"),
         renderCell: ({ row }) => (
           <Link
             href={`/patients/${row.id}`}
-            onClick={() => void setSelectedPatient(row)}
+            className="flex h-full w-full items-center justify-center"
           >
-            View
+            <Icons.Record
+              className="h-[20px] w-[20px]"
+              strokeWidth={1}
+              width={20}
+              height={20}
+            />
           </Link>
         ),
       },
     ],
-    [setSelectedPatient]
+    []
   );
 
   const rows = useMemo(
-    () => filtered(sorted(data, sortColumns), filter),
-    [data, sortColumns, filter]
+    () => filtered(sorted(patients, sortColumns), filter),
+    [patients, sortColumns, filter]
   );
 
   const gridElement = useMemo(
@@ -89,7 +99,7 @@ export default function PatientList({ data }: PatientListProps) {
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light mx-1 my-4 flex-1"
+          className="rdg-light my-4 flex-1"
           rows={rows}
           columns={columns}
           headerRowHeight={40}
@@ -110,28 +120,28 @@ export default function PatientList({ data }: PatientListProps) {
                 <Row {...p} aria-selected key={key} />
               ),
           }}
-          rowKeyGetter={rowKeyGetter}
+          rowKeyGetter={(row) => row.id}
           sortColumns={sortColumns}
           onSortColumnsChange={setSortColumns}
         />
       ),
-    [loading, rows, columns, sortColumns, selectedPatient]
+    [loading, rows, columns, selectedPatient, sortColumns]
   );
 
   return (
-    <div className="flex h-full flex-col overflow-auto">
-      <h2 className="mx-1 text-2xl font-semibold">Patients</h2>
-      <div className="mx-1 flex justify-end">
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">Patients</h2>
         <Input
           {...register("filter")}
           id="filter"
-          className="w-1/4"
+          className="h-[40px] w-[200px] rounded"
           placeholder="Filter"
         />
       </div>
       {gridElement}
       <div className="flex justify-center">
-        <AddPatientDialog />
+        <CreatePatientDialog />
       </div>
     </div>
   );

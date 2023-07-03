@@ -1,6 +1,6 @@
 export type ProbioticRecordResult = {
   probiotic: string | null;
-  value: number | null;
+  value: string | null;
 };
 
 export type TimeSeriesResult = {

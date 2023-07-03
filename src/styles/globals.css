@@ -129,7 +129,7 @@ p {
 
 .rdg-cell {
   border-color: var(--rdg-border-color);
-  @apply border-b border-r shadow-none;
+  @apply border-b border-r px-2 shadow-none;
 }
 
 .rdg-cell > .rdg-checkbox-label > .rdg-checkbox {
@@ -138,10 +138,6 @@ p {
 
 .rdg-cell[aria-selected="true"] > .rdg-checkbox-label > .rdg-checkbox {
   border-color: var(--rdg-checkbox-focus-color);
-}
-
-.rdg-text-editor {
-  @apply px-[6px];
 }
 
 .rdg-sort-arrow {

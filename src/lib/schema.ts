@@ -13,7 +13,7 @@ export const REGEX_LASTNAME = /^[a-zA-Z]+$/;
 export const REGEX_SSN = /^\d+$/;
 export const PATTERN_USERNAME = "^[a-zA-Z0-9_.]*$";
 export const PATTERN_SSN = "^[0-9]+$";
-export const ENUM_GENDER = ["Male", "Female", "Others"];
+export const ENUM_GENDER = ["Male", "Female", "Others"] as const;
 
 export const adminSchema = z
   .object({

@@ -21,15 +21,14 @@ export function useProbioticRecordResults(file?: File) {
     const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResult>(results, {
       header: ["probiotic", "value"],
     });
-
     const csv = XLSX.utils.sheet_to_csv(worksheet, {
       FS: ",",
       forceQuotes: true,
       blankrows: false,
     });
-    const blob = new Blob([csv], { type: "text/csv" });
-    const file = new File([blob], "data.csv", { type: "text/csv" });
-
+    // const blob = new Blob([csv], { type: "text/csv" });
+    const file = new File([csv], "data.csv", { type: "text/csv" });
+    console.log(results);
     return file;
   };
 
@@ -46,10 +45,18 @@ export function useProbioticRecordResults(file?: File) {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
 
-      const results = XLSX.utils.sheet_to_json<ProbioticRecordResult>(sheet, {
+      const json = XLSX.utils.sheet_to_json<{
+        probiotic: string;
+        value: number;
+      }>(sheet, {
         header: ["probiotic", "value"],
         range: 1,
       });
+      const results: ProbioticRecordResult[] = json.map((result) => ({
+        ...result,
+        value: result.value.toString(),
+      }));
+      console.log(results);
       const emptyRows = await createEmptyRows(10);
       setResults([...results, ...emptyRows]);
     };

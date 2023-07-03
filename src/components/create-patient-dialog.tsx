@@ -56,7 +56,7 @@ export function CreatePatientDialog() {
       <Dialog.Trigger asChild>
         <Button variant="ghost">New patient</Button>
       </Dialog.Trigger>
-      <Dialog.Content className="h-[90vh]">
+      <Dialog.Content className="sm:h-[90vh] sm:max-w-[576px]">
         <Dialog.Title>New patient</Dialog.Title>
         <Dialog.Description>
           Make changes to your profile here. Click save when you&apos;re done.
@@ -111,14 +111,12 @@ export function CreatePatientDialog() {
             <p className="text-destructive">{JSON.stringify(isValid)}</p>
           </fieldset>
           <div className="mt-2 flex justify-center">
-            {/* <Dialog.Close asChild> */}
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (
                 <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
               Confirm
             </Button>
-            {/* </Dialog.Close> */}
           </div>
         </form>
       </Dialog.Content>

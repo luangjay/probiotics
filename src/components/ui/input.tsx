@@ -22,11 +22,31 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 Input.displayName = "Input";
 
-const validateNumericChar = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  const invalidKeys = ["e", "E", "+", "-", ".", " "];
-  if (invalidKeys.includes(e.key)) {
+interface ValidateNumberKeyOptions {
+  op: boolean;
+  float: boolean;
+  expo: boolean;
+}
+
+const validateNumberKey = (
+  e: React.KeyboardEvent<HTMLInputElement>,
+  options: Partial<ValidateNumberKeyOptions> = {}
+) => {
+  const { op = false, float = false, expo = false } = options;
+
+  const invalidKeys = [" "];
+  const opKeys = ["+", "-"];
+  const floatKeys = ["."];
+  const expoKeys = ["e", "E"];
+
+  if (
+    invalidKeys.includes(e.key) ||
+    (!op && opKeys.includes(e.key)) ||
+    (!float && floatKeys.includes(e.key)) ||
+    (!expo && expoKeys.includes(e.key))
+  ) {
     e.preventDefault();
   }
 };
 
-export { Input, validateNumericChar };
+export { Input, validateNumberKey };

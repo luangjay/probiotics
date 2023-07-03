@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { alias } from "@/lib/probiotic";
+import { type TimeSeriesResult } from "@/types/probiotic-record";
 import { type ProbioticRecord } from "@prisma/client";
 
 export async function getProbiotics() {
@@ -14,10 +15,7 @@ export async function getTimeSeriesResults(
   probioticRecords: ProbioticRecord[]
 ): Promise<{
   keys: string[];
-  timeSeriesResults: {
-    probiotic: string;
-    [timepoint: string]: string | number;
-  }[];
+  timeSeriesResults: TimeSeriesResult[];
 }> {
   const probiotics = await getProbiotics();
   const keys = new Set<string>();
@@ -50,7 +48,7 @@ export async function getTimeSeriesResults(
     );
   });
 
-  const timeSeriesResults = probiotics
+  const timeSeriesResults: TimeSeriesResult[] = probiotics
     .map((probiotic, idx) => ({
       probiotic: probiotic.alias,
       ...results[idx],

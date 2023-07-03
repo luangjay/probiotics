@@ -215,31 +215,24 @@ export const loginSchema = z
   })
   .strict();
 
-export const uploadFileSchema = z
-  .object({
-    fileList: z.custom<FileList>().superRefine((fileList, ctx) => {
-      const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
-      if (!file) {
-        return ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Required",
-        });
-      }
-      if (![csvFileType, xlsFileType, xlsxFileType].includes(file.type)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Only .csv, .xls, and .xlsx files are accepted",
-        });
-      }
-      if (file.size > 2 << 20) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.too_big,
-          type: "array",
-          message: "Maximum file size is 1 MB",
-          maximum: 2 << 20, // 1 MB
-          inclusive: true,
-        });
-      }
-    }),
-  })
-  .strict();
+export const uploadSheetSchema = z.object({
+  fileList: z.custom<FileList>().superRefine((fileList, ctx) => {
+    const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
+    if (!file) return;
+    if (![csvFileType, xlsFileType, xlsxFileType].includes(file.type)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Only .csv, .xls, and .xlsx files are accepted",
+      });
+    }
+    if (file.size > 2 << 20) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.too_big,
+        type: "array",
+        message: "Maximum file size is 1 MB",
+        maximum: 2 << 20, // 1 MB
+        inclusive: true,
+      });
+    }
+  }),
+});

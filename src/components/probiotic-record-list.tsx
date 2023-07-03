@@ -9,6 +9,7 @@ import { type ProbioticRecord } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column, type SortColumn } from "react-data-grid";
+import { CreateProbioticRecordDialog } from "./create-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
   patient: PatientInfo & { fullName: string };
@@ -16,8 +17,8 @@ interface ProbioticRecordListProps {
 }
 
 export function ProbioticRecordList({
-  patient: _patient,
   probioticRecords,
+  ...props
 }: ProbioticRecordListProps) {
   // States
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ export function ProbioticRecordList({
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
-  useEffect(() => void setPatient(_patient), [setPatient, _patient]);
+  useEffect(() => void setPatient(props.patient), [setPatient, props.patient]);
 
   const columns = useMemo<
     readonly Column<ProbioticRecord & { doctor: DoctorInfo }>[]
@@ -81,7 +82,7 @@ export function ProbioticRecordList({
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light flex-1"
+          className="rdg-light flex-1 overflow-scroll"
           rows={rows}
           columns={columns}
           headerRowHeight={40}
@@ -110,6 +111,9 @@ export function ProbioticRecordList({
         Probiotic Records
       </h3>
       {gridElement}
+      <div className="flex justify-center">
+        <CreateProbioticRecordDialog />
+      </div>
     </div>
   );
 }

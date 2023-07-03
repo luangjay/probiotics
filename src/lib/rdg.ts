@@ -9,6 +9,28 @@ const numberColumns = new Set<string | number | symbol>(["ssn"]);
 
 const dateColumns = new Set<string | number | symbol>(["birthDate"]);
 
+function sortFunction<R extends Row>(key: keyof R): SortFunction<R> {
+  if (numberColumns.has(key)) {
+    return numberSortFunction(key);
+  }
+  if (dateColumns.has(key)) {
+    return dateSortFunction(key);
+  }
+  return textSortFunction(key);
+}
+
+function textSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
+  return (a, b) => (a[key] as string).localeCompare(b[key] as string);
+}
+
+function numberSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
+  return (a, b) => (a[key] as number) - (b[key] as number);
+}
+
+function dateSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
+  return (a, b) => (a[key] as Date).getTime() - (b[key] as Date).getTime();
+}
+
 export function filtered<R extends Row>(rows: R[], filter?: string | null) {
   if (!filter) return rows;
   const t = filter.toLowerCase().split(/\s+/);
@@ -48,26 +70,4 @@ export function sorted<R extends Row>(
     }
     return 0;
   });
-}
-
-function sortFunction<R extends Row>(key: keyof R): SortFunction<R> {
-  if (numberColumns.has(key)) {
-    return numberSortFunction(key);
-  }
-  if (dateColumns.has(key)) {
-    return dateSortFunction(key);
-  }
-  return textSortFunction(key);
-}
-
-function textSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
-  return (a, b) => (a[key] as string).localeCompare(b[key] as string);
-}
-
-function numberSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
-  return (a, b) => (a[key] as number) - (b[key] as number);
-}
-
-function dateSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
-  return (a, b) => (a[key] as Date).getTime() - (b[key] as Date).getTime();
 }

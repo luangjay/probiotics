@@ -2,8 +2,9 @@
 
 import "react-data-grid/lib/styles.css";
 
-import { useState } from "react";
-import DataGrid, { SortColumn } from "react-data-grid";
+// import { useState } from "react";
+// import { SortColumn } from "react-data-grid";
+// import UseJsonExample from "./use-json-example";
 
 const columns = [
   { key: "id", name: "ID" },
@@ -16,6 +17,5 @@ const rows = [
 ];
 
 export default function App() {
-  const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
-  return <DataGrid columns={columns} rows={rows} sortColumns={sortColumns} />;
+  return <></>;
 }

@@ -2,6 +2,7 @@
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { sorted } from "@/lib/rdg";
+import { type TimeSeriesResult } from "@/types/probiotic-record";
 import { type PatientInfo } from "@/types/user";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column, type SortColumn } from "react-data-grid";
@@ -9,16 +10,13 @@ import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 interface TimeSeriesResultsProps {
   patient: PatientInfo & { fullName: string };
   keys: string[];
-  timeSeriesResults: {
-    probiotic: string;
-    [timepoint: string]: string | number;
-  }[];
+  timeSeriesResults: TimeSeriesResult[];
 }
 
 export function TimeSeriesResults({
-  patient: _patient,
   keys,
   timeSeriesResults,
+  ...props
 }: TimeSeriesResultsProps) {
   // States
   const [loading, setLoading] = useState(true);
@@ -28,20 +26,16 @@ export function TimeSeriesResults({
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
-  useEffect(() => void setPatient(_patient), [setPatient, _patient]);
+  useEffect(() => void setPatient(props.patient), [setPatient, props.patient]);
 
-  const columns = useMemo<
-    readonly Column<{
-      probiotic: string;
-      [timepoint: string]: string | number;
-    }>[]
-  >(
+  const columns = useMemo<readonly Column<TimeSeriesResult>[]>(
     () =>
       keys.map((key) => {
         if (key === "probiotic") {
           return {
             key,
             name: "Probiotic",
+            width: 300,
             sortable: true,
           };
         }

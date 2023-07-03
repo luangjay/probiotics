@@ -85,11 +85,13 @@ export function PatientList({ patients }: PatientListProps) {
     []
   );
 
+  // Rows
   const rows = useMemo(
     () => filtered(sorted(patients, sortColumns), filter),
     [patients, sortColumns, filter]
   );
 
+  // Data grid
   const gridElement = useMemo(
     () =>
       loading ? (
@@ -99,7 +101,7 @@ export function PatientList({ patients }: PatientListProps) {
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light flex-1"
+          className="rdg-light flex-1 overflow-scroll"
           rows={rows}
           columns={columns}
           headerRowHeight={40}

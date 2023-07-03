@@ -54,10 +54,10 @@ export function CreatePatientDialog() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="ghost">Add patient</Button>
+        <Button variant="ghost">New patient</Button>
       </Dialog.Trigger>
-      <Dialog.Content>
-        <Dialog.Title>Add patient</Dialog.Title>
+      <Dialog.Content className="h-[90vh]">
+        <Dialog.Title>New patient</Dialog.Title>
         <Dialog.Description>
           Make changes to your profile here. Click save when you&apos;re done.
         </Dialog.Description>

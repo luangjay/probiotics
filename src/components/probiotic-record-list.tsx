@@ -21,7 +21,7 @@ export function ProbioticRecordList({
   ...props
 }: ProbioticRecordListProps) {
   // States
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { setPatient } = useSelectPatientStore();
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
@@ -78,11 +78,13 @@ export function ProbioticRecordList({
   const gridElement = useMemo(
     () =>
       loading ? (
-        <>Loading...</>
+        <div className="flex flex-1 items-center justify-center">
+          Loading...
+        </div>
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light flex-1 overflow-scroll"
+          className="rdg-light flex-1 overflow-y-scroll"
           rows={rows}
           columns={columns}
           headerRowHeight={40}

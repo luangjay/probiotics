@@ -59,7 +59,7 @@ export function TimeSeriesResults({
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light flex-1"
+          className="rdg-light flex-1 overflow-y-scroll"
           rows={rows}
           columns={columns}
           headerRowHeight={40}

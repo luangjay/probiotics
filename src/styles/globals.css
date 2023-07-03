@@ -129,7 +129,7 @@ p {
 
 .rdg-cell {
   border-color: var(--rdg-border-color);
-  @apply border-b border-r px-2 shadow-none;
+  @apply border-b border-r shadow-none;
 }
 
 .rdg-cell > .rdg-checkbox-label > .rdg-checkbox {
@@ -140,10 +140,33 @@ p {
   border-color: var(--rdg-checkbox-focus-color);
 }
 
+.rdg-text-editor {
+  @apply px-[6px];
+}
+
 .rdg-sort-arrow {
   @apply h-full align-middle;
 }
 
 .rdg-checkbox {
   @apply border-2;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8b8b8b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #606060;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  outline: 1px solid var(--border);
 }

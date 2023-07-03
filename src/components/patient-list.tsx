@@ -95,13 +95,13 @@ export function PatientList({ patients }: PatientListProps) {
   const gridElement = useMemo(
     () =>
       loading ? (
-        <div className="mx-1 flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center">
           Loading...
         </div>
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light flex-1 overflow-scroll"
+          className="rdg-light flex-1 overflow-y-scroll"
           rows={rows}
           columns={columns}
           headerRowHeight={40}
@@ -142,7 +142,7 @@ export function PatientList({ patients }: PatientListProps) {
         />
       </div>
       {gridElement}
-      <div className="flex justify-center">
+      <div className="flex h-fit justify-center">
         <CreatePatientDialog />
       </div>
     </div>

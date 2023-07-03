@@ -1,29 +1,45 @@
-import { useEffect, useState } from "react";
-import * as XLSX from "xlsx";
-
 import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/s3";
 import { type ProbioticRecordResult } from "@/types/probiotic-record";
+import { useEffect, useState } from "react";
+import * as XLSX from "xlsx";
 
 export function useProbioticRecordResults(file?: File) {
   const [reader, setReader] = useState<FileReader>();
   const [results, setResults] = useState<ProbioticRecordResult[]>([]);
 
-  const createEmptyResults = async () => {
-    const rows = await createEmptyRows(100);
-    setResults([...results, ...rows]);
+  const resetResults = async () => {
+    const rows = await createEmptyRows(100, 0);
+    setResults([...rows]);
+  };
+
+  const createEmptyResults = async (count: number) => {
+    const rows = await createEmptyRows(count);
+    setResults((prev) => [...prev, ...rows]);
+  };
+
+  const exportFile = () => {
+    const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResult>(results, {
+      header: ["probiotic", "value"],
+    });
+
+    const csv = XLSX.utils.sheet_to_csv(worksheet, {
+      FS: ",",
+      forceQuotes: true,
+      blankrows: false,
+    });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const file = new File([blob], "data.csv", { type: "text/csv" });
+
+    return file;
   };
 
   // Component mounted
   useEffect(() => {
-    const createNewResults = async () => {
-      const rows = await createEmptyRows(100);
-      setResults([...results, ...rows]);
-    };
-    void createNewResults()
+    void resetResults();
 
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const data = e.target?.result;
       const workbook = XLSX.read(data, { type: "binary", FS: "," });
 
@@ -34,7 +50,8 @@ export function useProbioticRecordResults(file?: File) {
         header: ["probiotic", "value"],
         range: 1,
       });
-      setResults(results);
+      const emptyRows = await createEmptyRows(10);
+      setResults([...results, ...emptyRows]);
     };
 
     setReader(reader);
@@ -54,12 +71,15 @@ export function useProbioticRecordResults(file?: File) {
     }
   }, [file, reader]);
 
-  return { results };
+  return { results, setResults, createEmptyResults, exportFile };
 }
 
-async function createEmptyRows(count: number) {
+async function createEmptyRows(count: number, timeout = 1000) {
   return new Promise<ProbioticRecordResult[]>((resolve) => {
-    const rows: ProbioticRecordResult[] = Array.from({ length: count });
-    setTimeout(() => resolve(rows), 1000);
+    const rows: ProbioticRecordResult[] = Array.from({ length: count }, () => ({
+      probiotic: null,
+      value: null,
+    }));
+    setTimeout(() => resolve(rows), timeout);
   });
 }

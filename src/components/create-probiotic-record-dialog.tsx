@@ -5,8 +5,9 @@ import { Dialog } from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useProbioticRecordResults } from "@/hooks/use-probiotic-record-results";
+import { splitClipboard } from "@/lib/rdg";
 import { uploadSheetSchema } from "@/lib/schema";
-import { type ProbioticRecordResult } from "@/types/probiotic-record";
+import { type ProbioticRecordResultRow } from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
@@ -33,6 +34,7 @@ export function CreateProbioticRecordDialog() {
   const {
     results: rows,
     setResults: setRows,
+    resetResults: resetRows,
     exportFile,
   } = useProbioticRecordResults(file);
 
@@ -75,8 +77,15 @@ export function CreateProbioticRecordDialog() {
 
   useEffect(() => void console.log(rows), [rows]);
 
+  // const handlePaste = () => {
+  //   console.log("assdasd");
+  //   void navigator.clipboard.readText().then((text) => {
+  //     alert(text);
+  //   });
+  // };
+
   // Columns
-  const columns = useMemo<Column<ProbioticRecordResult>[]>(
+  const columns = useMemo<Column<ProbioticRecordResultRow>[]>(
     () => [
       {
         key: "probiotic",
@@ -98,6 +107,25 @@ export function CreateProbioticRecordDialog() {
     []
   );
 
+  // function handlePaste({
+  //   sourceColumnKey,
+  //   sourceRow,
+  //   targetColumnKey,
+  //   targetRow,
+  // }: PasteEvent<ProbioticRecordResult>): ProbioticRecordResult {
+  //   console.log("aaa");
+  //   return {
+  //     ...targetRow,
+  //     [targetColumnKey]:
+  //       sourceRow[sourceColumnKey as keyof ProbioticRecordResult],
+  //   };
+  // }
+
+  // useEffect(()=>{
+  //   const rdg = ref.current
+  //   rdg?.
+  // },[])
+
   const gridElement = useMemo(
     () =>
       loading ? (
@@ -108,13 +136,36 @@ export function CreateProbioticRecordDialog() {
         <DataGrid
           direction="ltr"
           className="rdg-light flex-1 overflow-y-scroll"
-          // style={{ gridTemplateColumns: "1fr auto 1fr" }}
-          style={{ scrollbarGutter: "stable" }}
           rows={rows}
           columns={columns}
           headerRowHeight={40}
           rowHeight={40}
           onRowsChange={setRows}
+          onCellKeyDown={({ row, column }, e) => {
+            if (e.ctrlKey && e.key === "v") {
+              e.preventDefault();
+              void navigator.clipboard.readText().then((text) => {
+                const pasted = splitClipboard(text); //.map((r)=>);
+                // switch (column.idx) {
+                //   case 0:
+                const newRows = [...rows];
+                const replaceRows = pasted.map((result, i) => {
+                  const idx = row.idx + i;
+                  return {
+                    idx,
+                    probiotic: result[-column.idx] ?? rows[idx].probiotic,
+                    value: result[1 - column.idx] ?? rows[idx].value,
+                  };
+                });
+                newRows.splice(row.idx, pasted.length, ...replaceRows);
+                setRows(newRows);
+                //   case 1:
+                // }
+              });
+            }
+          }}
+          // onPaste={handlePaste}
+          rowKeyGetter={(row) => row.idx}
           renderers={{
             noRowsFallback: (
               <div style={{ textAlign: "center", gridColumn: "1/-1" }}>
@@ -138,9 +189,14 @@ export function CreateProbioticRecordDialog() {
           Make changes to your profile here. Click save when you&apos;re done.
         </Dialog.Description>
         <div className="flex flex-col gap-4 overflow-auto p-1">
-          <Input id="file" type="file" {...register("fileList")} />
+          <div className="flex gap-2">
+            <Input id="file" type="file" {...register("fileList")} />
+            {/* <Button id="reset" onClick={void resetRows()}>
+              Reset
+            </Button> */}
+          </div>
           {errors.fileList && (
-            <p className="text-sm text-destructive">
+            <p className="mx-auto text-sm text-destructive">
               {errors.fileList.message}
             </p>
           )}
@@ -156,6 +212,15 @@ export function CreateProbioticRecordDialog() {
               Confirm
             </Button>
           </form>
+          {/* <Button
+            onClick={() => alert(ref.current?.element?.className)}
+            disabled={isSubmitting}
+          >
+            {isSubmitting && (
+              <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            abc
+          </Button> */}
         </div>
       </Dialog.Content>
     </Dialog.Root>

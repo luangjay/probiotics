@@ -1,26 +1,40 @@
 import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/s3";
-import { type ProbioticRecordResult } from "@/types/probiotic-record";
+import {
+  type ProbioticRecordResult,
+  type ProbioticRecordResultRow,
+} from "@/types/probiotic-record";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
 export function useProbioticRecordResults(file?: File) {
   const [reader, setReader] = useState<FileReader>();
-  const [results, setResults] = useState<ProbioticRecordResult[]>([]);
+  const [results, setResults] = useState<ProbioticRecordResultRow[]>([]);
 
   const resetResults = async () => {
-    const rows = await createEmptyRows(100, 0);
+    const rows = await createEmptyRows(0, 20);
     setResults([...rows]);
   };
 
-  const createEmptyResults = async (count: number) => {
-    const rows = await createEmptyRows(count);
+  const createEmptyResults = async (startIdx: number, count: number) => {
+    const rows = await createEmptyRows(startIdx, count);
     setResults((prev) => [...prev, ...rows]);
   };
 
   const exportFile = () => {
-    const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResult>(results, {
-      header: ["probiotic", "value"],
-    });
+    const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResult>(
+      (
+        results.filter(
+          (result) => result.probiotic !== null && result.value !== null
+        ) as { probiotic: string; value: string }[]
+      ).map((result) => ({
+        probiotic: result.probiotic,
+        value: parseFloat(result.value),
+      })),
+      {
+        header: ["probiotic", "value"],
+      }
+    );
+    console.log(worksheet);
     const csv = XLSX.utils.sheet_to_csv(worksheet, {
       FS: ",",
       forceQuotes: true,
@@ -52,13 +66,14 @@ export function useProbioticRecordResults(file?: File) {
         header: ["probiotic", "value"],
         range: 1,
       });
-      const results: ProbioticRecordResult[] = json.map((result) => ({
-        ...result,
+      const results: ProbioticRecordResultRow[] = json.map((result, idx) => ({
+        idx,
+        probiotic: result.probiotic,
         value: result.value.toString(),
       }));
-      console.log(results);
-      const emptyRows = await createEmptyRows(10);
-      setResults([...results, ...emptyRows]);
+      setResults(results);
+      const startIdx = results.length
+      await createEmptyResults(startIdx, startIdx < 15 ? 20 - startIdx : 5);
     };
 
     setReader(reader);
@@ -78,15 +93,19 @@ export function useProbioticRecordResults(file?: File) {
     }
   }, [file, reader]);
 
-  return { results, setResults, createEmptyResults, exportFile };
+  return { results, setResults, resetResults, createEmptyResults, exportFile };
 }
 
-async function createEmptyRows(count: number, timeout = 1000) {
-  return new Promise<ProbioticRecordResult[]>((resolve) => {
-    const rows: ProbioticRecordResult[] = Array.from({ length: count }, () => ({
-      probiotic: null,
-      value: null,
-    }));
+async function createEmptyRows(startIdx: number, count: number, timeout = 0) {
+  return new Promise<ProbioticRecordResultRow[]>((resolve) => {
+    const rows: ProbioticRecordResultRow[] = Array.from(
+      { length: count },
+      (_, idx) => ({
+        idx: startIdx + idx,
+        probiotic: null,
+        value: null,
+      })
+    );
     setTimeout(() => resolve(rows), timeout);
   });
 }

@@ -87,7 +87,7 @@ p {
 
 .rdg-light {
   /* --rdg-color: #000; */
-  --rdg-color: var(var(--foreground));
+  --rdg-color: var(--foreground);
   --rdg-border-color: #ddd;
   --rdg-summary-border-color: #aaa;
   /* --rdg-background-color: hsl(0deg 0% 100%); */
@@ -107,7 +107,7 @@ p {
 .rdg-dark {
   --rdg-color-scheme: dark;
   /* --rdg-color: #000; */
-  --rdg-color: var(var(--foreground));
+  --rdg-color: var(--foreground);
   --rdg-border-color: #444;
   --rdg-summary-border-color: #555;
   /* --rdg-background-color: hsl(0deg 0% 100%); */
@@ -129,7 +129,7 @@ p {
 
 .rdg-cell {
   border-color: var(--rdg-border-color);
-  @apply border-b border-r px-2 shadow-none;
+  @apply select-none border-b border-r px-2 shadow-none;
 }
 
 .rdg-cell > .rdg-checkbox-label > .rdg-checkbox {

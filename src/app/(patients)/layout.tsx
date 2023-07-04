@@ -8,7 +8,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   return (
     <div className="container flex h-screen gap-12 py-8">
-      <section className="w-[272px]">
+      <section className="w-[16rem]">
         <div className="flex flex-col gap-4">
           <Link href="/">Home</Link>
           <Link href="/patients">Patients</Link>

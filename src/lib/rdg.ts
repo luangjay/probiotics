@@ -71,3 +71,20 @@ export function sorted<R extends Row>(
     return 0;
   });
 }
+
+// Thanks https://gist.github.com/torjusb/7d6baf4b68370b4ef42f
+export function splitClipboard(clipboard: string) {
+  const rows = clipboard
+    .replace(
+      /"((?:[^"]*(?:\r\n|\n\r|\n|\r))+[^"]+)"/gm,
+      (match: string, p1: string) => {
+        return p1.replace(/""/g, '"').replace(/\r\n|\n\r|\n|\r/g, " ");
+      }
+    )
+    .split(/\r\n|\n\r|\n|\r/g)
+    .filter((row) => row !== "")
+    .map((row) => row.split("\t"));
+
+  console.log(rows);
+  return rows;
+}

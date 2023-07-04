@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  ProbioticEditor,
+  refineProbiotic,
+} from "@/components/rdg/probiotic-editor";
+import { ValueEditor, refineValue } from "@/components/rdg/value-editor";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
@@ -9,15 +14,14 @@ import { splitClipboard } from "@/lib/rdg";
 import { uploadSheetSchema } from "@/lib/schema";
 import { type ProbioticRecordResultRow } from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
-  CellKeyDownArgs,
-  CellKeyboardEvent,
+  type CellKeyDownArgs,
+  type CellKeyboardEvent,
   type Column,
 } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
-import { TextEditor } from "./renderers/text-editor";
 
 type UploadFileData = z.infer<typeof uploadSheetSchema>;
 
@@ -77,16 +81,7 @@ export function CreateProbioticRecordDialog() {
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
-  useEffect(() => void console.log(file), [file]);
-
-  useEffect(() => void console.log(rows), [rows]);
-
-  // const handlePaste = () => {
-  //   console.log("assdasd");
-  //   void navigator.clipboard.readText().then((text) => {
-  //     alert(text);
-  //   });
-  // };
+  useEffect(() => console.log(rows), [rows]);
 
   // Columns
   const columns = useMemo<Column<ProbioticRecordResultRow>[]>(
@@ -97,7 +92,7 @@ export function CreateProbioticRecordDialog() {
         minWidth: 416,
         maxWidth: 416,
         width: 416,
-        renderEditCell: (p) => <TextEditor {...p} />,
+        renderEditCell: (p) => <ProbioticEditor {...p} />,
       },
       {
         key: "value",
@@ -105,38 +100,49 @@ export function CreateProbioticRecordDialog() {
         minWidth: 91,
         maxWidth: 91,
         width: 91,
-        renderEditCell: (p) => <TextEditor {...p} />,
+        renderEditCell: (p) => <ValueEditor {...p} />,
       },
     ],
     []
   );
 
-  const handleCellKeyDown = (
-    { row, column }: CellKeyDownArgs<ProbioticRecordResultRow>,
-    e: CellKeyboardEvent
-  ) => {
-    if (e.ctrlKey && e.key === "v") {
-      e.preventDefault();
-      void navigator.clipboard.readText().then((text) => {
-        const pasted = splitClipboard(text); //.map((r)=>);
-        // switch (column.idx) {
-        //   case 0:
-        const newRows = [...rows];
-        const replaceRows = pasted.map((result, i) => {
-          const idx = row.idx + i;
-          return {
-            idx,
-            probiotic: result[-column.idx] ?? rows[idx]?.probiotic ?? null,
-            value: result[1 - column.idx] ?? rows[idx]?.value ?? null,
-          };
+  const handleCellKeyDown = useCallback(
+    (
+      { row, column }: CellKeyDownArgs<ProbioticRecordResultRow>,
+      e: CellKeyboardEvent
+    ) => {
+      if (e.ctrlKey && e.key === "v") {
+        e.preventDefault();
+        void navigator.clipboard.readText().then((text) => {
+          const pasted = splitClipboard(text);
+          const newRows = [...rows];
+
+          const replaceRows = pasted.map((result, idx) => {
+            const newIdx = row.idx + idx;
+            const probiotic = rows[newIdx]?.probiotic;
+            const value = rows[newIdx]?.value;
+
+            const newProbiotic = result[-column.idx];
+            const newValue = result[-column.idx + 1];
+
+            return {
+              idx: newIdx,
+              probiotic: newProbiotic
+                ? refineProbiotic(probiotic, newProbiotic)
+                : rows[newIdx]?.probiotic ?? null,
+              value: newValue
+                ? refineValue(value, newValue)
+                : rows[newIdx]?.value ?? null,
+            };
+          });
+
+          newRows.splice(row.idx, pasted.length, ...replaceRows);
+          setRows(newRows);
         });
-        newRows.splice(row.idx, pasted.length, ...replaceRows);
-        setRows(newRows);
-        //   case 1:
-        // }
-      });
-    }
-  };
+      }
+    },
+    [rows, setRows]
+  );
 
   const gridElement = useMemo(
     () =>
@@ -165,7 +171,7 @@ export function CreateProbioticRecordDialog() {
           }}
         />
       ),
-    [loading, rows, columns, setRows]
+    [loading, rows, columns, setRows, handleCellKeyDown]
   );
 
   return (

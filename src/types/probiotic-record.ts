@@ -1,6 +1,6 @@
 export interface ProbioticRecordResult {
-  probiotic: string | null;
-  value: number | null;
+  Probiotic: string | null;
+  Value: number | null;
 }
 
 export interface ProbioticRecordResultRow {

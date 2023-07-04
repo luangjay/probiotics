@@ -7,8 +7,11 @@ import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
 export function useProbioticRecordResults(file?: File) {
+  const [loading, setLoading] = useState(true);
   const [reader, setReader] = useState<FileReader>();
   const [results, setResults] = useState<ProbioticRecordResultRow[]>([]);
+
+  useEffect(() => void setLoading(false), []);
 
   const resetResults = async () => {
     const rows = await createEmptyRows(0, 20);
@@ -17,6 +20,7 @@ export function useProbioticRecordResults(file?: File) {
 
   const createEmptyResults = async (startIdx: number, count: number) => {
     const rows = await createEmptyRows(startIdx, count);
+    console.log("on: createEmptyResults");
     setResults((prev) => [...prev, ...rows]);
   };
 
@@ -27,14 +31,13 @@ export function useProbioticRecordResults(file?: File) {
           (result) => result.probiotic !== null && result.value !== null
         ) as { probiotic: string; value: string }[]
       ).map((result) => ({
-        probiotic: result.probiotic,
-        value: parseFloat(result.value),
+        Probiotic: result.probiotic,
+        Value: parseFloat(result.value),
       })),
       {
-        header: ["probiotic", "value"],
+        header: ["Probiotic", "Value"],
       }
     );
-    console.log(worksheet);
     const csv = XLSX.utils.sheet_to_csv(worksheet, {
       FS: ",",
       forceQuotes: true,
@@ -42,7 +45,6 @@ export function useProbioticRecordResults(file?: File) {
     });
     // const blob = new Blob([csv], { type: "text/csv" });
     const file = new File([csv], "data.csv", { type: "text/csv" });
-    console.log(results);
     return file;
   };
 
@@ -72,8 +74,6 @@ export function useProbioticRecordResults(file?: File) {
         value: result.value.toString(),
       }));
       setResults(results);
-      // const startIdx = results.length;
-      // await createEmptyResults(startIdx, startIdx < 15 ? 20 - startIdx : 5);
     };
 
     setReader(reader);
@@ -95,15 +95,16 @@ export function useProbioticRecordResults(file?: File) {
 
   useEffect(() => {
     if (
-      results.length < 5 ||
-      results
-        .slice(-5)
-        .some((result) => result.probiotic !== null || result.value !== null)
+      !loading &&
+      (results.length < 5 ||
+        results
+          .slice(-5)
+          .some((result) => result.probiotic !== null || result.value !== null))
     ) {
       const startIdx = results.length;
       void createEmptyResults(startIdx, startIdx < 15 ? 20 - startIdx : 5);
     }
-  }, [results]);
+  }, [loading, results]);
 
   return { results, setResults, resetResults, createEmptyResults, exportFile };
 }

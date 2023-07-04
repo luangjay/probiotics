@@ -1,11 +1,20 @@
 import { type RenderEditCellProps } from "react-data-grid";
 
+const PROBIOTIC_REGEX = /^[a-zA-Z0-9;]*$/;
+
 function ref(input: HTMLInputElement | null) {
   input?.focus();
   input?.select();
 }
 
-export function TextEditor<R, SR>({
+export function refineProbiotic(
+  probiotic: string | null,
+  newProbiotic: string
+) {
+  return newProbiotic.match(PROBIOTIC_REGEX) ? newProbiotic : probiotic;
+}
+
+export function ProbioticEditor<R, SR>({
   row,
   column,
   onRowChange,
@@ -19,7 +28,9 @@ export function TextEditor<R, SR>({
       className="-mx-2 h-full w-[calc(100%+1rem)] p-2 focus:outline-none"
       spellCheck={false}
       onChange={(e) => {
-        const targetValue = e.target.value.replace(/[^a-zA-Z0-9.;]/g, "");
+        const targetValue = e.target.value.match(PROBIOTIC_REGEX)
+          ? e.target.value
+          : value;
         onRowChange({
           ...row,
           [column.key]:

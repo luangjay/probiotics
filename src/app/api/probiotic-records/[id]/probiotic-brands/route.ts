@@ -1,7 +1,6 @@
-import { ApiResponse } from "@/types/api";
-import prisma from "@/lib/prisma";
 import { addProbioticRecordProbioticBrandSchema } from "@/lib/schema";
-
+import { prisma } from "@/server/db";
+import { ApiResponse } from "@/types/api";
 import { validator } from "../validator";
 
 const GET = validator(async (req, ctx) => {

@@ -1,6 +1,6 @@
+import { UserType } from "@/types/user";
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import { UserType } from "./types/user";
 
 export default withAuth(
   function middleware(req) {

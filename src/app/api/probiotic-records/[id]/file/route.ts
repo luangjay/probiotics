@@ -1,8 +1,7 @@
-import prisma from "@/lib/prisma";
 import { getCsv, uploadCsv } from "@/lib/s3";
 import { fileSchema } from "@/lib/schema";
+import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/api";
-
 import { validator } from "../validator";
 
 const GET = validator(async (req, ctx) => {

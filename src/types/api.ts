@@ -1,12 +1,14 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { type JWT } from "next-auth/jwt";
+import { NextResponse, type NextRequest } from "next/server";
 
 export interface ApiRequest extends NextRequest {
   token: JWT | null;
 }
 
 export interface ApiContext {
-  params: Record<string, string>;
+  params: {
+    [k: string]: string;
+  };
 }
 
 export class ApiResponse extends NextResponse {

@@ -1,13 +1,12 @@
 import { z } from "zod";
 
+import { prisma } from "@/server/db";
 import {
   ApiResponse,
   type ApiContext,
   type ApiHandler,
   type ApiRequest,
 } from "@/types/api";
-import prisma from "@/lib/prisma";
-
 import { validator as baseValidator } from "../../validator";
 
 export function validator(handler: ApiHandler) {

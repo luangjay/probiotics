@@ -1,6 +1,6 @@
 import { type RenderEditCellProps } from "react-data-grid";
 
-const PROBIOTIC_REGEX = /^[a-zA-Z0-9;]*$/;
+const PROBIOTIC_REGEX = /^[a-zA-Z0-9\s/_;]*$/;
 
 function ref(input: HTMLInputElement | null) {
   input?.focus();

@@ -1,8 +1,3 @@
-import { Prisma } from "@prisma/client";
-import { getToken } from "next-auth/jwt";
-import { z } from "zod";
-import { fromZodError } from "zod-validation-error";
-
 import {
   ApiResponse,
   type ApiContext,
@@ -10,6 +5,10 @@ import {
   type ApiRequest,
 } from "@/types/api";
 import { UserType } from "@/types/user";
+import { Prisma } from "@prisma/client";
+import { getToken } from "next-auth/jwt";
+import { z } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 export function validator(handler: ApiHandler) {
   const validated = async (req: ApiRequest, ctx: ApiContext) => {

@@ -1,5 +1,5 @@
-import prisma from "@/lib/prisma";
 import { fullName } from "@/lib/user";
+import { prisma } from "@/server/db";
 import { UserType, type DoctorInfo, type PatientInfo } from "@/types/user";
 import { type MedicalCondition, type ProbioticRecord } from "@prisma/client";
 import { notFound } from "next/navigation";

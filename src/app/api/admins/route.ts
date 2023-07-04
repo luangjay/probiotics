@@ -1,9 +1,8 @@
+import { saltHashPassword } from "@/lib/auth";
+import { adminSchema } from "@/lib/schema";
+import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/api";
 import { UserType } from "@/types/user";
-import { saltHashPassword } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { adminSchema } from "@/lib/schema";
-
 import { validator } from "../validator";
 
 const GET = validator(async (req) => {

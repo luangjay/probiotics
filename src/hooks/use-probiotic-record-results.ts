@@ -52,7 +52,7 @@ export function useProbioticRecordResults(file?: File) {
 
     const reader = new FileReader();
 
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
       const data = e.target?.result;
       const workbook = XLSX.read(data, { type: "binary", FS: "," });
 
@@ -72,8 +72,8 @@ export function useProbioticRecordResults(file?: File) {
         value: result.value.toString(),
       }));
       setResults(results);
-      const startIdx = results.length
-      await createEmptyResults(startIdx, startIdx < 15 ? 20 - startIdx : 5);
+      // const startIdx = results.length;
+      // await createEmptyResults(startIdx, startIdx < 15 ? 20 - startIdx : 5);
     };
 
     setReader(reader);
@@ -92,6 +92,18 @@ export function useProbioticRecordResults(file?: File) {
       }
     }
   }, [file, reader]);
+
+  useEffect(() => {
+    if (
+      results.length < 5 ||
+      results
+        .slice(-5)
+        .some((result) => result.probiotic !== null || result.value !== null)
+    ) {
+      const startIdx = results.length;
+      void createEmptyResults(startIdx, startIdx < 15 ? 20 - startIdx : 5);
+    }
+  }, [results]);
 
   return { results, setResults, resetResults, createEmptyResults, exportFile };
 }

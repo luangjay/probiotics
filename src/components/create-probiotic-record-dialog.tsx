@@ -10,7 +10,11 @@ import { uploadSheetSchema } from "@/lib/schema";
 import { type ProbioticRecordResultRow } from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo, useState } from "react";
-import DataGrid, { type Column } from "react-data-grid";
+import DataGrid, {
+  CellKeyDownArgs,
+  CellKeyboardEvent,
+  type Column,
+} from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
 import { TextEditor } from "./renderers/text-editor";
@@ -107,24 +111,32 @@ export function CreateProbioticRecordDialog() {
     []
   );
 
-  // function handlePaste({
-  //   sourceColumnKey,
-  //   sourceRow,
-  //   targetColumnKey,
-  //   targetRow,
-  // }: PasteEvent<ProbioticRecordResult>): ProbioticRecordResult {
-  //   console.log("aaa");
-  //   return {
-  //     ...targetRow,
-  //     [targetColumnKey]:
-  //       sourceRow[sourceColumnKey as keyof ProbioticRecordResult],
-  //   };
-  // }
-
-  // useEffect(()=>{
-  //   const rdg = ref.current
-  //   rdg?.
-  // },[])
+  const handleCellKeyDown = (
+    { row, column }: CellKeyDownArgs<ProbioticRecordResultRow>,
+    e: CellKeyboardEvent
+  ) => {
+    if (e.ctrlKey && e.key === "v") {
+      e.preventDefault();
+      void navigator.clipboard.readText().then((text) => {
+        const pasted = splitClipboard(text); //.map((r)=>);
+        // switch (column.idx) {
+        //   case 0:
+        const newRows = [...rows];
+        const replaceRows = pasted.map((result, i) => {
+          const idx = row.idx + i;
+          return {
+            idx,
+            probiotic: result[-column.idx] ?? rows[idx]?.probiotic ?? null,
+            value: result[1 - column.idx] ?? rows[idx]?.value ?? null,
+          };
+        });
+        newRows.splice(row.idx, pasted.length, ...replaceRows);
+        setRows(newRows);
+        //   case 1:
+        // }
+      });
+    }
+  };
 
   const gridElement = useMemo(
     () =>
@@ -141,29 +153,7 @@ export function CreateProbioticRecordDialog() {
           headerRowHeight={40}
           rowHeight={40}
           onRowsChange={setRows}
-          onCellKeyDown={({ row, column }, e) => {
-            if (e.ctrlKey && e.key === "v") {
-              e.preventDefault();
-              void navigator.clipboard.readText().then((text) => {
-                const pasted = splitClipboard(text); //.map((r)=>);
-                // switch (column.idx) {
-                //   case 0:
-                const newRows = [...rows];
-                const replaceRows = pasted.map((result, i) => {
-                  const idx = row.idx + i;
-                  return {
-                    idx,
-                    probiotic: result[-column.idx] ?? rows[idx].probiotic,
-                    value: result[1 - column.idx] ?? rows[idx].value,
-                  };
-                });
-                newRows.splice(row.idx, pasted.length, ...replaceRows);
-                setRows(newRows);
-                //   case 1:
-                // }
-              });
-            }
-          }}
+          onCellKeyDown={handleCellKeyDown}
           // onPaste={handlePaste}
           rowKeyGetter={(row) => row.idx}
           renderers={{

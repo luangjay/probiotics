@@ -1,5 +1,5 @@
 import { PatientList } from "@/components/patient-list";
-import { getPatients } from "@/lib/patient";
+import { getPatients } from "@/server/api/patient";
 
 export default async function Page() {
   const patients = await getPatients();

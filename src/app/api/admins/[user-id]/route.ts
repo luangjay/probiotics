@@ -1,8 +1,8 @@
 import { saltHashPassword } from "@/lib/auth";
-import { updateAdminSchema } from "@/lib/schema";
+import { partialAdminSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
-import { UserType } from "@/types/user";
+import { UserType } from "@/types/api/user";
+import { ApiResponse } from "@/types/rest";
 import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
@@ -37,7 +37,7 @@ const PUT = validator(async (req, ctx) => {
 
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const { ..._userInfo } = updateAdminSchema.parse(body);
+  const { ...pUser } = partialAdminSchema.parse(body);
 
   const admin = await prisma.admin.update({
     where: {
@@ -46,8 +46,8 @@ const PUT = validator(async (req, ctx) => {
     data: {
       user: {
         update: {
-          ..._userInfo,
-          ...(_userInfo.password && saltHashPassword(_userInfo.password)),
+          ...pUser,
+          ...(pUser.password && saltHashPassword(pUser.password)),
         },
       },
     },

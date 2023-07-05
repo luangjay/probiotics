@@ -1,6 +1,6 @@
-import { updateProbioticRecordSchema } from "@/lib/schema";
+import { partialProbioticRecordSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse } from "@/types/rest";
 import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {
@@ -20,7 +20,7 @@ const PUT = validator(async (req, ctx) => {
 
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const probioticRecordInfo = updateProbioticRecordSchema.parse(body);
+  const probioticRecordInfo = partialProbioticRecordSchema.parse(body);
 
   const probioticRecord = await prisma.probioticRecord.update({
     where: {

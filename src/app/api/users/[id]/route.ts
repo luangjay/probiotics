@@ -1,6 +1,6 @@
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
-import { UserType } from "@/types/user";
+import { UserType } from "@/types/api/user";
+import { ApiResponse } from "@/types/rest";
 import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {

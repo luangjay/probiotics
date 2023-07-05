@@ -1,9 +1,10 @@
-import { type SortFunction } from "@/types/rdg";
 import { type SortColumn } from "react-data-grid";
 
 interface Row {
-  [x: string]: unknown;
+  [k: string]: unknown;
 }
+
+type SortFunction<R> = (a: R, b: R) => number;
 
 const numberColumns = new Set<string | number | symbol>(["ssn"]);
 

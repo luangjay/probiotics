@@ -1,8 +1,8 @@
-import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/s3";
+import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/file";
 import {
   type ProbioticRecordResult,
   type ProbioticRecordResultRow,
-} from "@/types/probiotic-record";
+} from "@/types/api/probiotic-record";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 

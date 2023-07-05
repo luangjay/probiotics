@@ -1,5 +1,3 @@
-import { createSwaggerSpec } from "next-swagger-doc";
-
 import {
   ENUM_GENDER,
   MAX_PASSWORD,
@@ -9,8 +7,8 @@ import {
   PATTERN_SSN,
   PATTERN_USERNAME,
 } from "@/lib/schema";
+import { createSwaggerSpec } from "next-swagger-doc";
 
-/* eslint-disable @typescript-eslint/naming-convention */
 export const spec = createSwaggerSpec({
   apiFolder: "src/app/api",
   definition: {
@@ -362,6 +360,18 @@ export const spec = createSwaggerSpec({
             "500": { description: "Internal server error" },
           },
         },
+        post: {
+          tags: ["Probiotic Brands"],
+          summary: "Create a new probiotic brand",
+          requestBody: { $ref: "#/components/requestBodies/ProbioticBrand" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
       },
       "/api/probiotic-brands/{id}": {
         get: {
@@ -372,6 +382,32 @@ export const spec = createSwaggerSpec({
             "200": { description: "OK" },
             "400": { description: "Bad request" },
             "401": { description: "Unauthorized" },
+            "404": { description: "Not found" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        put: {
+          tags: ["Probiotic Brands"],
+          summary: "Update a probiotic brand by user id",
+          parameters: [{ $ref: "#/components/parameters/probioticBrandId" }],
+          requestBody: { $ref: "#/components/requestBodies/ProbioticBrand" },
+          responses: {
+            "200": { description: "OK" },
+            "400": { description: "Bad request" },
+            "401": { description: "Unauthorized" },
+            "404": { description: "Not found" },
+            "409": { description: "Conflict" },
+            "500": { description: "Internal server error" },
+          },
+        },
+        delete: {
+          tags: ["Probiotic Brands"],
+          summary: "Delete a probiotic brand by user id",
+          parameters: [{ $ref: "#/components/parameters/probioticBrandId" }],
+          responses: {
+            "200": { description: "OK" },
+            "401": { description: "Unauthorized" },
+            "400": { description: "Bad request" },
             "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
@@ -793,17 +829,16 @@ export const spec = createSwaggerSpec({
             },
           },
         },
-        AddPatientMedicalCondition: {
+        ProbioticBrand: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
                 properties: {
-                  medicalConditionId: {
-                    type: "integer",
-                    description:
-                      "The unique identifier of the medical condition",
+                  name: {
+                    type: "string",
+                    description: "The name of the probiotic brand",
                   },
                 },
               },
@@ -843,6 +878,23 @@ export const spec = createSwaggerSpec({
             },
           },
         },
+        AddProbioticRecordFile: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  file: {
+                    type: "string",
+                    format: "binary",
+                    default: "",
+                  },
+                },
+              },
+            },
+          },
+        },
         AddProbioticRecordProbioticBrand: {
           required: true,
           content: {
@@ -859,17 +911,17 @@ export const spec = createSwaggerSpec({
             },
           },
         },
-        AddProbioticRecordFile: {
+        AddPatientMedicalCondition: {
           required: true,
           content: {
-            "multipart/form-data": {
+            "application/json": {
               schema: {
                 type: "object",
                 properties: {
-                  file: {
-                    type: "string",
-                    format: "binary",
-                    default: "",
+                  medicalConditionId: {
+                    type: "integer",
+                    description:
+                      "The unique identifier of the medical condition",
                   },
                 },
               },
@@ -1214,4 +1266,3 @@ export const spec = createSwaggerSpec({
     security: [],
   },
 });
-/* eslint-enable @typescript-eslint/naming-convention */

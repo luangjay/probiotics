@@ -1,11 +1,11 @@
 import { prisma } from "@/server/db";
+import { UserType } from "@/types/api/user";
 import {
   ApiResponse,
   type ApiContext,
   type ApiHandler,
   type ApiRequest,
-} from "@/types/api";
-import { UserType } from "@/types/user";
+} from "@/types/rest";
 import { z } from "zod";
 import { validator as baseValidator } from "../../validator";
 

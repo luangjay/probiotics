@@ -1,7 +1,7 @@
-import { getCsv, uploadCsv } from "@/lib/s3";
+import { getCsv, uploadCsv } from "@/lib/file";
 import { fileSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse } from "@/types/rest";
 import { validator } from "../validator";
 
 const GET = validator(async (req, ctx) => {

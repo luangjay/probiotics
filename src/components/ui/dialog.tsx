@@ -1,10 +1,9 @@
 "use client";
 
+import { Icons } from "@/components/ui/icons";
+import { cn } from "@/lib/utils";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
-
-import { cn } from "@/lib/utils";
-import { Icons } from "./icons";
 
 const DialogRoot = DialogPrimitive.Root;
 
@@ -32,7 +31,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "bg-background/80 fixed inset-0 z-50 backdrop-blur transition-all duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:fade-in",
+      "fixed inset-0 z-50 bg-background/80 backdrop-blur transition-all duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:fade-in",
       className
     )}
     {...props}

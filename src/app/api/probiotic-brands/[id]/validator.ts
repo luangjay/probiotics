@@ -4,7 +4,7 @@ import {
   type ApiContext,
   type ApiHandler,
   type ApiRequest,
-} from "@/types/api";
+} from "@/types/rest";
 import { z } from "zod";
 import { validator as baseValidator } from "../../validator";
 

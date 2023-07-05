@@ -1,6 +1,6 @@
 import { TimeSeriesResults } from "@/components/time-series-results";
-import { getPatient } from "@/lib/patient";
-import { getTimeSeriesResults } from "@/lib/probiotic-record";
+import { getPatient } from "@/server/api/patient";
+import { getTimeSeriesResults } from "@/server/api/probiotic-record";
 
 interface PageProps {
   params: {
@@ -10,16 +10,15 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
-  const { probioticRecords, ...patient } = await getPatient(userId);
-  const { keys, timeSeriesResults } = await getTimeSeriesResults(
-    probioticRecords
+  const patient = await getPatient(userId);
+  const timeSeriesResults = await getTimeSeriesResults(
+    patient.probioticRecords
   );
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
       <TimeSeriesResults
         patient={patient}
-        keys={keys}
         timeSeriesResults={timeSeriesResults}
       />
     </div>

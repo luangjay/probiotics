@@ -1,20 +1,23 @@
 "use client";
 
-import { CreatePatientDialog } from "@/components/create-patient-dialog";
+import { NewPatientDialog } from "@/components/new-patient-dialog";
 import { selectPatientColumn } from "@/components/select-patient-column";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filtered, sorted } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
-import { type PatientInfo } from "@/types/user";
+import {
+  type PatientInfo,
+  type PatientWithComputed,
+} from "@/types/api/patient";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
-  patients: (PatientInfo & { fullName: string })[];
+  patients: PatientWithComputed[];
 }
 
 interface Filter {
@@ -61,7 +64,7 @@ export function PatientList({ patients }: PatientListProps) {
         width: "20%",
       },
       {
-        key: "actions",
+        key: "action1",
         name: "",
         minWidth: 40,
         maxWidth: 40,
@@ -131,20 +134,25 @@ export function PatientList({ patients }: PatientListProps) {
   );
 
   return (
-    <div className="flex h-full flex-col gap-4 p-1">
+    <div className="flex h-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Patients</h2>
-        <Input
-          {...register("filter")}
-          id="filter"
-          className="h-[40px] w-[200px] rounded"
-          placeholder="Filter"
-        />
+        <label
+          htmlFor="filter"
+          className="relative flex h-[40px] w-[240px] items-center gap-2"
+        >
+          <Input
+            {...register("filter")}
+            id="filter"
+            className="h-full w-full rounded-md pl-10"
+            placeholder="Search patients"
+          />
+          <Icons.Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+        </label>
+        <NewPatientDialog />
       </div>
+      <div className="flex justify-center"></div>
       {gridElement}
-      <div className="flex h-fit justify-center">
-        <CreatePatientDialog />
-      </div>
     </div>
   );
 }

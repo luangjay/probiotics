@@ -1,5 +1,6 @@
+import { probioticBrandSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse } from "@/types/rest";
 import { validator } from "../validator";
 
 const GET = validator(async () => {
@@ -7,4 +8,18 @@ const GET = validator(async () => {
   return ApiResponse.json(probioticBrands);
 });
 
-export { GET };
+const POST = validator(async (req) => {
+  // Validate the request body against the schema
+  const body: unknown = await req.json();
+  const { name } = probioticBrandSchema.parse(body);
+
+  const probioticBrand = await prisma.probioticBrand.create({
+    data: {
+      name,
+    },
+  });
+
+  return ApiResponse.json(probioticBrand);
+});
+
+export { GET, POST };

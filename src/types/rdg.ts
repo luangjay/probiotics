@@ -1,1 +1,1 @@
-export type SortFunction<R> = (a: R, b: R) => number;
+// export type SortFunction<R> = (a: R, b: R) => number;

@@ -11,21 +11,22 @@ import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useProbioticRecordResults } from "@/hooks/use-probiotic-record-results";
 import { splitClipboard } from "@/lib/rdg";
-import { uploadSheetSchema } from "@/lib/schema";
-import { type ProbioticRecordResultRow } from "@/types/probiotic-record";
+import { uploadFileSchema } from "@/lib/schema";
+import { type ProbioticRecordResultRow } from "@/types/api/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
   type CellKeyDownArgs,
   type CellKeyboardEvent,
   type Column,
+  type CopyEvent,
 } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
 
-type UploadFileData = z.infer<typeof uploadSheetSchema>;
+type UploadFileData = z.infer<typeof uploadFileSchema>;
 
-export function CreateProbioticRecordDialog() {
+export function NewProbioticRecordDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const {
@@ -35,7 +36,7 @@ export function CreateProbioticRecordDialog() {
     formState: { errors, isSubmitting },
   } = useForm<UploadFileData>({
     mode: "onChange",
-    resolver: zodResolver(uploadSheetSchema),
+    resolver: zodResolver(uploadFileSchema),
   });
   const fileList = useWatch<UploadFileData>({ control, name: "fileList" });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
@@ -106,6 +107,18 @@ export function CreateProbioticRecordDialog() {
     []
   );
 
+  function handleCopy({
+    sourceRow,
+    sourceColumnKey,
+  }: CopyEvent<ProbioticRecordResultRow>): void {
+    if (window.isSecureContext) {
+      const text = sourceRow[sourceColumnKey as keyof ProbioticRecordResultRow];
+      if (typeof text === "string") {
+        void navigator.clipboard.writeText(text);
+      }
+    }
+  }
+
   const handleCellKeyDown = useCallback(
     (
       { row, column }: CellKeyDownArgs<ProbioticRecordResultRow>,
@@ -159,8 +172,8 @@ export function CreateProbioticRecordDialog() {
           headerRowHeight={40}
           rowHeight={40}
           onRowsChange={setRows}
+          onCopy={handleCopy}
           onCellKeyDown={handleCellKeyDown}
-          // onPaste={handlePaste}
           rowKeyGetter={(row) => row.idx}
           renderers={{
             noRowsFallback: (

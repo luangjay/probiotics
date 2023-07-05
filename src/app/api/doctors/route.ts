@@ -1,8 +1,8 @@
 import { saltHashPassword } from "@/lib/auth";
 import { doctorSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
-import { UserType } from "@/types/user";
+import { UserType } from "@/types/api/user";
+import { ApiResponse } from "@/types/rest";
 import { validator } from "../validator";
 
 const GET = validator(async () => {
@@ -28,14 +28,14 @@ const GET = validator(async () => {
 const POST = validator(async (req) => {
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const { ..._userInfo } = doctorSchema.parse(body);
+  const { ...pUser } = doctorSchema.parse(body);
 
   const doctor = await prisma.doctor.create({
     data: {
       user: {
         create: {
-          ..._userInfo,
-          ...saltHashPassword(_userInfo.password),
+          ...pUser,
+          ...saltHashPassword(pUser.password),
         },
       },
     },

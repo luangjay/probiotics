@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
-import { patientSchema } from "@/lib/schema";
+import { partialPatientSchema } from "@/lib/schema";
 import { faker } from "@faker-js/faker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -12,9 +12,9 @@ import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
 
-type CreatePatientData = z.infer<typeof patientSchema>;
+type EditPatientData = z.infer<typeof partialPatientSchema>;
 
-export function CreatePatientDialog() {
+export function EditPatientDialog() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const {
@@ -24,13 +24,13 @@ export function CreatePatientDialog() {
     formState: { errors, isSubmitting, isValid },
     setValue,
     reset,
-  } = useForm<CreatePatientData>({
-    resolver: zodResolver(patientSchema),
+  } = useForm<EditPatientData>({
+    resolver: zodResolver(partialPatientSchema),
     mode: "onChange",
   });
-  const { firstName, lastName } = useWatch<CreatePatientData>({ control });
+  const { firstName, lastName } = useWatch<EditPatientData>({ control });
 
-  const onSubmit = async (data: CreatePatientData) => {
+  const onSubmit = async (data: EditPatientData) => {
     console.log("aaa");
     const response = await fetch("/api/patients", {
       method: "POST",
@@ -54,13 +54,13 @@ export function CreatePatientDialog() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="ghost">New patient</Button>
+        <Button variant="secondary">Edit</Button>
       </Dialog.Trigger>
       <Dialog.Content className="sm:h-[90vh] sm:max-w-[576px]">
-        <Dialog.Title>New patient</Dialog.Title>
-        <Dialog.Description>
+        <Dialog.Title>Edit patient</Dialog.Title>
+        {/* <Dialog.Description>
           Make changes to your profile here. Click save when you&apos;re done.
-        </Dialog.Description>
+        </Dialog.Description> */}
         <form onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}>
           <fieldset className="flex flex-col items-center gap-2">
             <Input

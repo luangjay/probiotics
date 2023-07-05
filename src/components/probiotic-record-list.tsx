@@ -1,34 +1,39 @@
 "use client";
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
+import { fullName } from "@/lib/api/user";
 import { sorted } from "@/lib/rdg";
-import { fullName } from "@/lib/user";
 import { cn } from "@/lib/utils";
-import { type DoctorInfo, type PatientInfo } from "@/types/user";
+import { type DoctorInfo } from "@/types/api/doctor";
+import { type PatientWithAll } from "@/types/api/patient";
 import { type ProbioticRecord } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column, type SortColumn } from "react-data-grid";
-import { CreateProbioticRecordDialog } from "./create-probiotic-record-dialog";
+import { NewProbioticRecordDialog } from "./new-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
-  patient: PatientInfo & { fullName: string };
-  probioticRecords: (ProbioticRecord & { doctor: DoctorInfo })[];
+  patient: PatientWithAll;
 }
 
 export function ProbioticRecordList({
-  probioticRecords,
-  ...props
+  patient: patientWithAll,
 }: ProbioticRecordListProps) {
+  // Initialize
+  const { probioticRecords, medicalConditions, ...patient } = patientWithAll;
+
   // States
   const [loading, setLoading] = useState(true);
-  const { setPatient } = useSelectPatientStore();
+  const { setPatient: setSelectedPatient } = useSelectPatientStore();
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
-  useEffect(() => void setPatient(props.patient), [setPatient, props.patient]);
+  useEffect(
+    () => void setSelectedPatient(patientWithAll),
+    [setSelectedPatient, patientWithAll]
+  );
 
   const columns = useMemo<
     readonly Column<ProbioticRecord & { doctor: DoctorInfo }>[]
@@ -108,13 +113,13 @@ export function ProbioticRecordList({
   );
 
   return (
-    <div className="flex h-full flex-col gap-4 p-1">
+    <div className="flex h-full flex-col gap-4">
       <h3 className="flex h-[40px] items-center text-2xl font-semibold">
         Probiotic Records
       </h3>
       {gridElement}
       <div className="flex justify-center">
-        <CreateProbioticRecordDialog />
+        <NewProbioticRecordDialog />
       </div>
     </div>
   );

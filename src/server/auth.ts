@@ -1,5 +1,5 @@
 import { prisma } from "@/server/db";
-import { UserType } from "@/types/user";
+import { UserType } from "@/types/api/user";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compareSync } from "bcrypt-ts";
 import { type NextAuthOptions, type User } from "next-auth";

@@ -1,8 +1,9 @@
 import { saltHashPassword } from "@/lib/auth";
 import { adminSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
-import { UserType } from "@/types/user";
+import { UserType } from "@/types/api/user";
+import { ApiResponse } from "@/types/rest";
+import { revalidatePath } from "next/cache";
 import { validator } from "../validator";
 
 const GET = validator(async (req) => {
@@ -35,14 +36,14 @@ const POST = validator(async (req) => {
 
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const { ..._userInfo } = adminSchema.parse(body);
+  const { ...pUser } = adminSchema.parse(body);
 
   const admin = await prisma.admin.create({
     data: {
       user: {
         create: {
-          ..._userInfo,
-          ...saltHashPassword(_userInfo.password),
+          ...pUser,
+          ...saltHashPassword(pUser.password),
         },
       },
     },
@@ -50,6 +51,8 @@ const POST = validator(async (req) => {
       user: true,
     },
   });
+
+  revalidatePath("/patients");
 
   const { user, userId, ...adminInfo } = admin;
   const { password, salt, ...userInfo } = user;

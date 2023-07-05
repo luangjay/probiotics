@@ -1,5 +1,5 @@
 import { prisma } from "@/server/db";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse } from "@/types/rest";
 import { validator } from "./validator";
 
 const GET = validator(async (req, ctx) => {

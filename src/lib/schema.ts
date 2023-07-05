@@ -1,7 +1,6 @@
+import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/file";
 import { Gender } from "@prisma/client";
 import { z } from "zod";
-
-import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/s3";
 
 export const MIN_USERNAME = 4;
 export const MIN_PASSWORD = 4;
@@ -11,10 +10,15 @@ export const REGEX_USERNAME = /^[a-zA-Z0-9_.]+$/;
 export const REGEX_FIRSTNAME = /^[a-zA-Z]+$/;
 export const REGEX_LASTNAME = /^[a-zA-Z]+$/;
 export const REGEX_SSN = /^\d+$/;
-export const PATTERN_USERNAME = "^[a-zA-Z0-9_.]*$";
+export const PATTERN_USERNAME = "^[a-zA-Z0-9_.]+$";
 export const PATTERN_SSN = "^[0-9]+$";
 export const ENUM_GENDER = ["Male", "Female", "Others"] as const;
 
+function refineInput(input: Record<string, unknown>) {
+  return Object.values(input).some((field) => field !== undefined);
+}
+
+// CRUD
 export const adminSchema = z
   .object({
     username: z
@@ -35,26 +39,7 @@ export const adminSchema = z
   })
   .strict();
 
-export const updateAdminSchema = z
-  .object({
-    username: z
-      .string()
-      .trim()
-      .min(MIN_USERNAME)
-      .max(MAX_USERNAME)
-      .regex(REGEX_USERNAME)
-      .optional(),
-    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD).optional(),
-    email: z.preprocess((field) => {
-      if (field === undefined) return undefined;
-      if (typeof field !== "string" || field.trim() === "") return null;
-      return field;
-    }, z.string().trim().email().toLowerCase().nullable().optional()),
-    prefix: z.string().trim().min(1).optional(),
-    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME).optional(),
-    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME).optional(),
-  })
-  .strict();
+export const partialAdminSchema = adminSchema.partial().refine(refineInput);
 
 export const doctorSchema = z
   .object({
@@ -76,26 +61,7 @@ export const doctorSchema = z
   })
   .strict();
 
-export const updateDoctorSchema = z
-  .object({
-    username: z
-      .string()
-      .trim()
-      .min(MIN_USERNAME)
-      .max(MAX_USERNAME)
-      .regex(REGEX_USERNAME)
-      .optional(),
-    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD).optional(),
-    email: z.preprocess((field) => {
-      if (field === undefined) return undefined;
-      if (typeof field !== "string" || field.trim() === "") return null;
-      return field;
-    }, z.string().trim().email().toLowerCase().nullable().optional()),
-    prefix: z.string().trim().min(1).optional(),
-    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME).optional(),
-    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME).optional(),
-  })
-  .strict();
+export const partialDoctorSchema = doctorSchema.partial().refine(refineInput);
 
 export const patientSchema = z
   .object({
@@ -121,69 +87,28 @@ export const patientSchema = z
   })
   .strict();
 
-export const updatePatientSchema = z
-  .object({
-    username: z
-      .string()
-      .trim()
-      .min(MIN_USERNAME)
-      .max(MAX_USERNAME)
-      .regex(REGEX_USERNAME)
-      .optional(),
-    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD).optional(),
-    email: z.preprocess((field) => {
-      if (field === undefined) return undefined;
-      if (typeof field !== "string" || field.trim() === "") return null;
-      return field;
-    }, z.string().trim().email().toLowerCase().nullable().optional()),
-    prefix: z.string().trim().min(1).optional(),
-    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME).optional(),
-    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME).optional(),
-    ssn: z.string().trim().min(1).regex(REGEX_SSN).optional(),
-    gender: z.nativeEnum(Gender).optional(),
-    birthDate: z.string().datetime().optional(),
-    ethnicity: z.string().trim().min(1).nullable().optional(),
-  })
-  .strict();
+export const partialPatientSchema = patientSchema.partial().refine(refineInput);
 
-export const addPatientMedicalConditionSchema = z
-  .object({
-    medicalConditionId: z.number().int(),
-  })
-  .strict();
+export const probioticBrandSchema = z.object({
+  name: z.string().min(1),
+});
 
-export const resultSchema = z.array(
-  z
-    .object({
-      key: z.string(),
-      value: z.number(),
-    })
-    .strict()
-);
+export const partialProbioticBrandSchema = probioticBrandSchema
+  .partial()
+  .refine(refineInput);
 
 export const probioticRecordSchema = z
   .object({
     doctorId: z.string().cuid(),
     patientId: z.string().cuid(),
     fileId: z.string().cuid().nullable().optional(),
-    result: resultSchema,
+    result: z.array(z.record(z.string().min(1), z.number())),
   })
   .strict();
 
-export const updateProbioticRecordSchema = z
-  .object({
-    doctorId: z.string().cuid().optional(),
-    patientId: z.string().cuid().optional(),
-    fileId: z.string().cuid().nullable().optional(),
-    result: resultSchema,
-  })
-  .strict();
-
-export const addProbioticRecordProbioticBrandSchema = z
-  .object({
-    probioticBrandId: z.number().int(),
-  })
-  .strict();
+export const partialProbioticRecordSchema = probioticRecordSchema
+  .partial()
+  .refine(refineInput);
 
 export const fileSchema = z.custom<File>().superRefine((file, ctx) => {
   if (file?.type !== csvFileType) {
@@ -203,6 +128,20 @@ export const fileSchema = z.custom<File>().superRefine((file, ctx) => {
   }
 });
 
+// RELATIONS
+export const addPatientMedicalConditionSchema = z
+  .object({
+    medicalConditionId: z.number().int(),
+  })
+  .strict();
+
+export const addProbioticRecordProbioticBrandSchema = z
+  .object({
+    probioticBrandId: z.number().int(),
+  })
+  .strict();
+
+// USE CASES
 export const loginSchema = z
   .object({
     username: z
@@ -215,7 +154,7 @@ export const loginSchema = z
   })
   .strict();
 
-export const uploadSheetSchema = z.object({
+export const uploadFileSchema = z.object({
   fileList: z.custom<FileList>().superRefine((fileList, ctx) => {
     const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
     if (!file) return;

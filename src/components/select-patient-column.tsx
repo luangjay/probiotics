@@ -1,5 +1,5 @@
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { type PatientInfo } from "@/types/user";
+import { type PatientInfo } from "@/types/api/patient";
 import {
   SelectCellFormatter,
   type Column,
@@ -9,7 +9,10 @@ import {
 
 const SELECT_COLUMN_KEY = "select-row";
 
-export const selectPatientColumn: Column<any, any> = {
+export const selectPatientColumn: Column<
+  PatientInfo & { fullName: string },
+  any
+> = {
   key: SELECT_COLUMN_KEY,
   name: "",
   width: 40,

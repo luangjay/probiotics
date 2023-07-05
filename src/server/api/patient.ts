@@ -1,12 +1,13 @@
-import { fullName } from "@/lib/user";
+import { fullName } from "@/lib/api/user";
 import { prisma } from "@/server/db";
-import { UserType, type DoctorInfo, type PatientInfo } from "@/types/user";
-import { type MedicalCondition, type ProbioticRecord } from "@prisma/client";
+import {
+  type PatientWithAll,
+  type PatientWithComputed,
+} from "@/types/api/patient";
+import { UserType } from "@/types/api/user";
 import { notFound } from "next/navigation";
 
-export async function getPatients(): Promise<
-  (PatientInfo & { fullName: string })[]
-> {
+export async function getPatients(): Promise<PatientWithComputed[]> {
   const patients = await prisma.patient.findMany({
     include: {
       user: true,
@@ -26,12 +27,7 @@ export async function getPatients(): Promise<
   });
 }
 
-export async function getPatient(userId: string): Promise<
-  PatientInfo & {
-    probioticRecords: (ProbioticRecord & { doctor: DoctorInfo })[];
-    medicalConditions: MedicalCondition[];
-  } & { fullName: string }
-> {
+export async function getPatient(userId: string): Promise<PatientWithAll> {
   try {
     const patient = await prisma.patient.findUniqueOrThrow({
       where: {

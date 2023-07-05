@@ -2,31 +2,35 @@
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { sorted } from "@/lib/rdg";
-import { type TimeSeriesResult } from "@/types/probiotic-record";
-import { type PatientInfo } from "@/types/user";
+import { type PatientWithAll } from "@/types/api/patient";
+import { type TimeSeriesResult } from "@/types/api/probiotic-record";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 
 interface TimeSeriesResultsProps {
-  patient: PatientInfo & { fullName: string };
-  keys: string[];
+  patient: PatientWithAll;
   timeSeriesResults: TimeSeriesResult[];
 }
 
 export function TimeSeriesResults({
-  keys,
+  patient: patientWithAll,
   timeSeriesResults,
-  ...props
 }: TimeSeriesResultsProps) {
+  // Initialize
+  const keys = Object.keys(timeSeriesResults[0] ?? {});
+
   // States
   const [loading, setLoading] = useState(true);
-  const { setPatient } = useSelectPatientStore();
+  const { setPatient: setSelectedPatient } = useSelectPatientStore();
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
-  useEffect(() => void setPatient(props.patient), [setPatient, props.patient]);
+  useEffect(
+    () => void setSelectedPatient(patientWithAll),
+    [setSelectedPatient, patientWithAll]
+  );
 
   const columns = useMemo<readonly Column<TimeSeriesResult>[]>(
     () =>
@@ -80,7 +84,7 @@ export function TimeSeriesResults({
   );
 
   return (
-    <div className="flex h-full flex-col gap-4 p-1">
+    <div className="flex h-full flex-col gap-4">
       <h3 className="flex h-[40px] items-center text-2xl font-semibold">
         Probiotic Records
       </h3>

@@ -1,14 +1,14 @@
 import { probioticBrandSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "../validator";
+import { handler } from "../handler";
 
-const GET = validator(async () => {
+const GET = handler(async () => {
   const probioticBrands = await prisma.probioticBrand.findMany();
   return ApiResponse.json(probioticBrands);
 });
 
-const POST = validator(async (req) => {
+const POST = handler(async (req) => {
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const { name } = probioticBrandSchema.parse(body);

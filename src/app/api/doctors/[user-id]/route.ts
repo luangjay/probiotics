@@ -3,9 +3,9 @@ import { partialDoctorSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { UserType } from "@/types/api/user";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "./validator";
+import { handler } from "./handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const userId = ctx.params["user-id"];
 
   const doctor = await prisma.doctor.findUniqueOrThrow({
@@ -26,7 +26,7 @@ const GET = validator(async (req, ctx) => {
   });
 });
 
-const PUT = validator(async (req, ctx) => {
+const PUT = handler(async (req, ctx) => {
   const userId = ctx.params["user-id"];
   if (req.token?.type !== UserType.Admin && req.token?.sub !== userId) {
     return new ApiResponse("Unauthorized", { status: 401 });
@@ -62,7 +62,7 @@ const PUT = validator(async (req, ctx) => {
   });
 });
 
-const DELETE = validator(async (req, ctx) => {
+const DELETE = handler(async (req, ctx) => {
   const userId = ctx.params["user-id"];
   if (req.token?.type !== UserType.Admin && req.token?.sub !== userId) {
     return new ApiResponse("Unauthorized", { status: 401 });

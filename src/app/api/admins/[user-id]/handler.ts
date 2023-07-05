@@ -6,10 +6,10 @@ import {
   type ApiRequest,
 } from "@/types/rest";
 import { z } from "zod";
-import { validator as baseValidator } from "../../validator";
+import { handler as baseHandler } from "../../handler";
 
-export function validator(handler: ApiHandler) {
-  const validated = baseValidator(async (req: ApiRequest, ctx: ApiContext) => {
+export function handler(fn: ApiHandler) {
+  return baseHandler(async (req: ApiRequest, ctx: ApiContext) => {
     const userId = z.string().cuid().parse(ctx.params["user-id"]);
     const admin = await prisma.admin.findUnique({
       where: {
@@ -19,9 +19,7 @@ export function validator(handler: ApiHandler) {
     if (admin === null) {
       return new ApiResponse("Admin not found", { status: 404 });
     }
-    const response = await handler(req, ctx);
+    const response = await fn(req, ctx);
     return response;
   });
-
-  return validated;
 }

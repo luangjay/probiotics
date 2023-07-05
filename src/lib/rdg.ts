@@ -32,15 +32,20 @@ function dateSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
   return (a, b) => (a[key] as Date).getTime() - (b[key] as Date).getTime();
 }
 
-export function filtered<R extends Row>(rows: R[], filter?: string | null) {
+export function filteredRows<R extends Row>(
+  rows: R[],
+  keys: string[],
+  filter?: string | null
+) {
   if (!filter) return rows;
   const t = filter.toLowerCase().split(/\s+/);
   if (t.length === 0) return rows;
+
   return rows.filter((row) =>
     t.reduce(
       (acc, cur) =>
         acc &&
-        Object.keys(row).some((key) => {
+        keys.some((key) => {
           const val = row[key as keyof R];
           if (typeof val === "string") {
             return val.toLowerCase().includes(cur);
@@ -55,12 +60,10 @@ export function filtered<R extends Row>(rows: R[], filter?: string | null) {
   );
 }
 
-export function sorted<R extends Row>(
+export function sortedRows<R extends Row>(
   rows: R[],
   sortColumns: readonly SortColumn[]
 ) {
-  // if (rows.length === 0) return rows;
-
   return [...rows].sort((a, b) => {
     for (const col of sortColumns) {
       const fn = sortFunction(col.columnKey as keyof R);

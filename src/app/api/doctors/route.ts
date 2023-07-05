@@ -3,9 +3,9 @@ import { doctorSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { UserType } from "@/types/api/user";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "../validator";
+import { handler } from "../handler";
 
-const GET = validator(async () => {
+const GET = handler(async () => {
   const doctors = await prisma.doctor.findMany({
     include: {
       user: true,
@@ -25,7 +25,7 @@ const GET = validator(async () => {
   );
 });
 
-const POST = validator(async (req) => {
+const POST = handler(async (req) => {
   // Validate the request body against the schema
   const body: unknown = await req.json();
   const { ...pUser } = doctorSchema.parse(body);

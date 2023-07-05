@@ -10,8 +10,8 @@ import { getToken } from "next-auth/jwt";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
-export function validator(handler: ApiHandler) {
-  const validated = async (req: ApiRequest, ctx: ApiContext) => {
+export function handler(fn: ApiHandler) {
+  return async (req: ApiRequest, ctx: ApiContext) => {
     try {
       req.token = await getToken({ req });
       if (
@@ -21,7 +21,12 @@ export function validator(handler: ApiHandler) {
       ) {
         return new ApiResponse("Unauthorized", { status: 401 });
       }
-      const response = await handler(req, ctx);
+      const queryOptions = req.nextUrl.searchParams.get("options");
+      console.log(queryOptions);
+      ctx.options = queryOptions
+        ? (JSON.parse(queryOptions) as { [x: string]: unknown })
+        : undefined;
+      const response = await fn(req, ctx);
       return response;
     } catch (error) {
       if (error instanceof SyntaxError) {
@@ -43,6 +48,4 @@ export function validator(handler: ApiHandler) {
       return new ApiResponse(message, { status: 500 });
     }
   };
-
-  return validated;
 }

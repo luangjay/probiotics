@@ -1,8 +1,8 @@
 import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "./validator";
+import { handler } from "./handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const id = parseInt(ctx.params.id);
 
   const medicalCondition = await prisma.medicalCondition.findUnique({

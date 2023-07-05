@@ -1,9 +1,9 @@
-import { type PatientWithAll } from "@/types/api/patient";
+import { type PatientRow } from "@/types/api/patient";
 import { create } from "zustand";
 
 interface SelectPatientStore {
-  patient?: PatientWithAll;
-  setPatient: (patient?: PatientWithAll) => void;
+  patient?: PatientRow;
+  setPatient: (patient?: PatientRow) => void;
 }
 
 export const useSelectPatientStore = create<SelectPatientStore>((set) => ({

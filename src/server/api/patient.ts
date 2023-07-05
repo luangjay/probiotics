@@ -1,28 +1,46 @@
 import { fullName } from "@/lib/api/user";
 import { prisma } from "@/server/db";
-import {
-  type PatientWithAll,
-  type PatientWithComputed,
-} from "@/types/api/patient";
+import { type PatientRow, type PatientWithAll } from "@/types/api/patient";
 import { UserType } from "@/types/api/user";
 import { notFound } from "next/navigation";
 
-export async function getPatients(): Promise<PatientWithComputed[]> {
+export async function getPatients(): Promise<PatientRow[]> {
   const patients = await prisma.patient.findMany({
     include: {
       user: true,
+      probioticRecords: {
+        include: {
+          doctor: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
+      medicalConditions: {
+        include: {
+          medicalCondition: true,
+        },
+      },
     },
   });
 
   return patients.map((patient) => {
-    const { user, userId, ...patientInfo } = patient;
-    const { password, salt, ...userInfo } = user;
-
+    const {
+      user,
+      userId: _,
+      probioticRecords: p13ns,
+      medicalConditions: m14ns,
+      ...pPatient
+    } = patient;
+    const { password, salt, ...pUserPatient } = user;
+    const medicalConditions = m14ns.map((m14n) => m14n.medicalCondition);
     return {
-      type: UserType.Patient,
-      ...userInfo,
-      ...patientInfo,
-      fullName: fullName(userInfo),
+      type: UserType.Patient as const,
+      ...pUserPatient,
+      fullName: fullName(pUserPatient),
+      ...pPatient,
+      medicalConditions,
     };
   });
 }
@@ -55,12 +73,12 @@ export async function getPatient(userId: string): Promise<PatientWithAll> {
     const {
       user,
       userId: _,
-      probioticRecords: _probioticRecords,
-      medicalConditions: _medicalConditions,
+      probioticRecords: p13ns,
+      medicalConditions: m14ns,
       ...pPatient
     } = patient;
     const { password, salt, ...pUserPatient } = user;
-    const probioticRecords = _probioticRecords.map((probioticRecord) => {
+    const probioticRecords = p13ns.map((probioticRecord) => {
       const { doctor, ...pProbioticRecord } = probioticRecord;
       const { user } = doctor;
       const { password, salt, createdAt, updatedAt, ...pUserDoctor } = user;
@@ -72,16 +90,14 @@ export async function getPatient(userId: string): Promise<PatientWithAll> {
         },
       };
     });
-    const medicalConditions = _medicalConditions.map(
-      (m14n) => m14n.medicalCondition
-    );
+    const medicalConditions = m14ns.map((m14n) => m14n.medicalCondition);
     return {
       type: UserType.Patient as const,
-      ...pPatient,
       ...pUserPatient,
+      fullName: fullName(pUserPatient),
+      ...pPatient,
       probioticRecords,
       medicalConditions,
-      fullName: fullName(pUserPatient),
     };
   } catch (error) {
     notFound();

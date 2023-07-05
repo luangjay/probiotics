@@ -7,10 +7,10 @@ import {
   type ApiRequest,
 } from "@/types/rest";
 import { z } from "zod";
-import { validator as baseValidator } from "../../validator";
+import { handler as baseHandler } from "../../handler";
 
-export function validator(handler: ApiHandler) {
-  const validated = baseValidator(async (req: ApiRequest, ctx: ApiContext) => {
+export function handler(fn: ApiHandler) {
+  return baseHandler(async (req: ApiRequest, ctx: ApiContext) => {
     const id = ctx.params.id;
     const brandId = z.number().int().parse(parseInt(ctx.params["brand-id"]));
 
@@ -37,9 +37,7 @@ export function validator(handler: ApiHandler) {
     ) {
       return new ApiResponse("Unauthorized", { status: 401 });
     }
-    const response = await handler(req, ctx);
+    const response = await fn(req, ctx);
     return response;
   });
-
-  return validated;
 }

@@ -1,9 +1,9 @@
 import { partialProbioticRecordSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "./validator";
+import { handler } from "./handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   const probioticRecord = await prisma.probioticRecord.findUniqueOrThrow({
@@ -15,7 +15,7 @@ const GET = validator(async (req, ctx) => {
   return ApiResponse.json(probioticRecord);
 });
 
-const PUT = validator(async (req, ctx) => {
+const PUT = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   // Validate the request body against the schema
@@ -34,7 +34,7 @@ const PUT = validator(async (req, ctx) => {
   return ApiResponse.json(probioticRecord);
 });
 
-const DELETE = validator(async (req, ctx) => {
+const DELETE = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   await prisma.probioticRecord.delete({

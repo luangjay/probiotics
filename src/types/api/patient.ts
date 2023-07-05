@@ -9,6 +9,10 @@ export type PatientWithComputed = PatientInfo & {
   fullName: string;
 };
 
+export type PatientRow = PatientWithComputed & {
+  medicalConditions: MedicalCondition[];
+}
+
 export type PatientWithAll = PatientWithComputed & {
   probioticRecords: ProbioticRecordWithDoctor[];
   medicalConditions: MedicalCondition[];

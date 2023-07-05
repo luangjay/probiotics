@@ -1,8 +1,8 @@
 import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "./validator";
+import { handler } from "./handler";
 
-const DELETE = validator(async (req, ctx) => {
+const DELETE = handler(async (req, ctx) => {
   // Validate the request body against the schema
   const id = ctx.params.id;
   const brandId = parseInt(ctx.params["brand-id"]);

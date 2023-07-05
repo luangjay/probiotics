@@ -1,5 +1,5 @@
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { type PatientInfo } from "@/types/api/patient";
+import { type PatientRow } from "@/types/api/patient";
 import {
   SelectCellFormatter,
   type Column,
@@ -9,10 +9,7 @@ import {
 
 const SELECT_COLUMN_KEY = "select-row";
 
-export const selectPatientColumn: Column<
-  PatientInfo & { fullName: string },
-  any
-> = {
+export const selectPatientColumn: Column<PatientRow, any> = {
   key: SELECT_COLUMN_KEY,
   name: "",
   width: 40,
@@ -21,13 +18,11 @@ export const selectPatientColumn: Column<
   resizable: false,
   sortable: false,
   frozen: true,
-  renderHeaderCell: (p) => <HeaderPatientRenderer {...p} />,
-  renderCell: (p) => <SelectPatientRenderer {...p} />,
+  renderHeaderCell: (p) => <HeaderRenderer {...p} />,
+  renderCell: (p) => <SelectRenderer {...p} />,
 };
 
-function HeaderPatientRenderer({
-  tabIndex,
-}: RenderHeaderCellProps<PatientInfo & { fullName: string }, any>) {
+function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
   return (
     <SelectCellFormatter
       disabled
@@ -41,10 +36,7 @@ function HeaderPatientRenderer({
   );
 }
 
-function SelectPatientRenderer({
-  row,
-  tabIndex,
-}: RenderCellProps<PatientInfo & { fullName: string }, any>) {
+function SelectRenderer({ row, tabIndex }: RenderCellProps<PatientRow, any>) {
   const { patient, setPatient } = useSelectPatientStore();
   const selected = patient?.id === row.id;
   return (
@@ -53,7 +45,7 @@ function SelectPatientRenderer({
       tabIndex={tabIndex}
       value={selected}
       onChange={(checked) => {
-        setPatient(checked ? row : undefined);
+        void setPatient(checked ? row : undefined);
       }}
     />
   );

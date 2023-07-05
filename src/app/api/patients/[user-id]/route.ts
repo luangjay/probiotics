@@ -3,9 +3,9 @@ import { partialPatientSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { UserType } from "@/types/api/user";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "./validator";
+import { handler } from "./handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const userId = ctx.params["user-id"];
 
   const patient = await prisma.patient.findUniqueOrThrow({
@@ -26,7 +26,7 @@ const GET = validator(async (req, ctx) => {
   });
 });
 
-const PUT = validator(async (req, ctx) => {
+const PUT = handler(async (req, ctx) => {
   const userId = ctx.params["user-id"];
 
   // Validate the request body against the schema
@@ -64,7 +64,7 @@ const PUT = validator(async (req, ctx) => {
   });
 });
 
-const DELETE = validator(async (req, ctx) => {
+const DELETE = handler(async (req, ctx) => {
   const userId = ctx.params["user-id"];
 
   await prisma.user.delete({

@@ -1,9 +1,9 @@
 import { addProbioticRecordProbioticBrandSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "../validator";
+import { handler } from "../handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   const probioticBrandProbioticRecord =
@@ -21,7 +21,7 @@ const GET = validator(async (req, ctx) => {
   );
 });
 
-const POST = validator(async (req, ctx) => {
+const POST = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   // Validate the request body against the schema

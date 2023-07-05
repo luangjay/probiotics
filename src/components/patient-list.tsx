@@ -5,19 +5,16 @@ import { selectPatientColumn } from "@/components/select-patient-column";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { filtered, sorted } from "@/lib/rdg";
+import { filteredRows, sortedRows } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
-import {
-  type PatientInfo,
-  type PatientWithComputed,
-} from "@/types/api/patient";
+import { type PatientRow, type PatientWithAll } from "@/types/api/patient";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
-  patients: PatientWithComputed[];
+  patients: PatientRow[];
 }
 
 interface Filter {
@@ -40,7 +37,7 @@ export function PatientList({ patients }: PatientListProps) {
   const { filter } = useWatch<Filter>({ control });
 
   // Columns
-  const columns = useMemo<Column<PatientInfo & { fullName: string }>[]>(
+  const columns = useMemo<Column<PatientRow>[]>(
     () => [
       selectPatientColumn,
       {
@@ -89,10 +86,15 @@ export function PatientList({ patients }: PatientListProps) {
   );
 
   // Rows
-  const rows = useMemo(
-    () => filtered(sorted(patients, sortColumns), filter),
-    [patients, sortColumns, filter]
-  );
+  const rows = useMemo(() => {
+    const sorted = sortedRows(patients, sortColumns);
+    const filtered = filteredRows(
+      sorted,
+      ["fullName", "gender", "birthDate", "ethnicity"],
+      filter
+    );
+    return filtered;
+  }, [patients, sortColumns, filter]);
 
   // Data grid
   const gridElement = useMemo(

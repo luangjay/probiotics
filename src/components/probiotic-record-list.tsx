@@ -2,14 +2,13 @@
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { fullName } from "@/lib/api/user";
-import { sorted } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
 import { type DoctorInfo } from "@/types/api/doctor";
 import { type PatientWithAll } from "@/types/api/patient";
 import { type ProbioticRecord } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import DataGrid, { type Column, type SortColumn } from "react-data-grid";
+import DataGrid, { type Column } from "react-data-grid";
 import { NewProbioticRecordDialog } from "./new-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
@@ -20,12 +19,11 @@ export function ProbioticRecordList({
   patient: patientWithAll,
 }: ProbioticRecordListProps) {
   // Initialize
-  const { probioticRecords, medicalConditions, ...patient } = patientWithAll;
+  const { probioticRecords: rows } = patientWithAll;
 
   // States
   const [loading, setLoading] = useState(true);
   const { setPatient: setSelectedPatient } = useSelectPatientStore();
-  const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
@@ -74,11 +72,6 @@ export function ProbioticRecordList({
       },
     ];
   }, []);
-
-  const rows = useMemo(
-    () => sorted(probioticRecords, sortColumns),
-    [probioticRecords, sortColumns]
-  );
 
   const gridElement = useMemo(
     () =>

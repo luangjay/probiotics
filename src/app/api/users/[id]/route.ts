@@ -1,9 +1,9 @@
 import { prisma } from "@/server/db";
 import { UserType } from "@/types/api/user";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "./validator";
+import { handler } from "./handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const id = ctx.params.id;
   if (req.token?.type !== UserType.Admin) {
     return new ApiResponse("Unauthorized", { status: 401 });

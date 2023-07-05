@@ -22,7 +22,7 @@ export function SelectedPatient() {
         <div>No patient selected</div>
       ) : (
         <div className="flex flex-col gap-4">
-          {/* <div>{typeof patient.medicalConditions}</div> */}
+          <div>{typeof patient.medicalConditions}</div>
           <div className="flex gap-2">
             <div className="w-1/3 truncate">SSN</div>
             <div className="flex-1">{patient.ssn}</div>

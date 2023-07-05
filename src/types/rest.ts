@@ -9,6 +9,9 @@ export interface ApiContext {
   params: {
     [k: string]: string;
   };
+  options?: {
+    [k: string]: unknown;
+  };
 }
 
 export class ApiResponse extends NextResponse {

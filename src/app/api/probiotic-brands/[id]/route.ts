@@ -1,9 +1,9 @@
 import { partialProbioticBrandSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "./validator";
+import { handler } from "./handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const id = parseInt(ctx.params.id);
 
   const probioticBrand = await prisma.probioticBrand.findUniqueOrThrow({
@@ -15,7 +15,7 @@ const GET = validator(async (req, ctx) => {
   return ApiResponse.json(probioticBrand);
 });
 
-const PUT = validator(async (req, ctx) => {
+const PUT = handler(async (req, ctx) => {
   const id = parseInt(ctx.params.id);
   const body: unknown = await req.json();
   const pProbioticBrand = partialProbioticBrandSchema.parse(body);
@@ -30,7 +30,7 @@ const PUT = validator(async (req, ctx) => {
   return ApiResponse.json(probioticBrand);
 });
 
-const DELETE = validator(async (req, ctx) => {
+const DELETE = handler(async (req, ctx) => {
   const id = parseInt(ctx.params.id);
 
   await prisma.probioticBrand.delete({

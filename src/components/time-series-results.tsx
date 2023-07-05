@@ -1,7 +1,6 @@
 "use client";
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { sorted } from "@/lib/rdg";
 import { type PatientWithAll } from "@/types/api/patient";
 import { type TimeSeriesResult } from "@/types/api/probiotic-record";
 import { useEffect, useMemo, useState } from "react";
@@ -14,10 +13,10 @@ interface TimeSeriesResultsProps {
 
 export function TimeSeriesResults({
   patient: patientWithAll,
-  timeSeriesResults,
+  timeSeriesResults: rows,
 }: TimeSeriesResultsProps) {
   // Initialize
-  const keys = Object.keys(timeSeriesResults[0] ?? {});
+  const keys = Object.keys(rows[0] ?? {});
 
   // States
   const [loading, setLoading] = useState(true);
@@ -49,11 +48,6 @@ export function TimeSeriesResults({
         };
       }),
     [keys]
-  );
-
-  const rows = useMemo(
-    () => sorted(timeSeriesResults, sortColumns),
-    [timeSeriesResults, sortColumns]
   );
 
   const gridElement = useMemo(

@@ -2,9 +2,9 @@ import { getCsv, uploadCsv } from "@/lib/file";
 import { fileSchema } from "@/lib/schema";
 import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
-import { validator } from "../validator";
+import { handler } from "../handler";
 
-const GET = validator(async (req, ctx) => {
+const GET = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   const csv = await getCsv("probiotic-records", id);
@@ -12,7 +12,7 @@ const GET = validator(async (req, ctx) => {
   return ApiResponse.csv(csv);
 });
 
-const POST = validator(async (req, ctx) => {
+const POST = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   // Validate file type

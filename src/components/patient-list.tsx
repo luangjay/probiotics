@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filteredRows, sortedRows } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
-import { type PatientRow, type PatientWithAll } from "@/types/api/patient";
+import { type PatientRow } from "@/types/api/patient";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
@@ -106,7 +106,7 @@ export function PatientList({ patients }: PatientListProps) {
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light flex-1 overflow-y-scroll"
+          className="rdg-light flex-1"
           rows={rows}
           columns={columns}
           headerRowHeight={40}
@@ -141,12 +141,12 @@ export function PatientList({ patients }: PatientListProps) {
         <h2 className="text-2xl font-semibold">Patients</h2>
         <label
           htmlFor="filter"
-          className="relative flex h-[40px] w-[240px] items-center gap-2"
+          className="relative flex h-[40px] w-[300px] items-center gap-2"
         >
           <Input
             {...register("filter")}
             id="filter"
-            className="h-full w-full rounded-md pl-10"
+            className="h-full w-full pl-10"
             placeholder="Search patients"
           />
           <Icons.Search className="absolute left-3 h-4 w-4 text-muted-foreground" />

@@ -23,14 +23,16 @@ export const selectPatientColumn: Column<PatientRow, any> = {
 };
 
 function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
+  const { setPatient } = useSelectPatientStore();
   return (
     <SelectCellFormatter
-      disabled
       aria-label="Select All"
       tabIndex={tabIndex}
       value={false}
-      onChange={() => {
-        /* Do nothing */
+      onChange={(checked) => {
+        if (checked) {
+          void setPatient(undefined);
+        }
       }}
     />
   );

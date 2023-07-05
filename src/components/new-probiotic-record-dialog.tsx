@@ -6,7 +6,13 @@ import {
 } from "@/components/rdg/probiotic-editor";
 import { ValueEditor, refineValue } from "@/components/rdg/value-editor";
 import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useProbioticRecordResults } from "@/hooks/use-probiotic-record-results";
@@ -188,15 +194,15 @@ export function NewProbioticRecordDialog() {
   );
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <Button variant="ghost">New probiotic record</Button>
-      </Dialog.Trigger>
-      <Dialog.Content className="sm:h-[90vh] sm:max-w-[576px]">
-        <Dialog.Title className="px-1">New probiotic record</Dialog.Title>
-        <Dialog.Description className="px-1">
+      </DialogTrigger>
+      <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
+        <DialogTitle className="px-1">New probiotic record</DialogTitle>
+        <DialogDescription className="px-1">
           Make changes to your profile here. Click save when you&apos;re done.
-        </Dialog.Description>
+        </DialogDescription>
         <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="flex gap-2">
             <Input id="file" type="file" {...register("fileList")} />
@@ -231,7 +237,7 @@ export function NewProbioticRecordDialog() {
             abc
           </Button> */}
         </div>
-      </Dialog.Content>
-    </Dialog.Root>
+      </DialogContent>
+    </Dialog>
   );
 }

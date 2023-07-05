@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { patientSchema } from "@/lib/schema";
@@ -52,15 +57,15 @@ export function NewPatientDialog() {
   }, [setValue, firstName, lastName]);
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button variant="secondary" className="h-full">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="h-full">
           <Icons.Add className="mr-2 h-4 w-4" />
           New patient
         </Button>
-      </Dialog.Trigger>
-      <Dialog.Content className="sm:h-[90vh] sm:max-w-[576px]">
-        <Dialog.Title>New patient</Dialog.Title>
+      </DialogTrigger>
+      <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
+        <DialogTitle>New patient</DialogTitle>
         {/* <Dialog.Description>
           Make changes to your profile here. Click save when you&apos;re done.
         </Dialog.Description> */}
@@ -122,7 +127,7 @@ export function NewPatientDialog() {
             </Button>
           </div>
         </form>
-      </Dialog.Content>
-    </Dialog.Root>
+      </DialogContent>
+    </Dialog>
   );
 }

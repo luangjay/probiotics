@@ -1,9 +1,5 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
 
-function withOpacity(variable) {
-  return `rgb(var(${variable}) / <alpha-value>)`;
-}
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -54,9 +50,9 @@ module.exports = {
         },
       },
       // borderRadius: {
-      //   lg: "--radius)",
-      //   md: "calc(--radius) - 2px)",
-      //   sm: "calc(--radius) - 4px)",
+      //   lg: "var(--radius)",
+      //   md: "calc(var(--radius) - 2px)",
+      //   sm: "calc(var(--radius) - 4px)",
       // },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],

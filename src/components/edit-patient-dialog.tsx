@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { partialPatientSchema } from "@/lib/schema";
@@ -31,7 +36,6 @@ export function EditPatientDialog() {
   const { firstName, lastName } = useWatch<EditPatientData>({ control });
 
   const onSubmit = async (data: EditPatientData) => {
-    console.log("aaa");
     const response = await fetch("/api/patients", {
       method: "POST",
       body: JSON.stringify(data),
@@ -52,12 +56,14 @@ export function EditPatientDialog() {
   }, [setValue, firstName, lastName]);
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button variant="secondary">Edit</Button>
-      </Dialog.Trigger>
-      <Dialog.Content className="sm:h-[90vh] sm:max-w-[576px]">
-        <Dialog.Title>Edit patient</Dialog.Title>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="w-full">
+          Edit
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
+        <DialogTitle>Edit patient</DialogTitle>
         {/* <Dialog.Description>
           Make changes to your profile here. Click save when you&apos;re done.
         </Dialog.Description> */}
@@ -119,7 +125,7 @@ export function EditPatientDialog() {
             </Button>
           </div>
         </form>
-      </Dialog.Content>
-    </Dialog.Root>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { NewProbioticRecordDialog } from "@/components/new-probiotic-record-dialog";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { fullName } from "@/lib/api/user";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,6 @@ import { type ProbioticRecord } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
-import { NewProbioticRecordDialog } from "./new-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
   patient: PatientWithAll;

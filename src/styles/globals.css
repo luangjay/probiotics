@@ -89,6 +89,15 @@ p {
   @apply leading-normal tracking-tight;
 }
 
+* {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
 .rdg-light {
   /* --rdg-color: #000; */
   --rdg-color: hsl(var(--foreground));
@@ -132,7 +141,7 @@ p {
 }
 
 .rdg::-webkit-scrollbar {
-  @apply h-[11px] w-[11px];
+  @apply block h-[11px] w-[11px];
 }
 
 .rdg::-webkit-scrollbar-thumb {

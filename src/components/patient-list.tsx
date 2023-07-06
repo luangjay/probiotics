@@ -4,6 +4,7 @@ import { NewPatientDialog } from "@/components/new-patient-dialog";
 import { selectPatientColumn } from "@/components/select-patient-column";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filteredRows, sortedRows } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,7 @@ interface PatientListProps {
   patients: PatientRow[];
 }
 
-interface Filter {
+interface FilterPatients {
   filter: string;
 }
 
@@ -33,8 +34,8 @@ export function PatientList({ patients }: PatientListProps) {
   const { patient: selectedPatient } = useSelectPatientStore();
 
   // Filter rows
-  const { register, control } = useForm<Filter>({ mode: "onChange" });
-  const { filter } = useWatch<Filter>({ control });
+  const { register, control } = useForm<FilterPatients>({ mode: "onChange" });
+  const { filter } = useWatch<FilterPatients>({ control });
 
   // Columns
   const columns = useMemo<Column<PatientRow>[]>(
@@ -142,18 +143,20 @@ export function PatientList({ patients }: PatientListProps) {
     <div className="flex h-full flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Patients</h2>
-        <label
-          htmlFor="filter"
-          className="relative flex h-[40px] w-[300px] items-center gap-2"
-        >
+        <div className="relative flex h-[40px] w-[20rem] items-center gap-2 font-normal">
+          <Label
+            htmlFor="filter"
+            className="absolute left-0 flex h-10 w-10 items-center justify-center"
+          >
+            <Icons.Search className="h-4 w-4 opacity-50" />
+          </Label>
           <Input
             {...register("filter")}
             id="filter"
             className="h-full w-full pl-10"
             placeholder="Search patients"
           />
-          <Icons.Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-        </label>
+        </div>
         <NewPatientDialog />
       </div>
       {gridElement}

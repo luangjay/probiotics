@@ -131,6 +131,55 @@ p {
   @apply overflow-scroll rounded-md border shadow-sm;
 }
 
+.rdg::-webkit-scrollbar {
+  @apply h-[11px] w-[11px];
+}
+
+.rdg::-webkit-scrollbar-thumb {
+  padding: 5px 5px;
+  border-top: 3px solid transparent;
+  border-left: 3px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-right: 2px solid transparent;
+  background: #909090;
+  background-clip: padding-box;
+  @apply rounded-full;
+}
+
+.rdg::-webkit-scrollbar-thumb:hover {
+  background-color: #606060;
+}
+
+.rdg::-webkit-scrollbar-track:vertical {
+  /* background-color: red; */
+  /* outline: 1px solid hsl(var(--border)); */
+  border-left: 1px solid hsl(var(--border));
+  @apply rounded-[0_6px_0_0] bg-transparent;
+}
+
+.rdg::-webkit-scrollbar-track:horizontal {
+  /* background-color: red; */
+  /* outline: 1px solid hsl(var(--border)); */
+  border-top: 1px solid hsl(var(--border));
+  @apply rounded-[0_0_0_6px] bg-transparent;
+}
+
+.rdg-header-row > .rdg-cell:first-child[aria-selected="true"]:after {
+  @apply rounded-tl-md;
+}
+
+.rdg-header-row > .rdg-cell:last-child {
+  @apply border-r-0;
+}
+
+.rdg-row > .rdg-cell:last-child {
+  @apply border-r-0;
+}
+
+.rdg::-webkit-scrollbar-corner {
+  @apply rounded-[0_0_6px_0];
+}
+
 .rdg-cell {
   border-color: var(--rdg-border-color);
   @apply select-none border-b border-r px-2 shadow-none;
@@ -144,14 +193,6 @@ p {
   border-color: var(--rdg-checkbox-focus-color);
 }
 
-.rdg-sort-arrow {
-  @apply h-full align-middle;
-}
-
-.rdg-checkbox {
-  @apply border-2;
-}
-
 .rdg-cell[aria-selected="true"] {
   @apply outline-none;
 }
@@ -162,34 +203,10 @@ p {
   @apply pointer-events-none absolute inset-0 block border-2;
 }
 
-.rdg-header-row > .rdg-cell:first-child[aria-selected="true"]:after {
-  @apply rounded-tl-md;
+.rdg-sort-arrow {
+  @apply h-full align-middle;
 }
 
-div[role="row"]:last-child {
-  @apply bg-red-500;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #8b8b8b;
-  @apply rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #606060;
-}
-
-::-webkit-scrollbar-track {
-  /* background-color: var(--rdg-border-color); */
-  outline: 1px solid hsl(var(--border));
-  @apply overflow-visible rounded-full bg-transparent;
-}
-
-::-webkit-scrollbar-corner {
-  @apply hidden;
+.rdg-checkbox {
+  @apply border-2;
 }

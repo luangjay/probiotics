@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { Gender, PrismaClient } from "@prisma/client";
 import { genSaltSync, hashSync } from "bcrypt-ts";
+import slugid from "slugid";
 import yargs from "yargs";
 
 const prisma = new PrismaClient();
@@ -87,11 +88,26 @@ async function seedAdmins({ reset, clear, count }: SeedOptions) {
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.user.deleteMany({
-        where: !reset ? { NOT: { admin: null } } : undefined,
+        where: !reset
+          ? {
+              OR: [
+                {
+                  NOT: {
+                    admin: null,
+                  },
+                },
+                {
+                  admin: null,
+                  doctor: null,
+                  patient: null,
+                },
+              ],
+            }
+          : undefined,
       });
       if (reset) return;
     }
-    // Initialize admin roots
+
     await Promise.all(
       Array.from({ length: rootCount }, async () => {
         // User fields
@@ -151,7 +167,22 @@ async function seedDoctors({ reset, clear, count }: SeedOptions) {
   return prisma.$transaction(async (tx) => {
     if (clear) {
       await tx.user.deleteMany({
-        where: { NOT: { doctor: null } },
+        where: !reset
+          ? {
+              OR: [
+                {
+                  NOT: {
+                    doctor: null,
+                  },
+                },
+                {
+                  admin: null,
+                  doctor: null,
+                  patient: null,
+                },
+              ],
+            }
+          : undefined,
       });
       if (reset) return;
     }
@@ -182,106 +213,83 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42003);
 
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.user.deleteMany({
-        where: { NOT: { patient: null } },
-      });
-      if (reset) return;
-    }
-    await Promise.all(
-      Array.from({ length: count }, () => {
-        // User fields
-        const sex = faker.helpers.arrayElement(["male", "female"] as const);
-        const prefix =
-          sex === "male"
-            ? "Mr."
-            : faker.helpers.arrayElement(["Ms.", "Mrs."] as const);
-        const firstName = faker.person.firstName(sex);
-        const lastName = faker.person.lastName(sex);
-        const username = faker.internet.userName({ firstName, lastName });
-        const { password, salt } = saltHashPassword("secret");
-
-        // Patient fields
-        const cis = faker.datatype.boolean(0.8);
-        const ssn = faker.number.int({ min: 4.2e13, max: 4.21e13 }).toString();
-        const birthDate = faker.date.birthdate();
-        const gender = cis
-          ? sex === "male"
-            ? Gender.Male
-            : Gender.Female
-          : Gender.Others;
-        const ethnicity = faker.location.country();
-
-        // Create patients
-        return tx.patient.create({
-          data: {
-            user: {
-              create: { username, password, salt, prefix, firstName, lastName },
-            },
-            ssn,
-            birthDate,
-            gender,
-            ethnicity,
-          },
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.user.deleteMany({
+          where: !reset
+            ? {
+                OR: [
+                  {
+                    NOT: {
+                      patient: null,
+                    },
+                  },
+                  {
+                    admin: null,
+                    doctor: null,
+                    patient: null,
+                  },
+                ],
+              }
+            : undefined,
         });
-      })
-    );
-  });
+        if (reset) return;
+      }
+      await Promise.all(
+        Array.from({ length: count }, () => {
+          // User fields
+          const sex = faker.helpers.arrayElement(["male", "female"] as const);
+          const prefix =
+            sex === "male"
+              ? "Mr."
+              : faker.helpers.arrayElement(["Ms.", "Mrs."] as const);
+          const firstName = faker.person.firstName(sex);
+          const lastName = faker.person.lastName(sex);
+          // const username = faker.internet.userName({ firstName, lastName });
+          // const { password, salt } = saltHashPassword("secret");
+          const username = slugid.nice();
+          const password = "none";
+          const salt = "none";
+
+          // Patient fields
+          const cis = faker.datatype.boolean(0.8);
+          const ssn = faker.number
+            .int({ min: 4.2e13, max: 4.21e13 })
+            .toString();
+          const birthDate = faker.date.birthdate();
+          const gender = cis
+            ? sex === "male"
+              ? Gender.Male
+              : Gender.Female
+            : Gender.Others;
+          const ethnicity = faker.location.country();
+
+          // Create patients
+          return tx.patient.create({
+            data: {
+              user: {
+                create: {
+                  username,
+                  password,
+                  salt,
+                  prefix,
+                  firstName,
+                  lastName,
+                },
+              },
+              ssn,
+              birthDate,
+              gender,
+              ethnicity,
+            },
+          });
+        })
+      );
+    },
+    { timeout: 60 * 60 * 1000 }
+  );
 }
-
-// async function seedProbiotics({ reset, clear, count }: SeedOptions) {
-//   // Options
-//   faker.seed(42005);
-//   const rootCount = 5;
-
-//   return prisma.$transaction(async (tx) => {
-//     if (clear) {
-//       await tx.probiotic.deleteMany();
-//       if (reset) return;
-//     }
-//     // Initialize probiotic roots
-//     const probioticIds = await Promise.all(
-//       Array.from({ length: rootCount }, async (_, idx) => {
-//         // Probiotic fields
-//         const name = idx.toString();
-//         const red = faker.number.int({ min: 0, max: 333 });
-//         const yellow = faker.number.int({ min: red, max: 666 });
-//         const green = faker.number.int({ min: yellow, max: 999 });
-
-//         // Create probiotics
-//         const probiotic = await tx.probiotic.create({
-//           data: { name, red, yellow, green },
-//         });
-//         return probiotic.id;
-//       })
-//     );
-
-//     // Id of the first probiotic created
-//     const offset = probioticIds[0];
-
-//     // Populate probiotic tree
-//     for (let idx = rootCount; idx < count; idx++) {
-//       // Probiotic fields
-//       const parentId = faker.number.int({
-//         min: offset,
-//         max: offset + idx - 1,
-//       });
-//       const { name: parentName } = await tx.probiotic.findUniqueOrThrow({
-//         where: { id: parentId },
-//       });
-//       const name = `${parentName} ${idx.toString()}`;
-//       const red = faker.number.int({ min: 0, max: 333 });
-//       const yellow = faker.number.int({ min: red, max: 666 });
-//       const green = faker.number.int({ min: yellow, max: 999 });
-
-//       // Create probiotics
-//       await tx.probiotic.create({
-//         data: { parentId, name, red, yellow, green },
-//       });
-//     }
-//   });
-// }
 
 async function seedProbiotics({ reset, clear, count }: SeedOptions) {
   // Options
@@ -664,7 +672,7 @@ async function getOptions() {
       admins: (count: number) =>
         clamp(count > 0 ? Math.max(1, count) : 0, 0, 20),
       doctors: (count: number) => clamp(count, 0, 40),
-      patients: (count: number) => clamp(count, 0, 40),
+      patients: (count: number) => clamp(count, 0, 10000),
       probiotics: (count: number) => clamp(count, 0, 59),
       "probiotic-brands": (count: number) =>
         clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),

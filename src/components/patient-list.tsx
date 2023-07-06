@@ -119,7 +119,10 @@ export function PatientList({ patients }: PatientListProps) {
           }}
           renderers={{
             noRowsFallback: (
-              <div style={{ textAlign: "center", gridColumn: "1/-1" }}>
+              <div
+                className="flex h-full w-full items-center justify-center"
+                style={{ textAlign: "center", gridColumn: "1/-1" }}
+              >
                 Nothing to show (´・ω・`)
               </div>
             ),
@@ -136,7 +139,7 @@ export function PatientList({ patients }: PatientListProps) {
   );
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Patients</h2>
         <label
@@ -153,7 +156,6 @@ export function PatientList({ patients }: PatientListProps) {
         </label>
         <NewPatientDialog />
       </div>
-      <div className="flex justify-center"></div>
       {gridElement}
     </div>
   );

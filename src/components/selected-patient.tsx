@@ -22,7 +22,7 @@ export function SelectedPatient() {
   const path = useMemo(() => pathname.split("/"), [pathname]);
   const patientPage = path[2] === "patient" && path[3] === undefined;
   return (
-    <Card className="min-h-[24rem]">
+    <Card className="min-h-[24rem] rounded-md">
       <CardHeader>
         <CardTitle className="text-lg tracking-tight">
           Selected patient

@@ -10,7 +10,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="container flex h-screen gap-8 py-7">
       <section className="flex w-[18rem] flex-col justify-between gap-8 overflow-auto p-1">
-        <Card className="flex-1">
+        <Card className="flex-1 rounded-md">
           <CardContent className="flex h-full flex-col gap-4 p-6">
             <Link
               href="/"

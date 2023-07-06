@@ -104,9 +104,9 @@ export function NewProbioticRecordDialog() {
       {
         key: "value",
         name: "Value",
-        minWidth: 91,
-        maxWidth: 91,
-        width: 91,
+        minWidth: 90,
+        maxWidth: 90,
+        width: 90,
         renderEditCell: (p) => <ValueEditor {...p} />,
       },
     ],

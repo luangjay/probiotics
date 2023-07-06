@@ -9,6 +9,7 @@ import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filteredRows, sortedRows } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
 import { type PatientRow } from "@/types/api/patient";
+import { type MedicalCondition } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
@@ -16,13 +17,14 @@ import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
   patients: PatientRow[];
+  medicalConditions: MedicalCondition[];
 }
 
 interface FilterPatients {
   filter: string;
 }
 
-export function PatientList({ patients }: PatientListProps) {
+export function PatientList({ patients, medicalConditions }: PatientListProps) {
   // States
   const [loading, setLoading] = useState(true);
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
@@ -157,7 +159,7 @@ export function PatientList({ patients }: PatientListProps) {
             placeholder="Search patients"
           />
         </div>
-        <NewPatientDialog />
+        <NewPatientDialog medicalConditions={medicalConditions} />
       </div>
       {gridElement}
     </div>

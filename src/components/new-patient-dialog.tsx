@@ -1,7 +1,8 @@
 "use client";
 
 import { FormErrorTooltip } from "@/components/form-error-tooltip";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -9,28 +10,46 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { patientSchema } from "@/lib/schema";
-import { faker } from "@faker-js/faker";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Gender, type MedicalCondition } from "@prisma/client";
+import { format } from "date-fns";
+import { CalendarIcon, ChevronDownIcon, XCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
+import { Badge } from "./ui/badge";
 
 type NewPatientData = z.infer<typeof patientSchema>;
 
-export function NewPatientDialog() {
+interface NewPatientDialogProps {
+  medicalConditions: MedicalCondition[];
+}
+
+export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const {
@@ -44,7 +63,12 @@ export function NewPatientDialog() {
     resolver: zodResolver(patientSchema),
     mode: "onChange",
   });
-  const { firstName, lastName } = useWatch<NewPatientData>({ control });
+  const {
+    gender,
+    birthDate,
+    medicalConditionIds = [],
+  } = useWatch<NewPatientData>({ control });
+  const [selectedM14ns, setSelectedM14ns] = useState<MedicalCondition[]>([]);
 
   const onSubmit = async (data: NewPatientData) => {
     console.log("aaa");
@@ -55,17 +79,10 @@ export function NewPatientDialog() {
     if (response.ok) {
       setOpen(false);
       router.refresh();
+      setSelectedM14ns([]);
       reset();
     }
   };
-
-  useEffect(() => {
-    setValue("password", faker.internet.password());
-  }, [setValue, open]);
-
-  useEffect(() => {
-    setValue("username", faker.internet.userName({ firstName, lastName }));
-  }, [setValue, firstName, lastName]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -76,15 +93,13 @@ export function NewPatientDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>New patient</DialogTitle>
-        <DialogDescription>
-          Make changes to your profile here. Click save when you&apos;re done.
-        </DialogDescription>
         <form
           onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
-          className="flex flex-col items-center gap-4"
+          className="flex w-full flex-col gap-4 overflow-auto p-1"
         >
-          <div className="flex items-center gap-4">
+          <DialogTitle>New patient</DialogTitle>
+          <DialogDescription>Name</DialogDescription>
+          <div className="flex w-full items-center gap-4">
             <Input
               id="prefix"
               key="prefix"
@@ -118,58 +133,149 @@ export function NewPatientDialog() {
               }
             />
           </div>
-          <div className="flex gap-4">
+          <DialogDescription>Personal information</DialogDescription>
+          <div className="flex w-full items-center gap-4">
             <Input
               id="ssn"
               key="ssn"
               placeholder="SSN"
-              className="flex-1"
+              className="w-1/2"
               {...register("ssn")}
             />
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a fruit" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <Input
+              id="ethnicity"
+              key="ethnicity"
+              placeholder="Ethnicity"
+              className="flex-1"
+              {...register("ethnicity")}
+            />
             <FormErrorTooltip
               message={
                 errors.ssn
                   ? errors.ssn.message
-                  : errors.gender
-                  ? errors.gender.message
+                  : errors.ethnicity
+                  ? errors.ethnicity.message
                   : undefined
               }
             />
           </div>
-          {/* <p className="text-destructive">{errors.ssn?.message}</p> */}
-
-          {/* <p className="text-destructive">{errors.gender?.message}</p> */}
-          <Input
-            id="birthDate"
-            key="birthDate"
-            type="date"
-            placeholder="Birth date"
-            {...register("birthDate", { valueAsDate: true })}
-          />
-          {/* <p className="text-destructive">{errors.birthDate?.message}</p> */}
-          <Input
-            id="ethnicity"
-            key="ethnicity"
-            placeholder="Ethnicity"
-            {...register("ethnicity")}
-          />
-          {/* <p className="text-destructive">{errors.ethnicity?.message}</p> */}
-          <p className="text-destructive">{JSON.stringify(isValid)}</p>
+          <div className="flex w-full items-center gap-4">
+            <Select
+              key="select_gender"
+              value={gender}
+              onValueChange={(value: Gender) => {
+                setValue("gender", value);
+              }}
+            >
+              <SelectTrigger
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "flex-1 justify-between font-normal",
+                  !gender && "text-muted-foreground"
+                )}
+              >
+                <SelectValue placeholder="Gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value={Gender.Male}>Male</SelectItem>
+                  <SelectItem value={Gender.Female}>Female</SelectItem>
+                  <SelectItem value={Gender.Others}>Others</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[55%] justify-start text-left font-normal",
+                    !birthDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {birthDate ? (
+                    format(birthDate as Date, "PPP")
+                  ) : (
+                    <span>Birth date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  initialFocus
+                  mode="single"
+                  captionLayout="dropdown-buttons"
+                  selected={birthDate as Date}
+                  onSelect={(day, selectedDay) =>
+                    void setValue("birthDate", selectedDay)
+                  }
+                />
+              </PopoverContent>
+            </Popover>
+            <FormErrorTooltip
+              message={
+                errors.gender
+                  ? errors.gender.message
+                  : errors.birthDate
+                  ? errors.birthDate.message
+                  : undefined
+              }
+            />
+          </div>
+          <DialogDescription>Medical conditions</DialogDescription>
+          <div className="flex h-6 w-full gap-2 overflow-auto">
+            {selectedM14ns.map((m14n) => (
+              <Badge
+                key={`selected_${m14n.name}`}
+                variant="secondary"
+                className="h-full"
+              >
+                <span className="whitespace-nowrap">{m14n.name}</span>
+                <XCircleIcon
+                  className="ml-2 h-4 w-4 fill-secondary-foreground text-secondary"
+                  onClick={() => {
+                    setSelectedM14ns((prev) =>
+                      prev.filter(({ id }) => id !== m14n.id)
+                    );
+                    setValue(
+                      "medicalConditionIds",
+                      medicalConditionIds.filter((id) => id !== m14n.id)
+                    );
+                  }}
+                />
+              </Badge>
+            ))}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex-1 font-normal text-muted-foreground"
+              >
+                Select a medical condition
+                <ChevronDownIcon className="ml-4 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="max-h-[17.5rem] overflow-y-scroll">
+              {medicalConditions.map((medicalCondition) => (
+                <DropdownMenuItem
+                  disabled={medicalConditionIds.includes(medicalCondition.id)}
+                  key={`medical_condition_${medicalCondition.id}`}
+                  className="h-10 rounded"
+                  onSelect={() => {
+                    setSelectedM14ns((prev) => [...prev, medicalCondition]);
+                    setValue("medicalConditionIds", [
+                      ...medicalConditionIds,
+                      medicalCondition.id,
+                    ]);
+                  }}
+                >
+                  {medicalCondition.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="mt-2 flex justify-center">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (

@@ -24,15 +24,16 @@ export function FormErrorTooltip({ message }: FormErrorTooltipProps) {
         <TooltipTrigger asChild>
           <button
             type="button"
-            className={cn(
-              "overflow-hidden focus-visible:outline-destructive/50"
-            )}
-            onClick={() => void setOpen(true)}
+            className={cn("overflow-hidden focus-visible:outline-none")}
+            onClick={() => void setOpen(!open)}
           >
             <BadgeAlertIcon className="h-5 w-5 fill-destructive text-destructive-foreground" />
           </button>
         </TooltipTrigger>
-        <TooltipContent className="bg-destructive text-sm text-destructive-foreground">
+        <TooltipContent
+          className="bg-destructive text-sm text-destructive-foreground"
+          onClick={() => void setOpen(false)}
+        >
           <p>{message}</p>
         </TooltipContent>
       </Tooltip>

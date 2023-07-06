@@ -15,9 +15,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Icons } from "@/components/ui/icons";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { cn } from "@/lib/utils";
+import { ChevronsUpDownIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import pluralize from "pluralize";
@@ -87,12 +87,15 @@ export function SelectedPatient() {
                   <span className="flex-1">
                     {pluralize("medical conditions", medicalConditionCount)}
                   </span>
-                  <Icons.ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <ChevronsUpDownIcon className="h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="flex flex-col">
                 {patient.medicalConditions.length === 0 ? (
-                  <DropdownMenuItem className="inline-block h-10 w-[12.5rem] truncate rounded leading-7 focus:bg-inherit">
+                  <DropdownMenuItem
+                    key="medical_condition_none"
+                    className="inline-block h-10 w-[12.5rem] truncate rounded leading-7 focus:bg-inherit"
+                  >
                     No medical conditions
                   </DropdownMenuItem>
                 ) : (

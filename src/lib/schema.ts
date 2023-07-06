@@ -94,9 +94,9 @@ export const patientSchema = z
       .trim()
       .min(1, "SSN is required")
       .regex(REGEX_SSN, "SSN must be numerical"),
-    gender: z.nativeEnum(Gender, { required_error: "Gender is required" }),
+    gender: z.nativeEnum(Gender, { required_error: "Gender is required" }), //
     birthDate: z
-      .date({ required_error: "Birth date is required" })
+      .date({ required_error: "Birth date is required" }) //
       .or(z.string().datetime()),
     ethnicity: z.preprocess((field) => {
       if (field === undefined) return undefined;

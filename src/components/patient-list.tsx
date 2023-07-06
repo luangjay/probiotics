@@ -70,7 +70,7 @@ export function PatientList({ patients }: PatientListProps) {
         cellClass: cn("!p-0"),
         renderCell: ({ row }) => (
           <Link
-            href={`/patients/${row.id}`}
+            href={`/patients/${row.id}/probiotic-records`}
             className="flex h-full w-full items-center justify-center"
           >
             <Icons.Record
@@ -143,7 +143,7 @@ export function PatientList({ patients }: PatientListProps) {
     <div className="flex h-full flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Patients</h2>
-        <div className="relative flex h-[40px] w-[20rem] items-center gap-2 font-normal">
+        <div className="relative flex h-10 w-[20rem] items-center gap-2 font-normal">
           <Label
             htmlFor="filter"
             className="absolute left-0 flex h-10 w-10 items-center justify-center"

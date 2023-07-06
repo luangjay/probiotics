@@ -470,16 +470,15 @@ async function seedMedicalConditionPatient({
       if (reset) return;
     }
     await Promise.all(
-      Array.from({ length: count }, (_, idx) => {
+      Array.from({ length: count }, () => {
         // Medical condition patient fields
-        const id = idx;
         const medicalConditionId =
           faker.helpers.arrayElement(medicalConditionIds);
         const patientId = faker.helpers.arrayElement(patientIds);
 
         // Create medical condition patient
         return tx.medicalConditionPatient.create({
-          data: { id, medicalConditionId, patientId },
+          data: { medicalConditionId, patientId },
         });
       })
     );

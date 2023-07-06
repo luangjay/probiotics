@@ -22,7 +22,6 @@ export function handler(fn: ApiHandler) {
         return new ApiResponse("Unauthorized", { status: 401 });
       }
       const queryOptions = req.nextUrl.searchParams.get("options");
-      console.log(queryOptions);
       ctx.options = queryOptions
         ? (JSON.parse(queryOptions) as { [x: string]: unknown })
         : undefined;

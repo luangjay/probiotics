@@ -213,7 +213,7 @@ p {
 }
 
 .rdg-sort-arrow {
-  @apply h-full align-middle;
+  @apply h-[40px] max-h-[40px] min-h-[40px] align-middle;
 }
 
 .rdg-checkbox {

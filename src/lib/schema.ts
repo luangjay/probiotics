@@ -70,20 +70,40 @@ export const patientSchema = z
       .trim()
       .min(MIN_USERNAME)
       .max(MAX_USERNAME)
-      .regex(REGEX_USERNAME),
-    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
+      .regex(REGEX_USERNAME)
+      .optional(),
+    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD).optional(),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
       return field;
     }, z.string().trim().email().toLowerCase().nullable().optional()),
-    prefix: z.string().trim().min(1),
-    firstName: z.string().trim().min(1).regex(REGEX_LASTNAME),
-    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME),
-    ssn: z.string().trim().min(1).regex(REGEX_SSN),
-    gender: z.nativeEnum(Gender),
-    birthDate: z.date().or(z.string().datetime()),
-    ethnicity: z.string().trim().min(1).nullable().optional(),
+    prefix: z.string().trim().min(1, "Prefix is required"),
+    firstName: z
+      .string()
+      .trim()
+      .min(1, "First name is required")
+      .regex(REGEX_FIRSTNAME, "First name must be alphabetical"),
+    lastName: z
+      .string()
+      .trim()
+      .min(1, "Last name is required")
+      .regex(REGEX_LASTNAME, "Last name must be alphabetical"),
+    ssn: z
+      .string()
+      .trim()
+      .min(1, "SSN is required")
+      .regex(REGEX_SSN, "SSN must be numerical"),
+    gender: z.nativeEnum(Gender, { required_error: "Gender is required" }),
+    birthDate: z
+      .date({ required_error: "Birth date is required" })
+      .or(z.string().datetime()),
+    ethnicity: z.preprocess((field) => {
+      if (field === undefined) return undefined;
+      if (typeof field !== "string" || field.trim() === "") return null;
+      return field;
+    }, z.string().trim().nullable().optional()),
+    medicalConditionIds: z.array(z.number()).optional(),
   })
   .strict();
 

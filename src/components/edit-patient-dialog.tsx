@@ -59,7 +59,7 @@ export function EditPatientDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="w-full">
-          Edit
+          Edit patient
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">

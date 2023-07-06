@@ -1,14 +1,25 @@
 "use client";
 
+import { FormErrorTooltip } from "@/components/form-error-tooltip";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { patientSchema } from "@/lib/schema";
 import { faker } from "@faker-js/faker";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -64,60 +75,101 @@ export function NewPatientDialog() {
           New patient
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
+      <DialogContent>
         <DialogTitle>New patient</DialogTitle>
-        {/* <Dialog.Description>
+        <DialogDescription>
           Make changes to your profile here. Click save when you&apos;re done.
-        </Dialog.Description> */}
-        <form onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}>
-          <fieldset className="flex flex-col items-center gap-2">
+        </DialogDescription>
+        <form
+          onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="flex items-center gap-4">
             <Input
               id="prefix"
               key="prefix"
-              placeholder="prefix"
+              placeholder="Prefix"
+              className="w-24"
               {...register("prefix")}
             />
-            <p className="text-destructive">{errors.prefix?.message}</p>
             <Input
               id="firstName"
               key="firstName"
-              placeholder="firstName"
+              placeholder="First name"
+              className="flex-1"
               {...register("firstName")}
             />
-            <p className="text-destructive">{errors.firstName?.message}</p>
             <Input
               id="lastName"
               key="lastName"
-              placeholder="lastName"
+              placeholder="Last name"
+              className="flex-1"
               {...register("lastName")}
             />
-            <p className="text-destructive">{errors.lastName?.message}</p>
-            <Input id="ssn" key="ssn" placeholder="ssn" {...register("ssn")} />
-            <p className="text-destructive">{errors.ssn?.message}</p>
-            <Input
-              id="gender"
-              key="gender"
-              placeholder="gender"
-              {...register("gender")}
+            <FormErrorTooltip
+              message={
+                errors.prefix
+                  ? errors.prefix.message
+                  : errors.firstName
+                  ? errors.firstName.message
+                  : errors.lastName
+                  ? errors.lastName.message
+                  : undefined
+              }
             />
-            <p className="text-destructive">{errors.gender?.message}</p>
+          </div>
+          <div className="flex gap-4">
             <Input
-              id="birthDate"
-              key="birthDate"
-              type="datetime-local"
-              placeholder="birthDate"
-              {...register("birthDate", { valueAsDate: true })}
+              id="ssn"
+              key="ssn"
+              placeholder="SSN"
+              className="flex-1"
+              {...register("ssn")}
             />
-            <p className="text-destructive">{errors.birthDate?.message}</p>
-            <Input
-              id="ethnicity"
-              key="ethnicity"
-              placeholder="ethnicity"
-              {...register("ethnicity")}
+            <Select>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a fruit" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Fruits</SelectLabel>
+                  <SelectItem value="apple">Apple</SelectItem>
+                  <SelectItem value="banana">Banana</SelectItem>
+                  <SelectItem value="blueberry">Blueberry</SelectItem>
+                  <SelectItem value="grapes">Grapes</SelectItem>
+                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormErrorTooltip
+              message={
+                errors.ssn
+                  ? errors.ssn.message
+                  : errors.gender
+                  ? errors.gender.message
+                  : undefined
+              }
             />
-            <p className="text-destructive">{errors.ethnicity?.message}</p>
-            <p className="text-destructive">{JSON.stringify(isValid)}</p>
-          </fieldset>
+          </div>
+          {/* <p className="text-destructive">{errors.ssn?.message}</p> */}
+
+          {/* <p className="text-destructive">{errors.gender?.message}</p> */}
+          <Input
+            id="birthDate"
+            key="birthDate"
+            type="date"
+            placeholder="Birth date"
+            {...register("birthDate", { valueAsDate: true })}
+          />
+          {/* <p className="text-destructive">{errors.birthDate?.message}</p> */}
+          <Input
+            id="ethnicity"
+            key="ethnicity"
+            placeholder="Ethnicity"
+            {...register("ethnicity")}
+          />
+          {/* <p className="text-destructive">{errors.ethnicity?.message}</p> */}
+          <p className="text-destructive">{JSON.stringify(isValid)}</p>
           <div className="mt-2 flex justify-center">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (

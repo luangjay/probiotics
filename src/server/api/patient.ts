@@ -46,60 +46,60 @@ export async function getPatients(): Promise<PatientRow[]> {
 }
 
 export async function getPatient(userId: string): Promise<PatientWithAll> {
-  try {
-    const patient = await prisma.patient.findUniqueOrThrow({
-      where: {
-        userId,
-      },
-      include: {
-        user: true,
-        probioticRecords: {
-          include: {
-            doctor: {
-              include: {
-                user: true,
-              },
+  const patient = await prisma.patient.findUnique({
+    where: {
+      userId,
+    },
+    include: {
+      user: true,
+      probioticRecords: {
+        include: {
+          doctor: {
+            include: {
+              user: true,
             },
           },
         },
-        medicalConditions: {
-          include: {
-            medicalCondition: true,
-          },
+      },
+      medicalConditions: {
+        include: {
+          medicalCondition: true,
         },
       },
-    });
+    },
+  });
 
-    const {
-      user,
-      userId: _,
-      probioticRecords: p13ns,
-      medicalConditions: m14ns,
-      ...pPatient
-    } = patient;
-    const { password, salt, ...pUserPatient } = user;
-    const probioticRecords = p13ns.map((probioticRecord) => {
-      const { doctor, ...pProbioticRecord } = probioticRecord;
-      const { user } = doctor;
-      const { password, salt, createdAt, updatedAt, ...pUserDoctor } = user;
-      return {
-        ...pProbioticRecord,
-        doctor: {
-          type: UserType.Doctor as const,
-          ...pUserDoctor,
-        },
-      };
-    });
-    const medicalConditions = m14ns.map((m14n) => m14n.medicalCondition);
-    return {
-      type: UserType.Patient as const,
-      ...pUserPatient,
-      fullName: fullName(pUserPatient),
-      ...pPatient,
-      probioticRecords,
-      medicalConditions,
-    };
-  } catch (error) {
-    notFound();
+  if (patient === null) {
+    return notFound();
   }
+
+  const {
+    user,
+    userId: _,
+    probioticRecords: p13ns,
+    medicalConditions: m14ns,
+    ...pPatient
+  } = patient;
+  const { password, salt, ...pUserPatient } = user;
+  const probioticRecords = p13ns.map((probioticRecord) => {
+    const { doctor, ...pProbioticRecord } = probioticRecord;
+    const { user } = doctor;
+    const { password, salt, createdAt, updatedAt, ...pUserDoctor } = user;
+    return {
+      ...pProbioticRecord,
+      doctor: {
+        type: UserType.Doctor as const,
+        ...pUserDoctor,
+      },
+    };
+  });
+  const medicalConditions = m14ns.map((m14n) => m14n.medicalCondition);
+  return {
+    type: UserType.Patient as const,
+    ...pUserPatient,
+    fullName: fullName(pUserPatient),
+    ...pPatient,
+    probioticRecords,
+    medicalConditions,
+  };
 }

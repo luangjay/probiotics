@@ -1,12 +1,15 @@
 import { SelectedPatient } from "@/components/selected-patient";
 import { Card, CardContent } from "@/components/ui/card";
+import { getMedicalConditions } from "@/server/api/medical-condition";
 import Link from "next/link";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default async function Layout({ children }: LayoutProps) {
+  const medicalConditions = await getMedicalConditions();
+
   return (
     <div className="container flex h-screen gap-6 py-7">
       <section className="flex w-[18rem] flex-col justify-between gap-8 overflow-auto p-1">
@@ -32,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
           </CardContent>
         </Card>
-        <SelectedPatient />
+        <SelectedPatient medicalConditions={medicalConditions} />
       </section>
       <section className="flex-1 overflow-auto p-1">{children}</section>
     </div>

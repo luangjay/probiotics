@@ -7,6 +7,8 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -36,7 +38,12 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Gender, type MedicalCondition } from "@prisma/client";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronDownIcon, XCircleIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronDownIcon,
+  PlusIcon,
+  XCircleIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -56,7 +63,7 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isSubmitting },
     setValue,
     reset,
   } = useForm<NewPatientData>({
@@ -87,8 +94,8 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-full">
-          <Icons.Add className="mr-2 h-4 w-4" />
+        <Button className="h-10">
+          <PlusIcon className="mr-2 h-4 w-4" />
           New patient
         </Button>
       </DialogTrigger>
@@ -97,7 +104,9 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
           onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
           className="flex w-full flex-col gap-4 overflow-auto p-1"
         >
-          <DialogTitle>New patient</DialogTitle>
+          <DialogHeader className="mb-2">
+            <DialogTitle>New patient</DialogTitle>
+          </DialogHeader>
           <DialogDescription>Name</DialogDescription>
           <div className="flex w-full items-center gap-4">
             <Input
@@ -225,27 +234,39 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
           </div>
           <DialogDescription>Medical conditions</DialogDescription>
           <div className="flex h-6 w-full gap-2 overflow-auto">
-            {selectedM14ns.map((m14n) => (
+            {selectedM14ns.length === 0 ? (
               <Badge
-                key={`selected_${m14n.name}`}
+                key="selected_medical_condition_none"
                 variant="secondary"
                 className="h-full"
               >
-                <span className="whitespace-nowrap">{m14n.name}</span>
-                <XCircleIcon
-                  className="ml-2 h-4 w-4 fill-secondary-foreground text-secondary"
-                  onClick={() => {
-                    setSelectedM14ns((prev) =>
-                      prev.filter(({ id }) => id !== m14n.id)
-                    );
-                    setValue(
-                      "medicalConditionIds",
-                      medicalConditionIds.filter((id) => id !== m14n.id)
-                    );
-                  }}
-                />
+                None selected
               </Badge>
-            ))}
+            ) : (
+              selectedM14ns.map((m14n) => (
+                <Badge
+                  key={`selected_medical_condition_${m14n.name}`}
+                  variant="secondary"
+                  className="h-full"
+                >
+                  <span className="whitespace-nowrap">{m14n.name}</span>
+                  <button
+                    className="ml-2 flex h-fit w-fit items-center justify-center rounded-full focus:ring-2 focus-visible:outline-none focus-visible:ring-ring"
+                    onClick={() => {
+                      setSelectedM14ns((prev) =>
+                        prev.filter(({ id }) => id !== m14n.id)
+                      );
+                      setValue(
+                        "medicalConditionIds",
+                        medicalConditionIds.filter((id) => id !== m14n.id)
+                      );
+                    }}
+                  >
+                    <XCircleIcon className="h-4 w-4 fill-secondary-foreground text-secondary" />
+                  </button>
+                </Badge>
+              ))
+            )}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -258,32 +279,41 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="max-h-[17.5rem] overflow-y-scroll">
-              {medicalConditions.map((medicalCondition) => (
+              {medicalConditions.length === 0 ? (
                 <DropdownMenuItem
-                  disabled={medicalConditionIds.includes(medicalCondition.id)}
-                  key={`medical_condition_${medicalCondition.id}`}
-                  className="h-10 rounded"
-                  onSelect={() => {
-                    setSelectedM14ns((prev) => [...prev, medicalCondition]);
-                    setValue("medicalConditionIds", [
-                      ...medicalConditionIds,
-                      medicalCondition.id,
-                    ]);
-                  }}
+                  key="medical_condition_none"
+                  className="inline-block h-10 truncate rounded leading-7 focus:bg-inherit"
                 >
-                  {medicalCondition.name}
+                  No medical conditions
                 </DropdownMenuItem>
-              ))}
+              ) : (
+                medicalConditions.map((m14n) => (
+                  <DropdownMenuItem
+                    disabled={medicalConditionIds.includes(m14n.id)}
+                    key={`medical_condition_${m14n.id}`}
+                    className="block h-10 max-w-[17.5rem] truncate rounded leading-7"
+                    onSelect={() => {
+                      setSelectedM14ns((prev) => [...prev, m14n]);
+                      setValue("medicalConditionIds", [
+                        ...medicalConditionIds,
+                        m14n.id,
+                      ]);
+                    }}
+                  >
+                    {m14n.name}
+                  </DropdownMenuItem>
+                ))
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="mt-2 flex justify-center">
+          <DialogFooter className="mt-2 flex sm:justify-center">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (
                 <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
               Confirm
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

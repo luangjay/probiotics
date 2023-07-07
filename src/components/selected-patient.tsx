@@ -17,18 +17,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDownIcon } from "lucide-react";
+import { type MedicalCondition } from "@prisma/client";
+import { ChevronsUpDownIcon, FileCheck2Icon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import pluralize from "pluralize";
 import { useMemo } from "react";
 
-export function SelectedPatient() {
+interface SelectedPatientProps {
+  medicalConditions: MedicalCondition[];
+}
+
+export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
   const { patient } = useSelectPatientStore();
   const pathname = usePathname();
 
   const path = useMemo(() => pathname.split("/"), [pathname]);
-  const patientPage = path[2] === "patient" && path[3] === undefined;
+  const probioticRecordsPage =
+    path[1] === "patients" && path[3] === "probiotic-records";
 
   const medicalConditionCount = patient?.medicalConditions.length ?? 0;
 
@@ -115,20 +121,24 @@ export function SelectedPatient() {
       )}
       {patient && (
         <CardFooter className="flex flex-col gap-4">
-          <EditPatientDialog />
+          <EditPatientDialog medicalConditions={medicalConditions} />
+          {/* <Button size="sm" className="w-full">
+            Edit patient
+          </Button> */}
           <div className="flex w-full">
-            {patientPage ? (
+            {probioticRecordsPage ? (
               <Link
                 href={`/patients/${patient.id}/time-series`}
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
-                Time series
+                Time series results
               </Link>
             ) : (
               <Link
                 href={`/patients/${patient.id}/probiotic-records`}
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
+                <FileCheck2Icon className="mr-2 h-4 w-4" />
                 Probiotic records
               </Link>
             )}

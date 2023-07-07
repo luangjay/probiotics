@@ -68,7 +68,7 @@ model Patient {
 
 model Probiotic {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   red       Float
   yellow    Float
   green     Float
@@ -90,7 +90,7 @@ model ProbioticBrand {
 
 model MedicalCondition {
   id        Int                       @id @default(autoincrement())
-  name      String
+  name      String                    @unique
   createdAt DateTime                  @default(now()) @map("created_at")
   updatedAt DateTime                  @updatedAt @map("updated_at")
   patients  MedicalConditionPatient[]

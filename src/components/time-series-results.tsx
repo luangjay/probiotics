@@ -78,10 +78,10 @@ export function TimeSeriesResults({
   );
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      <h3 className="flex h-[40px] items-center text-2xl font-semibold">
-        Probiotic Records
-      </h3>
+    <div className="flex h-full flex-col gap-6">
+      <div className="flex h-10 items-center justify-between">
+        <h3 className="text-2xl font-semibold">Time series results</h3>
+      </div>
       {gridElement}
     </div>
   );

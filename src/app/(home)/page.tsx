@@ -1,18 +1,25 @@
-import { buttonVariants } from "@/components/ui/button";
+import { DummyNav } from "@/components/dummy-nav";
+import { fullName } from "@/lib/api/user";
 import { getCurrentUser } from "@/lib/auth";
-import Link from "next/link";
-import { AuthButton } from "./auth-button";
 
 export default async function Home() {
   const user = await getCurrentUser();
+  const authenticated = Boolean(user);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <pre>{JSON.stringify(user, null, 2)}</pre>
-      <AuthButton authenticated={!!user} />
-      <Link className={buttonVariants({ variant: "ghost" })} href="patients">
-        Patients
-      </Link>
+    <div className="flex min-h-screen flex-col">
+      <DummyNav authenticated={authenticated} />
+      <div className="container flex flex-1 flex-col items-center justify-center gap-8">
+        <h1 className="text-4xl font-semibold">Welcome</h1>
+        {!user ? (
+          <p className="leading-none">Not logged in</p>
+        ) : (
+          <>
+            <p className="text-xl">{fullName(user)}</p>
+            <p className="text-lg">{user.username}</p>
+          </>
+        )}
+      </div>
     </div>
   );
 }

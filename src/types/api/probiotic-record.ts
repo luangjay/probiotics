@@ -1,5 +1,5 @@
 import { type DoctorInfo } from "@/types/api/doctor";
-import { type ProbioticRecord } from "@prisma/client";
+import { type ProbioticBrand, type ProbioticRecord } from "@prisma/client";
 
 export type ProbioticRecordWithDoctor = ProbioticRecord & {
   doctor: DoctorInfo;
@@ -19,4 +19,8 @@ export type ProbioticRecordResultRow = {
 export type TimeSeriesResult = {
   probiotic: string;
   [timepoint: string]: string | number;
+};
+
+export type ProbioticRecordWithBrands = {
+  probioticBrands: ProbioticBrand[];
 };

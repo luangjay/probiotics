@@ -31,28 +31,45 @@ const PUT = handler(async (req, ctx) => {
 
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const { ssn, gender, birthDate, ethnicity, ...pUser } =
+  const { ssn, gender, birthDate, ethnicity, medicalConditionIds, ...pUser } =
     partialPatientSchema.parse(body);
 
-  const patient = await prisma.patient.update({
-    where: {
-      userId,
-    },
-    data: {
-      user: {
-        update: {
-          ...pUser,
-          ...(pUser.password && saltHashPassword(pUser.password)),
-        },
+  const patient = await prisma.$transaction(async (tx) => {
+    const txPatient = await tx.patient.update({
+      where: {
+        userId,
       },
-      ssn,
-      gender,
-      birthDate,
-      ethnicity,
-    },
-    include: {
-      user: true,
-    },
+      data: {
+        user: {
+          update: {
+            ...pUser,
+            ...(pUser.password && saltHashPassword(pUser.password)),
+          },
+        },
+        ssn,
+        gender,
+        birthDate,
+        ethnicity,
+      },
+      include: {
+        user: true,
+      },
+    });
+    if (medicalConditionIds !== undefined) {
+      await Promise.all([
+        tx.medicalConditionPatient.deleteMany({
+          where: { patientId: txPatient.userId },
+        }),
+        ...medicalConditionIds.map((m14nId) => {
+          // Create or update medical condition patient
+          return tx.medicalConditionPatient.create({
+            data: { medicalConditionId: m14nId, patientId: txPatient.userId },
+          });
+        }),
+      ]);
+    }
+
+    return txPatient;
   });
 
   const { user, userId: _, ...patientInfo } = patient;

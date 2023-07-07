@@ -517,7 +517,7 @@ function probioticPool() {
     "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium fissicatena",
     "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVb;Clostridium lactatifermentans",
     "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Dorea;Dorea longicatena",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Fusicatenibacter;Fusicatenibacter saccharivoran",
+    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Fusicatenibacter;Fusicatenibacter saccharivorans",
     "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnobacterium;Lachnobacterium bovis",
     "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospira;Lachnospira pectinoschiza",
     "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium eligens",

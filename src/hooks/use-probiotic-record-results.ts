@@ -62,8 +62,8 @@ export function useProbioticRecordResults(file?: File) {
       const sheet = workbook.Sheets[sheetName];
 
       const json = XLSX.utils.sheet_to_json<{
-        probiotic: string;
-        value: number;
+        probiotic: string | null;
+        value: string | number | null;
       }>(sheet, {
         header: ["probiotic", "value"],
         range: 1,
@@ -71,7 +71,10 @@ export function useProbioticRecordResults(file?: File) {
       const results: ProbioticRecordResultRow[] = json.map((result, idx) => ({
         idx,
         probiotic: result.probiotic,
-        value: result.value.toString(),
+        value:
+          typeof result.value === "number"
+            ? result.value.toString()
+            : result.value,
       }));
       setResults(results);
     };

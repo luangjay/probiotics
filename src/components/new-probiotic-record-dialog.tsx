@@ -16,10 +16,16 @@ import {
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useProbioticRecordResults } from "@/hooks/use-probiotic-record-results";
+import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadFileSchema } from "@/lib/schema";
+import { cn } from "@/lib/utils";
 import { type ProbioticRecordResultRow } from "@/types/api/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { type Probiotic, type ProbioticRecord } from "@prisma/client";
+import { PlusIcon } from "lucide-react";
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
   type CellKeyDownArgs,
@@ -32,14 +38,30 @@ import { type z } from "zod";
 
 type UploadFileData = z.infer<typeof uploadFileSchema>;
 
-export function NewProbioticRecordDialog() {
+interface NewProbioticRecordDialogProps {
+  probiotics: Probiotic[];
+}
+
+export function NewProbioticRecordDialog({
+  probiotics,
+}: NewProbioticRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
+  const { patient } = useSelectPatientStore();
+
+  const probioticNames = useMemo(
+    () => probiotics.map((probiotic) => probiotic.name),
+    [probiotics]
+  );
+
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<UploadFileData>({
     mode: "onChange",
     resolver: zodResolver(uploadFileSchema),
@@ -49,13 +71,17 @@ export function NewProbioticRecordDialog() {
   const {
     results: rows,
     setResults: setRows,
-    resetResults: resetRows,
+    // resetResults: resetRows,
     exportFile,
   } = useProbioticRecordResults(file);
 
   const onSubmit = async () => {
+    const session = await getSession();
+    if (!session?.user || !patient?.id) return;
+    const doctor = session.user;
+
     const file = exportFile();
-    const results = Object.fromEntries<number>(
+    const result = Object.fromEntries<number>(
       (
         rows.filter(
           (row) =>
@@ -68,21 +94,35 @@ export function NewProbioticRecordDialog() {
         }[]
       ).map((row) => [row.probiotic, parseFloat(row.value)])
     );
+
+    const postReqBody = {
+      doctorId: doctor.id,
+      patientId: patient.id,
+      result,
+    };
+    const postResponse = await fetch("/api/probiotic-records", {
+      method: "POST",
+      body: JSON.stringify(postReqBody),
+    });
+
+    if (!postResponse.ok) return;
+    const postResBody = (await postResponse.json()) as ProbioticRecord;
+    const { id: probioticRecordId } = postResBody;
+
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch(
-      "/api/probiotic-records/cljlrahl8001t7qw31smlqb6z/file",
+    const putResponse = await fetch(
+      `/api/probiotic-records/${probioticRecordId}/file`,
       {
         method: "POST",
         body: formData,
       }
     );
-    console.log(results);
-    if (response.ok) {
-      const text = await response.text();
-      alert(text);
-    }
+    if (!putResponse.ok) return;
+    setOpen(false);
+    router.refresh();
+    reset();
   };
 
   // Component mounted
@@ -181,22 +221,35 @@ export function NewProbioticRecordDialog() {
           onCopy={handleCopy}
           onCellKeyDown={handleCellKeyDown}
           rowKeyGetter={(row) => row.idx}
+          rowClass={(row) =>
+            cn(
+              row.probiotic !== null &&
+                !probioticNames.includes(row.probiotic) &&
+                "bg-red-100"
+            )
+          }
           renderers={{
             noRowsFallback: (
-              <div style={{ textAlign: "center", gridColumn: "1/-1" }}>
+              <div
+                className="flex h-full w-full items-center justify-center"
+                style={{ textAlign: "center", gridColumn: "1/-1" }}
+              >
                 Nothing to show (´・ω・`)
               </div>
             ),
           }}
         />
       ),
-    [loading, rows, columns, setRows, handleCellKeyDown]
+    [loading, rows, columns, setRows, handleCellKeyDown, probioticNames]
   );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost">New probiotic record</Button>
+        <Button className="h-full">
+          <PlusIcon className="mr-2 h-4 w-4" />
+          New probiotic record
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
         <DialogTitle className="px-1">New probiotic record</DialogTitle>

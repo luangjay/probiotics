@@ -61,10 +61,10 @@ const POST = handler(async (req) => {
     });
     if (medicalConditionIds !== undefined) {
       await Promise.all(
-        medicalConditionIds.map((medicalConditionId) => {
+        medicalConditionIds.map((m14nId) => {
           // Create medical condition patient
           return tx.medicalConditionPatient.create({
-            data: { medicalConditionId, patientId: txPatient.userId },
+            data: { medicalConditionId: m14nId, patientId: txPatient.userId },
           });
         })
       );

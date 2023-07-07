@@ -18,7 +18,11 @@ import {
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { cn } from "@/lib/utils";
 import { type MedicalCondition } from "@prisma/client";
-import { ChevronsUpDownIcon, FileCheck2Icon } from "lucide-react";
+import {
+  ChevronsUpDownIcon,
+  FileCheck2Icon,
+  FileClockIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import pluralize from "pluralize";
@@ -58,29 +62,29 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
           className="flex flex-col gap-4 text-sm"
         >
           <div className="flex gap-2">
-            <div className="w-1/3 truncate font-semibold">SSN</div>
+            <div className="w-1/3 truncate font-medium">SSN</div>
             <div className="flex-1 truncate">{patient.ssn}</div>
           </div>
           <div className="flex gap-2">
-            <div className="w-1/3 truncate font-semibold">Name</div>
+            <div className="w-1/3 truncate font-medium">Name</div>
             <div className="flex-1 truncate">{patient.fullName}</div>
           </div>
           <div className="flex gap-2">
-            <div className="w-1/3 truncate font-semibold">Gender</div>
+            <div className="w-1/3 truncate font-medium">Gender</div>
             <div className="flex-1 truncate">{patient.gender}</div>
           </div>
           <div className="flex gap-2">
-            <div className="w-1/3 truncate font-semibold">Birth date</div>
+            <div className="w-1/3 truncate font-medium">Birth date</div>
             <div className="flex-1 truncate">
               {patient.birthDate.toLocaleDateString()}
             </div>
           </div>
           <div className="flex gap-2">
-            <div className="w-1/3 truncate font-semibold">Ethnicity</div>
+            <div className="w-1/3 truncate font-medium">Ethnicity</div>
             <div className="flex-1 truncate">{patient.ethnicity}</div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-1/3 font-semibold">Info</div>
+            <div className="w-1/3 font-medium">Info</div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -131,6 +135,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
                 href={`/patients/${patient.id}/time-series`}
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
+                <FileClockIcon className="mr-2 h-4 w-4" />
                 Time series results
               </Link>
             ) : (

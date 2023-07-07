@@ -69,7 +69,7 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
         width: "20%",
       },
       {
-        key: "action1",
+        key: "action",
         name: "",
         minWidth: 40,
         maxWidth: 40,
@@ -80,7 +80,7 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
             href={`/patients/${row.id}/probiotic-records`}
             className="flex h-full w-full items-center justify-center"
           >
-            <FileCheck2Icon className="h-[18px] w-[18px]" />
+            <FileCheck2Icon className="h-[18px] w-[18px] opacity-70" />
           </Link>
         ),
       },

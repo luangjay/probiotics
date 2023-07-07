@@ -1,15 +1,9 @@
 import { alias } from "@/lib/api/probiotic";
-import { prisma } from "@/server/db";
+import { getProbiotics } from "@/server/api/probiotic";
 import { type TimeSeriesResult } from "@/types/api/probiotic-record";
 import { type ProbioticRecord } from "@prisma/client";
 
-export async function getProbiotics() {
-  const probiotics = await prisma.probiotic.findMany();
-  return probiotics.map((probiotic) => ({
-    ...probiotic,
-    alias: alias(probiotic.name),
-  }));
-}
+
 
 export async function getTimeSeriesResults(
   probioticRecords: ProbioticRecord[]

@@ -1,9 +1,9 @@
 import { PatientList } from "@/components/patient-list";
 import { getMedicalConditions } from "@/server/api/medical-condition";
-import { getPatients } from "@/server/api/patient";
+import { getPatientRows } from "@/server/api/patient";
 
 export default async function Page() {
-  const patients = await getPatients();
+  const patients = await getPatientRows();
   const medicalConditions = await getMedicalConditions();
 
   return (

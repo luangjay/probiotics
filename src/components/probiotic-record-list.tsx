@@ -6,11 +6,14 @@ import { fullName } from "@/lib/api/user";
 import { cn } from "@/lib/utils";
 import { type DoctorInfo } from "@/types/api/doctor";
 import { type PatientWithAll } from "@/types/api/patient";
-import { type Probiotic, type ProbioticRecord } from "@prisma/client";
-import { FileEditIcon } from "lucide-react";
-import Link from "next/link";
+import {
+  ProbioticBrand,
+  type Probiotic,
+  type ProbioticRecord,
+} from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
+import { EditProbioticRecordDialog } from "./edit-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
   patient: PatientWithAll;
@@ -37,14 +40,14 @@ export function ProbioticRecordList({
   );
 
   const columns = useMemo<
-    readonly Column<ProbioticRecord & { doctor: DoctorInfo }>[]
+    readonly Column<
+      ProbioticRecord & {
+        doctor: DoctorInfo;
+        probioticBrands: ProbioticBrand[];
+      }
+    >[]
   >(() => {
     return [
-      {
-        key: "id",
-        name: "Record ID",
-        cellClass: cn("font-mono"),
-      },
       {
         key: "doctor",
         name: "Doctor",
@@ -60,6 +63,17 @@ export function ProbioticRecordList({
         name: "Updated at",
         renderCell: ({ row }) => row.updatedAt.toLocaleString(),
       },
+      // {
+      //   key: "probioticBrands",
+      //   name: "Updated at",
+      //   renderCell: ({row}) => row.
+      // },
+      {
+        key: "probioticBrands",
+        name: "Probiotic brands",
+        renderCell: ({ row }) =>
+          row.probioticBrands.map(({ name }) => name).join(", "),
+      },
       {
         key: "action1",
         name: "",
@@ -68,16 +82,14 @@ export function ProbioticRecordList({
         width: 40,
         cellClass: cn("!p-0"),
         renderCell: ({ row }) => (
-          <Link
-            href={`/probiotic-records/${row.id}`}
-            className="flex h-full w-full items-center justify-center"
-          >
-            <FileEditIcon className="h-[20px] w-[20px] opacity-50" />
-          </Link>
+          <EditProbioticRecordDialog
+            probioticRecord={row}
+            probiotics={probiotics}
+          />
         ),
       },
     ];
-  }, []);
+  }, [probiotics]);
 
   const gridElement = useMemo(
     () =>

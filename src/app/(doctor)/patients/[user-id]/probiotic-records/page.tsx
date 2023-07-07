@@ -1,6 +1,6 @@
 import { ProbioticRecordList } from "@/components/probiotic-record-list";
-import { getPatient } from "@/server/api/patient";
-import { getProbiotics } from "@/server/api/probiotic-record";
+import { getPatientWithAll } from "@/server/api/patient";
+import { getProbiotics } from "@/server/api/probiotic";
 
 interface PageProps {
   params: {
@@ -10,7 +10,7 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
-  const patient = await getPatient(userId);
+  const patient = await getPatientWithAll(userId);
   const probiotics = await getProbiotics();
 
   return (

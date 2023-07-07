@@ -1,5 +1,5 @@
 import { TimeSeriesResults } from "@/components/time-series-results";
-import { getPatient } from "@/server/api/patient";
+import { getPatientWithAll } from "@/server/api/patient";
 import { getTimeSeriesResults } from "@/server/api/probiotic-record";
 
 interface PageProps {
@@ -10,7 +10,7 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
-  const patient = await getPatient(userId);
+  const patient = await getPatientWithAll(userId);
   const timeSeriesResults = await getTimeSeriesResults(
     patient.probioticRecords
   );

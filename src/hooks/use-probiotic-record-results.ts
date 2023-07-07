@@ -1,12 +1,20 @@
 import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/file";
 import {
   type ProbioticRecordResult,
+  type ProbioticRecordResultEntry,
   type ProbioticRecordResultRow,
 } from "@/types/api/probiotic-record";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
-export function useProbioticRecordResults(file?: File) {
+interface UseProbioticRecordResultsOptions {
+  initialResult?: ProbioticRecordResult;
+}
+
+export function useProbioticRecordResults(
+  file?: File,
+  options?: UseProbioticRecordResultsOptions
+) {
   const [loading, setLoading] = useState(true);
   const [reader, setReader] = useState<FileReader>();
   const [results, setResults] = useState<ProbioticRecordResultRow[]>([]);
@@ -25,7 +33,7 @@ export function useProbioticRecordResults(file?: File) {
   };
 
   const exportFile = () => {
-    const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResult>(
+    const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResultEntry>(
       (
         results.filter(
           (result) => result.probiotic !== null && result.value !== null
@@ -50,7 +58,17 @@ export function useProbioticRecordResults(file?: File) {
 
   // Component mounted
   useEffect(() => {
-    void resetResults();
+    const initialResult = options?.initialResult;
+    if (!initialResult) {
+      void resetResults();
+    } else {
+      const results = Object.keys(initialResult).map((probiotic, idx) => ({
+        idx,
+        probiotic,
+        value: initialResult[probiotic].toString(),
+      }));
+      setResults(results);
+    }
 
     const reader = new FileReader();
 
@@ -80,7 +98,7 @@ export function useProbioticRecordResults(file?: File) {
     };
 
     setReader(reader);
-  }, []);
+  }, [options?.initialResult]);
 
   useEffect(() => {
     if (file && reader) {

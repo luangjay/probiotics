@@ -4,7 +4,7 @@ import { type PatientRow, type PatientWithAll } from "@/types/api/patient";
 import { UserType } from "@/types/api/user";
 import { notFound } from "next/navigation";
 
-export async function getPatients(): Promise<PatientRow[]> {
+export async function getPatientRows(): Promise<PatientRow[]> {
   const patients = await prisma.patient.findMany({
     include: {
       user: true,
@@ -45,7 +45,9 @@ export async function getPatients(): Promise<PatientRow[]> {
   });
 }
 
-export async function getPatient(userId: string): Promise<PatientWithAll> {
+export async function getPatientWithAll(
+  userId: string
+): Promise<PatientWithAll> {
   const patient = await prisma.patient.findUnique({
     where: {
       userId,
@@ -59,6 +61,11 @@ export async function getPatient(userId: string): Promise<PatientWithAll> {
               user: true,
             },
           },
+          probioticBrands: {
+            include: {
+              probioticBrand: true,
+            },
+          },
         },
       },
       medicalConditions: {
@@ -69,9 +76,7 @@ export async function getPatient(userId: string): Promise<PatientWithAll> {
     },
   });
 
-  if (patient === null) {
-    return notFound();
-  }
+  if (patient === null) return notFound();
 
   const {
     user,
@@ -82,15 +87,23 @@ export async function getPatient(userId: string): Promise<PatientWithAll> {
   } = patient;
   const { password, salt, ...pUserPatient } = user;
   const probioticRecords = p13ns.map((probioticRecord) => {
-    const { doctor, ...pProbioticRecord } = probioticRecord;
+    const {
+      doctor,
+      probioticBrands: pProbioticBrands,
+      ...pProbioticRecord
+    } = probioticRecord;
     const { user } = doctor;
     const { password, salt, createdAt, updatedAt, ...pUserDoctor } = user;
+    const probioticBrands = pProbioticBrands.map(
+      (p13ds) => p13ds.probioticBrand
+    );
     return {
       ...pProbioticRecord,
       doctor: {
         type: UserType.Doctor as const,
         ...pUserDoctor,
       },
+      probioticBrands,
     };
   });
   const medicalConditions = m14ns.map((m14n) => m14n.medicalCondition);

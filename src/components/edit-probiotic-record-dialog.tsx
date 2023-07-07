@@ -20,15 +20,16 @@ import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadFileSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
-import { type ProbioticRecordResultRow } from "@/types/api/probiotic-record";
+import {
+  ProbioticRecordResult,
+  type ProbioticRecordResultRow,
+} from "@/types/api/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type Probiotic, type ProbioticRecord } from "@prisma/client";
-import { PlusIcon } from "lucide-react";
-import { getSession } from "next-auth/react";
+import { FileEditIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
-  DataGridHandle,
   type CellKeyDownArgs,
   type CellKeyboardEvent,
   type Column,
@@ -39,13 +40,15 @@ import { type z } from "zod";
 
 type UploadFileData = z.infer<typeof uploadFileSchema>;
 
-interface NewProbioticRecordDialogProps {
+interface EditProbioticRecordDialogProps {
+  probioticRecord: ProbioticRecord;
   probiotics: Probiotic[];
 }
 
-export function NewProbioticRecordDialog({
+export function EditProbioticRecordDialog({
+  probioticRecord,
   probiotics,
-}: NewProbioticRecordDialogProps) {
+}: EditProbioticRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -74,13 +77,11 @@ export function NewProbioticRecordDialog({
     setResults: setRows,
     // resetResults: resetRows,
     exportFile,
-  } = useProbioticRecordResults(file);
+  } = useProbioticRecordResults(file, {
+    initialResult: probioticRecord.result as ProbioticRecordResult,
+  });
 
   const onSubmit = async () => {
-    const session = await getSession();
-    if (!session?.user || !patient?.id) return;
-    const doctor = session.user;
-
     const file = exportFile();
     const result = Object.fromEntries<number>(
       (
@@ -97,24 +98,22 @@ export function NewProbioticRecordDialog({
     );
 
     const postReqBody = {
-      doctorId: doctor.id,
-      patientId: patient.id,
       result,
     };
-    const postResponse = await fetch("/api/probiotic-records", {
-      method: "POST",
-      body: JSON.stringify(postReqBody),
-    });
-
+    const postResponse = await fetch(
+      `/api/probiotic-records/${probioticRecord.id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(postReqBody),
+      }
+    );
     if (!postResponse.ok) return;
-    const postResBody = (await postResponse.json()) as ProbioticRecord;
-    const { id: probioticRecordId } = postResBody;
 
     const formData = new FormData();
     formData.append("file", file);
 
     const putResponse = await fetch(
-      `/api/probiotic-records/${probioticRecordId}/file`,
+      `/api/probiotic-records/${probioticRecord.id}/file`,
       {
         method: "POST",
         body: formData,
@@ -130,9 +129,6 @@ export function NewProbioticRecordDialog({
   useEffect(() => void setLoading(false), []);
 
   useEffect(() => console.log(rows), [rows]);
-
-  // Ref
-  const ref = useRef<DataGridHandle | null>(null);
 
   // Columns
   const columns = useMemo<Column<ProbioticRecordResultRow>[]>(
@@ -250,13 +246,12 @@ export function NewProbioticRecordDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-full">
-          <PlusIcon className="mr-2 h-4 w-4" />
-          New probiotic record
-        </Button>
+        <button className="flex h-full w-full items-center justify-center">
+          <FileEditIcon className="h-[18px] w-[18px]" />
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
-        <DialogTitle className="px-1">New probiotic record</DialogTitle>
+        <DialogTitle className="px-1">Edit probiotic record</DialogTitle>
         <DialogDescription className="px-1">
           Make changes to your profile here. Click save when you&apos;re done.
         </DialogDescription>

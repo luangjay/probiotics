@@ -1,6 +1,7 @@
 "use client";
 
 import { FormErrorTooltip } from "@/components/form-error-tooltip";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -36,7 +37,7 @@ import {
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { patientSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
-import { PatientRow } from "@/types/api/patient";
+import { type PatientRow } from "@/types/patient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Gender, type MedicalCondition } from "@prisma/client";
 import { format } from "date-fns";
@@ -50,7 +51,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
-import { Badge } from "./ui/badge";
 
 type EditPatientData = z.infer<typeof patientSchema>;
 

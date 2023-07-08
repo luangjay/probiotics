@@ -1,8 +1,8 @@
 "use client";
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { type PatientWithAll } from "@/types/api/patient";
-import { type TimeSeriesResult } from "@/types/api/probiotic-record";
+import { type PatientWithAll } from "@/types/patient";
+import { type TimeSeriesResult } from "@/types/probiotic-record";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 

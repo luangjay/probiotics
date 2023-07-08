@@ -1,6 +1,6 @@
-import { alias } from "@/lib/api/probiotic";
-import { prisma } from "@/server/db";
-import { type ProbioticWithComputed } from "@/types/api/probiotic";
+import { prisma } from "@/lib/prisma";
+import { alias } from "@/lib/probiotic";
+import { type ProbioticWithComputed } from "@/types/probiotic";
 
 export async function getProbiotics(): Promise<ProbioticWithComputed[]> {
   const probiotics = await prisma.probiotic.findMany();

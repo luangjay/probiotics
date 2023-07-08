@@ -1,6 +1,6 @@
-import { prisma } from "@/server/db";
-import { UserType } from "@/types/api/user";
+import { prisma } from "@/lib/prisma";
 import { ApiResponse } from "@/types/rest";
+import { UserType } from "@/types/user";
 import { handler } from "../handler";
 
 const GET = handler(async (req) => {

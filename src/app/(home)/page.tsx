@@ -1,6 +1,6 @@
 import { DummyNav } from "@/components/dummy-nav";
-import { fullName } from "@/lib/api/user";
 import { getCurrentUser } from "@/lib/auth";
+import { fullName } from "@/lib/user";
 
 export default async function Home() {
   const user = await getCurrentUser();

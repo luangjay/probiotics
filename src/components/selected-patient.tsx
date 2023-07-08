@@ -67,7 +67,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
           </div>
           <div className="flex gap-2">
             <div className="w-1/3 truncate font-medium">Name</div>
-            <div className="flex-1 truncate">{patient.fullName}</div>
+            <div className="flex-1 truncate">{patient.name}</div>
           </div>
           <div className="flex gap-2">
             <div className="w-1/3 truncate font-medium">Gender</div>

@@ -1,4 +1,4 @@
-import { type PartialUserInfo, type UserType } from "@/types/api/user";
+import { type PartialUserInfo, type UserType } from "@/types/user";
 import { type Admin } from "@prisma/client";
 
 export type AdminInfo = { type: UserType.Admin } & PartialUserInfo &

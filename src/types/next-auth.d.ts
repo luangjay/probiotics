@@ -1,4 +1,4 @@
-import { type UserInfo, type UserType } from "@/types/api/user";
+import { type UserInfo, type UserType } from "@/types/user";
 
 declare module "next-auth/jwt" {
   /**

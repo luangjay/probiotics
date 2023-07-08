@@ -1,5 +1,5 @@
+import { prisma } from "@/lib/prisma";
 import { probioticBrandSchema } from "@/lib/schema";
-import { prisma } from "@/server/db";
 import { ApiResponse } from "@/types/rest";
 import { handler } from "../handler";
 

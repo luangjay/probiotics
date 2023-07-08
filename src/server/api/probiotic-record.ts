@@ -1,9 +1,7 @@
-import { alias } from "@/lib/api/probiotic";
+import { alias } from "@/lib/probiotic";
 import { getProbiotics } from "@/server/api/probiotic";
-import { type TimeSeriesResult } from "@/types/api/probiotic-record";
+import { type TimeSeriesResult } from "@/types/probiotic-record";
 import { type ProbioticRecord } from "@prisma/client";
-
-
 
 export async function getTimeSeriesResults(
   probioticRecords: ProbioticRecord[]

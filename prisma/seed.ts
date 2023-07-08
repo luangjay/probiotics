@@ -671,7 +671,7 @@ async function getOptions() {
       admins: (count: number) =>
         clamp(count > 0 ? Math.max(1, count) : 0, 0, 20),
       doctors: (count: number) => clamp(count, 0, 40),
-      patients: (count: number) => clamp(count, 0, 10000),
+      patients: (count: number) => clamp(count, 0, 50000),
       probiotics: (count: number) => clamp(count, 0, 59),
       "probiotic-brands": (count: number) =>
         clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),

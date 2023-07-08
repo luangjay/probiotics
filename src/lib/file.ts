@@ -1,4 +1,4 @@
-import { s3 } from "@/server/s3";
+import { s3 } from "@/lib/s3";
 import {
   DeleteObjectCommand,
   GetObjectCommand,

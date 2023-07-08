@@ -1,5 +1,14 @@
-import { type DoctorInfo } from "@/types/api/doctor";
-import { type ProbioticBrand, type ProbioticRecord } from "@prisma/client";
+import { type DoctorInfo } from "@/types/doctor";
+import {
+  type Doctor,
+  type ProbioticBrand,
+  type ProbioticRecord,
+} from "@prisma/client";
+
+export type ProbioticRecordRow = ProbioticRecord & {
+  doctor: Doctor[];
+  probioticBrands: ProbioticBrand[];
+};
 
 export type TimeSeriesResult = {
   probiotic: string;

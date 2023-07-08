@@ -1,7 +1,7 @@
-import { fullName } from "@/lib/api/user";
-import { prisma } from "@/server/db";
-import { type PatientRow, type PatientWithAll } from "@/types/api/patient";
-import { UserType } from "@/types/api/user";
+import { prisma } from "@/lib/prisma";
+import { fullName } from "@/lib/user";
+import { type PatientRow, type PatientWithAll } from "@/types/patient";
+import { UserType } from "@/types/user";
 import { notFound } from "next/navigation";
 
 export async function getPatientRows(): Promise<PatientRow[]> {
@@ -23,7 +23,11 @@ export async function getPatientRows(): Promise<PatientRow[]> {
         },
       },
     },
+    orderBy: {
+      userId: "asc",
+    },
   });
+  // console.log(patients.map((p) => p.user.firstName));
 
   return patients.map((patient) => {
     const {

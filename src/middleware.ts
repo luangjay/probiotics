@@ -1,4 +1,4 @@
-import { UserType } from "@/types/api/user";
+import { UserType } from "@/types/user";
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 

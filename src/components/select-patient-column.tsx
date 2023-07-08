@@ -1,5 +1,5 @@
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { type PatientRow } from "@/types/api/patient";
+import { type PatientRow } from "@/types/patient";
 import {
   SelectCellFormatter,
   type Column,

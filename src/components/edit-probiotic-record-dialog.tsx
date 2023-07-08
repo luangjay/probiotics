@@ -15,15 +15,15 @@ import {
 } from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
-import { useProbioticRecordResults } from "@/hooks/use-probiotic-record-results";
+import { useProbioticRecordResult } from "@/hooks/use-probiotic-record-result";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadFileSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 import {
-  ProbioticRecordResult,
+  type ProbioticRecordResult,
   type ProbioticRecordResultRow,
-} from "@/types/api/probiotic-record";
+} from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type Probiotic, type ProbioticRecord } from "@prisma/client";
 import { FileEditIcon } from "lucide-react";
@@ -73,11 +73,11 @@ export function EditProbioticRecordDialog({
   const fileList = useWatch<UploadFileData>({ control, name: "fileList" });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
   const {
-    results: rows,
-    setResults: setRows,
+    rows: rows,
+    setRows: setRows,
     // resetResults: resetRows,
     exportFile,
-  } = useProbioticRecordResults(file, {
+  } = useProbioticRecordResult(file, {
     initialResult: probioticRecord.result as ProbioticRecordResult,
   });
 

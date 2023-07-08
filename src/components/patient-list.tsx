@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filteredRows, sortedRows } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
-import { type PatientRow } from "@/types/api/patient";
+import { type PatientRow } from "@/types/patient";
 import { type MedicalCondition } from "@prisma/client";
 import { FileCheck2Icon, RotateCwIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
@@ -49,7 +49,7 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
     () => [
       selectPatientColumn,
       {
-        key: "fullName",
+        key: "name",
         name: "Name",
       },
       {

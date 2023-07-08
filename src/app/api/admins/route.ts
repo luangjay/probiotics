@@ -1,8 +1,8 @@
 import { saltHashPassword } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { adminSchema } from "@/lib/schema";
-import { prisma } from "@/server/db";
-import { UserType } from "@/types/api/user";
 import { ApiResponse } from "@/types/rest";
+import { UserType } from "@/types/user";
 import { revalidatePath } from "next/cache";
 import { handler } from "../handler";
 

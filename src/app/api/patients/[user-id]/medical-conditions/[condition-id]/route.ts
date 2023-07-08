@@ -1,4 +1,4 @@
-import { prisma } from "@/server/db";
+import { prisma } from "@/lib/prisma";
 import { ApiResponse } from "@/types/rest";
 import { handler } from "./handler";
 

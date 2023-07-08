@@ -1,4 +1,4 @@
-import { prisma } from "@/server/db";
+import { prisma } from "@/lib/prisma";
 import {
   ApiResponse,
   type ApiContext,

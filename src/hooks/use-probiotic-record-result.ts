@@ -3,44 +3,49 @@ import {
   type ProbioticRecordResult,
   type ProbioticRecordResultEntry,
   type ProbioticRecordResultRow,
-} from "@/types/api/probiotic-record";
+} from "@/types/probiotic-record";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
-interface UseProbioticRecordResultsOptions {
+interface UseProbioticRecordResultOptions {
   initialResult?: ProbioticRecordResult;
 }
 
-export function useProbioticRecordResults(
+export function useProbioticRecordResult(
   file?: File,
-  options?: UseProbioticRecordResultsOptions
+  options?: UseProbioticRecordResultOptions
 ) {
+  // Initialize
+  const { initialResult } = { ...options };
+
+  // States
   const [loading, setLoading] = useState(true);
   const [reader, setReader] = useState<FileReader>();
-  const [results, setResults] = useState<ProbioticRecordResultRow[]>([]);
+  const [rows, setRows] = useState<ProbioticRecordResultRow[]>([]);
 
   useEffect(() => void setLoading(false), []);
 
-  const resetResults = async () => {
-    const rows = await createEmptyRows(0, 20);
-    setResults([...rows]);
+  const reset = async () => {
+    const emptyRows = await createEmptyResultRows(0, 20);
+    setRows(emptyRows);
   };
 
-  const createEmptyResults = async (startIdx: number, count: number) => {
-    const rows = await createEmptyRows(startIdx, count);
+  const createEmptyRows = async (startIdx: number, count: number) => {
+    const emptyRows = await createEmptyResultRows(startIdx, count);
     console.log("on: createEmptyResults");
-    setResults((prev) => [...prev, ...rows]);
+    setRows((prev) => [...prev, ...emptyRows]);
   };
 
   const exportFile = () => {
     const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResultEntry>(
       (
-        results.filter(
-          (result) => result.probiotic !== null && result.value !== null
-        ) as { probiotic: string; value: string }[]
-      ).map((result) => ({
-        Probiotic: result.probiotic,
-        Value: parseFloat(result.value),
+        rows.filter((row) => row.probiotic !== null && row.value !== null) as {
+          probiotic: string;
+          value: string;
+        }[]
+      ).map((rows) => ({
+        Probiotic: rows.probiotic,
+        Value: parseFloat(rows.value),
       })),
       {
         header: ["Probiotic", "Value"],
@@ -52,24 +57,14 @@ export function useProbioticRecordResults(
       blankrows: false,
     });
     // const blob = new Blob([csv], { type: "text/csv" });
-    const file = new File([csv], "data.csv", { type: "text/csv" });
+    const file = new File([csv], "data.csv", {
+      type: "text/csv;charset=utf-8",
+    });
     return file;
   };
 
   // Component mounted
   useEffect(() => {
-    const initialResult = options?.initialResult;
-    if (!initialResult) {
-      void resetResults();
-    } else {
-      const results = Object.keys(initialResult).map((probiotic, idx) => ({
-        idx,
-        probiotic,
-        value: initialResult[probiotic].toString(),
-      }));
-      setResults(results);
-    }
-
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -79,26 +74,36 @@ export function useProbioticRecordResults(
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
 
-      const json = XLSX.utils.sheet_to_json<{
+      const rows = XLSX.utils.sheet_to_json<{
         probiotic: string | null;
         value: string | number | null;
       }>(sheet, {
         header: ["probiotic", "value"],
         range: 1,
       });
-      const results: ProbioticRecordResultRow[] = json.map((result, idx) => ({
+      const result: ProbioticRecordResultRow[] = rows.map((row, idx) => ({
         idx,
-        probiotic: result.probiotic,
-        value:
-          typeof result.value === "number"
-            ? result.value.toString()
-            : result.value,
+        probiotic: row.probiotic,
+        value: typeof row.value === "number" ? row.value.toString() : row.value,
       }));
-      setResults(results);
+      setRows(result);
     };
 
     setReader(reader);
-  }, [options?.initialResult]);
+  }, []);
+
+  useEffect(() => {
+    if (!initialResult) {
+      void reset();
+      return;
+    }
+    const rows = Object.keys(initialResult).map((probiotic, idx) => ({
+      idx,
+      probiotic,
+      value: initialResult[probiotic].toString(),
+    }));
+    setRows(rows);
+  }, [initialResult]);
 
   useEffect(() => {
     if (file && reader) {
@@ -117,20 +122,27 @@ export function useProbioticRecordResults(
   useEffect(() => {
     if (
       !loading &&
-      (results.length < 5 ||
-        results
-          .slice(-5)
-          .some((result) => result.probiotic !== null || result.value !== null))
+      rows.slice(-5).some((row) => row.probiotic !== null || row.value !== null)
     ) {
-      const startIdx = results.length;
-      void createEmptyResults(startIdx, startIdx < 15 ? 20 - startIdx : 5);
+      const startIdx = rows.length;
+      void createEmptyRows(startIdx, Math.max(20 - startIdx, 5));
     }
-  }, [loading, results]);
+  }, [loading, rows]);
 
-  return { results, setResults, resetResults, createEmptyResults, exportFile };
+  return {
+    rows,
+    setRows,
+    reset,
+    createEmptyRows,
+    exportFile,
+  };
 }
 
-async function createEmptyRows(startIdx: number, count: number, timeout = 0) {
+async function createEmptyResultRows(
+  startIdx: number,
+  count: number,
+  timeout = 0
+) {
   return new Promise<ProbioticRecordResultRow[]>((resolve) => {
     const rows: ProbioticRecordResultRow[] = Array.from(
       { length: count },

@@ -2,13 +2,14 @@
 
 import { NewProbioticRecordDialog } from "@/components/new-probiotic-record-dialog";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { fullName } from "@/lib/api/user";
+import { fullName } from "@/lib/user";
 import { cn } from "@/lib/utils";
-import { type DoctorInfo } from "@/types/api/doctor";
-import { type PatientWithAll } from "@/types/api/patient";
+import { type DoctorInfo } from "@/types/doctor";
+import { type PatientRow } from "@/types/patient";
+import { type ProbioticRecordRow } from "@/types/probiotic-record";
 import {
-  ProbioticBrand,
   type Probiotic,
+  type ProbioticBrand,
   type ProbioticRecord,
 } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
@@ -16,12 +17,14 @@ import DataGrid, { type Column } from "react-data-grid";
 import { EditProbioticRecordDialog } from "./edit-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
-  patient: PatientWithAll;
+  patient: PatientRow;
+  probioticRecord: ProbioticRecordRow[];
   probiotics: Probiotic[];
 }
 
 export function ProbioticRecordList({
-  patient: patientWithAll,
+  patient,
+  probioticRecord,
   probiotics,
 }: ProbioticRecordListProps) {
   // Initialize

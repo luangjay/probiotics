@@ -1,11 +1,11 @@
-import { prisma } from "@/server/db";
-import { UserType } from "@/types/api/user";
+import { prisma } from "@/lib/prisma";
 import {
   ApiResponse,
   type ApiContext,
   type ApiHandler,
   type ApiRequest,
 } from "@/types/rest";
+import { UserType } from "@/types/user";
 import { z } from "zod";
 import { handler as baseHandler } from "../../handler";
 

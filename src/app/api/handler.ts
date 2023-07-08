@@ -1,10 +1,10 @@
-import { UserType } from "@/types/api/user";
 import {
   ApiResponse,
   type ApiContext,
   type ApiHandler,
   type ApiRequest,
 } from "@/types/rest";
+import { UserType } from "@/types/user";
 import { Prisma } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
 import { z } from "zod";

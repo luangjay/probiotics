@@ -1,6 +1,6 @@
-import { type AdminInfo } from "@/types/api/admin";
-import { type DoctorInfo } from "@/types/api/doctor";
-import { type PatientInfo } from "@/types/api/patient";
+import { type AdminInfo } from "@/types/admin";
+import { type DoctorInfo } from "@/types/doctor";
+import { type PatientInfo } from "@/types/patient";
 import { type User } from "@prisma/client";
 
 export enum UserType {

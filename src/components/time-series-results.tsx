@@ -1,18 +1,18 @@
 "use client";
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { type PatientWithAll } from "@/types/patient";
+import { type PatientRow } from "@/types/patient";
 import { type TimeSeriesResult } from "@/types/probiotic-record";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 
 interface TimeSeriesResultsProps {
-  patient: PatientWithAll;
+  patient: PatientRow;
   timeSeriesResults: TimeSeriesResult[];
 }
 
 export function TimeSeriesResults({
-  patient: patientWithAll,
+  patient,
   timeSeriesResults: rows,
 }: TimeSeriesResultsProps) {
   // Initialize
@@ -27,8 +27,8 @@ export function TimeSeriesResults({
   useEffect(() => void setLoading(false), []);
 
   useEffect(
-    () => void setSelectedPatient(patientWithAll),
-    [setSelectedPatient, patientWithAll]
+    () => void setSelectedPatient(patient),
+    [setSelectedPatient, patient]
   );
 
   const columns = useMemo<readonly Column<TimeSeriesResult>[]>(

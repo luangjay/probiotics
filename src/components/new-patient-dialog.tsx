@@ -35,8 +35,9 @@ import {
 } from "@/components/ui/select";
 import { patientSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
+import { type MedicalConditionRow } from "@/types/medical-condition";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Gender, type MedicalCondition } from "@prisma/client";
+import { Gender } from "@prisma/client";
 import { format } from "date-fns";
 import {
   CalendarIcon,
@@ -53,7 +54,7 @@ import { Badge } from "./ui/badge";
 type NewPatientData = z.infer<typeof patientSchema>;
 
 interface NewPatientDialogProps {
-  medicalConditions: MedicalCondition[];
+  medicalConditions: MedicalConditionRow[];
 }
 
 export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
@@ -75,7 +76,7 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
     birthDate,
     medicalConditionIds = [],
   } = useWatch<NewPatientData>({ control });
-  const [selectedM14ns, setSelectedM14ns] = useState<MedicalCondition[]>([]);
+  const [selectedM14ns, setSelectedM14ns] = useState<MedicalConditionRow[]>([]);
 
   const onSubmit = async (data: NewPatientData) => {
     console.log("aaa");
@@ -287,20 +288,20 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
                   No medical conditions
                 </DropdownMenuItem>
               ) : (
-                medicalConditions.map((m14n) => (
+                medicalConditions.map((medicalCondition) => (
                   <DropdownMenuItem
-                    disabled={medicalConditionIds.includes(m14n.id)}
-                    key={`medical_condition_${m14n.id}`}
+                    disabled={medicalConditionIds.includes(medicalCondition.id)}
+                    key={`medical_condition_${medicalCondition.id}`}
                     className="block h-10 max-w-[17.5rem] truncate rounded leading-7"
                     onSelect={() => {
-                      setSelectedM14ns((prev) => [...prev, m14n]);
+                      setSelectedM14ns((prev) => [...prev, medicalCondition]);
                       setValue("medicalConditionIds", [
                         ...medicalConditionIds,
-                        m14n.id,
+                        medicalCondition.id,
                       ]);
                     }}
                   >
-                    {m14n.name}
+                    {medicalCondition.name}
                   </DropdownMenuItem>
                 ))
               )}

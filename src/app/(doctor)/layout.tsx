@@ -1,6 +1,7 @@
 import { SelectedPatient } from "@/components/selected-patient";
 import { Card, CardContent } from "@/components/ui/card";
-import { getMedicalConditions } from "@/server/api/medical-condition";
+import { prisma } from "@/lib/prisma";
+import { type MedicalConditionRow } from "@/types/medical-condition";
 import Link from "next/link";
 
 interface LayoutProps {
@@ -40,4 +41,16 @@ export default async function Layout({ children }: LayoutProps) {
       <section className="flex-1 overflow-auto p-1">{children}</section>
     </div>
   );
+}
+
+async function getMedicalConditions(): Promise<MedicalConditionRow[]> {
+  const medicalConditions = await prisma.medicalCondition.findMany({
+    orderBy: {
+      id: "asc",
+    },
+  });
+  return medicalConditions.map((medicalCondition) => ({
+    id: medicalCondition.id,
+    name: medicalCondition.name,
+  }));
 }

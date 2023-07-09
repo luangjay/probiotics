@@ -16,16 +16,16 @@ import {
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useProbioticRecordResult } from "@/hooks/use-probiotic-record-result";
-import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadFileSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
+import { type ProbioticRow } from "@/types/probiotic";
 import {
   type ProbioticRecordResult,
   type ProbioticRecordResultRow,
+  type ProbioticRecordRow,
 } from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Probiotic, type ProbioticRecord } from "@prisma/client";
 import { FileEditIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -41,8 +41,8 @@ import { type z } from "zod";
 type UploadFileData = z.infer<typeof uploadFileSchema>;
 
 interface EditProbioticRecordDialogProps {
-  probioticRecord: ProbioticRecord;
-  probiotics: Probiotic[];
+  probioticRecord: ProbioticRecordRow;
+  probiotics: ProbioticRow[];
 }
 
 export function EditProbioticRecordDialog({
@@ -53,7 +53,6 @@ export function EditProbioticRecordDialog({
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
-  const { patient } = useSelectPatientStore();
 
   const probioticNames = useMemo(
     () => probiotics.map((probiotic) => probiotic.name),

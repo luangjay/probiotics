@@ -37,9 +37,10 @@ import {
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { patientSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
+import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Gender, type MedicalCondition } from "@prisma/client";
+import { Gender } from "@prisma/client";
 import { format } from "date-fns";
 import {
   CalendarIcon,
@@ -55,7 +56,7 @@ import { type z } from "zod";
 type EditPatientData = z.infer<typeof patientSchema>;
 
 interface EditPatientDialogProps {
-  medicalConditions: MedicalCondition[];
+  medicalConditions: MedicalConditionRow[];
 }
 
 export function EditPatientDialog({
@@ -95,7 +96,7 @@ export function EditPatientDialog({
   } = useWatch<EditPatientData>({
     control,
   });
-  const [selectedM14ns, setSelectedM14ns] = useState<MedicalCondition[]>(
+  const [selectedM14ns, setSelectedM14ns] = useState<MedicalConditionRow[]>(
     patient.medicalConditions ?? []
   );
 

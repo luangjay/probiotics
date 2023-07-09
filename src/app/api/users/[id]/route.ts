@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { ApiResponse } from "@/types/rest";
+import { ApiResponse } from "@/types/api";
 import { UserType } from "@/types/user";
 import { handler } from "./handler";
 

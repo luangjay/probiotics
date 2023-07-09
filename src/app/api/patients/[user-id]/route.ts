@@ -1,7 +1,7 @@
 import { saltHashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { partialPatientSchema } from "@/lib/schema";
-import { ApiResponse } from "@/types/rest";
+import { ApiResponse } from "@/types/api";
 import { UserType } from "@/types/user";
 import { handler } from "./handler";
 

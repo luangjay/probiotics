@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { UserType } from "@/types/user";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { type PrismaClient } from "@prisma/client";
 import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
 import { getServerSession, type NextAuthOptions, type User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -12,7 +13,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma as unknown as PrismaClient),
   providers: [
     CredentialsProvider({
       id: "credentials",

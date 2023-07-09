@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { cn } from "@/lib/utils";
-import { type MedicalCondition } from "@prisma/client";
+import { type MedicalConditionRow } from "@/types/medical-condition";
 import {
   ChevronsUpDownIcon,
   FileCheck2Icon,
@@ -29,7 +29,7 @@ import pluralize from "pluralize";
 import { useMemo } from "react";
 
 interface SelectedPatientProps {
-  medicalConditions: MedicalCondition[];
+  medicalConditions: MedicalConditionRow[];
 }
 
 export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {

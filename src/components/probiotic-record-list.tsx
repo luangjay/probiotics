@@ -2,33 +2,26 @@
 
 import { NewProbioticRecordDialog } from "@/components/new-probiotic-record-dialog";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { fullName } from "@/lib/user";
 import { cn } from "@/lib/utils";
-import { type DoctorInfo } from "@/types/doctor";
 import { type PatientRow } from "@/types/patient";
+import { type ProbioticRow } from "@/types/probiotic";
 import { type ProbioticRecordRow } from "@/types/probiotic-record";
-import {
-  type Probiotic,
-  type ProbioticBrand,
-  type ProbioticRecord,
-} from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
 import { EditProbioticRecordDialog } from "./edit-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
   patient: PatientRow;
-  probioticRecord: ProbioticRecordRow[];
-  probiotics: Probiotic[];
+  probioticRecords: ProbioticRecordRow[];
+  probiotics: ProbioticRow[];
 }
 
 export function ProbioticRecordList({
   patient,
-  probioticRecord,
+  probioticRecords: rows,
   probiotics,
 }: ProbioticRecordListProps) {
   // Initialize
-  const { probioticRecords: rows } = patientWithAll;
 
   // States
   const [loading, setLoading] = useState(true);
@@ -38,23 +31,16 @@ export function ProbioticRecordList({
   useEffect(() => void setLoading(false), []);
 
   useEffect(
-    () => void setSelectedPatient(patientWithAll),
-    [setSelectedPatient, patientWithAll]
+    () => void setSelectedPatient(patient),
+    [setSelectedPatient, patient]
   );
 
-  const columns = useMemo<
-    readonly Column<
-      ProbioticRecord & {
-        doctor: DoctorInfo;
-        probioticBrands: ProbioticBrand[];
-      }
-    >[]
-  >(() => {
+  const columns = useMemo<readonly Column<ProbioticRecordRow>[]>(() => {
     return [
       {
         key: "doctor",
         name: "Doctor",
-        renderCell: ({ row }) => fullName(row.doctor),
+        renderCell: ({ row }) => row.doctor.name,
       },
       {
         key: "createdAt",
@@ -75,7 +61,9 @@ export function ProbioticRecordList({
         key: "probioticBrands",
         name: "Probiotic brands",
         renderCell: ({ row }) =>
-          row.probioticBrands.map(({ name }) => name).join(", "),
+          row.probioticBrands
+            .map((probioticBrand) => probioticBrand.name)
+            .join(", "),
       },
       {
         key: "action1",

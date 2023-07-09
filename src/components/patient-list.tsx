@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filteredRows, sortedRows } from "@/lib/rdg";
 import { cn } from "@/lib/utils";
+import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
-import { type MedicalCondition } from "@prisma/client";
 import { FileCheck2Icon, RotateCwIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
   patients: PatientRow[];
-  medicalConditions: MedicalCondition[];
+  medicalConditions: MedicalConditionRow[];
 }
 
 interface FilterPatients {

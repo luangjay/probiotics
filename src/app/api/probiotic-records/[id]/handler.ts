@@ -4,7 +4,7 @@ import {
   type ApiContext,
   type ApiHandler,
   type ApiRequest,
-} from "@/types/rest";
+} from "@/types/api";
 import { UserType } from "@/types/user";
 import { z } from "zod";
 import { handler as baseHandler } from "../../handler";

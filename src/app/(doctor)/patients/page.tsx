@@ -1,10 +1,10 @@
 import { PatientList } from "@/components/patient-list";
 import { prisma } from "@/lib/prisma";
-import { fullName } from "@/lib/user";
+import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
 
 export default async function Page() {
-  const patients = await getPatientRows();
+  const patients = await getPatients();
   const medicalConditions = await getMedicalConditions();
 
   return (
@@ -14,7 +14,7 @@ export default async function Page() {
   );
 }
 
-async function getPatientRows(): Promise<PatientRow[]> {
+async function getPatients(): Promise<PatientRow[]> {
   const patients = await prisma.patient.findMany({
     include: {
       user: true,
@@ -32,21 +32,28 @@ async function getPatientRows(): Promise<PatientRow[]> {
   return patients.map((patient) => ({
     id: patient.userId,
     ssn: patient.ssn,
-    name: fullName(patient.user),
+    prefix: patient.user.prefix,
+    firstName: patient.user.firstName,
+    lastName: patient.user.lastName,
+    name: patient.user.name,
     gender: patient.gender,
     birthDate: patient.birthDate,
     ethnicity: patient.ethnicity,
-    medicalConditions: patient.medicalConditions.map(
-      (m14n) => m14n.medicalCondition
-    ),
+    medicalConditions: patient.medicalConditions.map((m14n) => ({
+      id: m14n.medicalCondition.id,
+      name: m14n.medicalCondition.name,
+    })),
   }));
 }
 
-async function getMedicalConditions() {
+async function getMedicalConditions(): Promise<MedicalConditionRow[]> {
   const medicalConditions = await prisma.medicalCondition.findMany({
     orderBy: {
       id: "asc",
     },
   });
-  return medicalConditions;
+  return medicalConditions.map((medicalCondition) => ({
+    id: medicalCondition.id,
+    name: medicalCondition.name,
+  }));
 }

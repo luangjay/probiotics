@@ -1,7 +1,8 @@
 import { ProbioticRecordList } from "@/components/probiotic-record-list";
 import { prisma } from "@/lib/prisma";
-import { fullName } from "@/lib/user";
 import { type PatientRow } from "@/types/patient";
+import { type ProbioticRow } from "@/types/probiotic";
+import { type ProbioticRecordRow } from "@/types/probiotic-record";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -12,21 +13,22 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
-  const patient = await getPatientRow(userId);
+  const patient = await getPatient(userId);
+  const probioticRecords = await getProbioticRecords(userId);
   const probiotics = await getProbiotics();
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
       <ProbioticRecordList
         patient={patient}
-        probioticRecord={}
+        probioticRecords={probioticRecords}
         probiotics={probiotics}
       />
     </div>
   );
 }
 
-async function getPatientRow(userId: string): Promise<PatientRow> {
+async function getPatient(userId: string): Promise<PatientRow> {
   const patient = await prisma.patient.findUnique({
     where: {
       userId,
@@ -37,6 +39,9 @@ async function getPatientRow(userId: string): Promise<PatientRow> {
         include: {
           medicalCondition: true,
         },
+        orderBy: {
+          id: "asc",
+        },
       },
     },
   });
@@ -46,7 +51,10 @@ async function getPatientRow(userId: string): Promise<PatientRow> {
   return {
     id: patient.userId,
     ssn: patient.ssn,
-    name: fullName(patient.user),
+    prefix: patient.user.prefix,
+    firstName: patient.user.firstName,
+    lastName: patient.user.lastName,
+    name: patient.user.name,
     gender: patient.gender,
     birthDate: patient.birthDate,
     ethnicity: patient.ethnicity,
@@ -56,10 +64,52 @@ async function getPatientRow(userId: string): Promise<PatientRow> {
   };
 }
 
-export async function getProbiotics(): Promise<ProbioticWithComputed[]> {
+async function getProbioticRecords(
+  patientId: string
+): Promise<ProbioticRecordRow[]> {
+  const probioticRecords = await prisma.probioticRecord.findMany({
+    where: {
+      patientId,
+    },
+    include: {
+      doctor: {
+        include: {
+          user: true,
+        },
+      },
+      probioticBrands: {
+        include: {
+          probioticBrand: true,
+        },
+      },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
+  return probioticRecords.map((probioticRecord) => ({
+    id: probioticRecord.id,
+    fileUri: probioticRecord.fileUri,
+    result: probioticRecord.result,
+    createdAt: probioticRecord.createdAt,
+    updatedAt: probioticRecord.updatedAt,
+    doctor: {
+      userId: probioticRecord.doctor.userId,
+      name: probioticRecord.doctor.user.name,
+    },
+    probioticBrands: probioticRecord.probioticBrands.map((p12d) => ({
+      id: p12d.probioticBrand.id,
+      name: p12d.probioticBrand.name,
+    })),
+  }));
+}
+
+async function getProbiotics(): Promise<ProbioticRow[]> {
   const probiotics = await prisma.probiotic.findMany();
+
   return probiotics.map((probiotic) => ({
-    ...probiotic,
-    alias: alias(probiotic.name),
+    id: probiotic.id,
+    name: probiotic.name,
   }));
 }

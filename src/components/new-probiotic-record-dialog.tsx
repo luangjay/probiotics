@@ -20,19 +20,19 @@ import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadFileSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
+import { type ProbioticRow } from "@/types/probiotic";
 import { type ProbioticRecordResultRow } from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Probiotic, type ProbioticRecord } from "@prisma/client";
+import { type ProbioticRecord } from "@prisma/client";
 import { PlusIcon } from "lucide-react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
   type CellKeyDownArgs,
   type CellKeyboardEvent,
   type Column,
   type CopyEvent,
-  type DataGridHandle,
 } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
@@ -40,7 +40,7 @@ import { type z } from "zod";
 type UploadFileData = z.infer<typeof uploadFileSchema>;
 
 interface NewProbioticRecordDialogProps {
-  probiotics: Probiotic[];
+  probiotics: ProbioticRow[];
 }
 
 export function NewProbioticRecordDialog({
@@ -130,9 +130,6 @@ export function NewProbioticRecordDialog({
   useEffect(() => void setLoading(false), []);
 
   useEffect(() => console.log(rows), [rows]);
-
-  // Ref
-  const ref = useRef<DataGridHandle | null>(null);
 
   // Columns
   const columns = useMemo<Column<ProbioticRecordResultRow>[]>(

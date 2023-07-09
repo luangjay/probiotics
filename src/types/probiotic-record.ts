@@ -1,13 +1,15 @@
-import { type DoctorInfo } from "@/types/doctor";
-import {
-  type Doctor,
-  type ProbioticBrand,
-  type ProbioticRecord,
-} from "@prisma/client";
+import { type DoctorRow } from "@/types/doctor";
+import { type ProbioticBrandRow } from "@/types/probiotic-brand";
+import { type Prisma } from "@prisma/client";
 
-export type ProbioticRecordRow = ProbioticRecord & {
-  doctor: Doctor[];
-  probioticBrands: ProbioticBrand[];
+export type ProbioticRecordRow = {
+  id: string;
+  fileUri: string | null;
+  result: Prisma.JsonValue;
+  createdAt: Date;
+  updatedAt: Date;
+  doctor: DoctorRow;
+  probioticBrands: ProbioticBrandRow[];
 };
 
 export type TimeSeriesResult = {
@@ -17,14 +19,6 @@ export type TimeSeriesResult = {
 
 export type ProbioticRecordResult = {
   [x: string]: number;
-};
-
-export type ProbioticRecordWithDoctor = ProbioticRecord & {
-  doctor: DoctorInfo;
-};
-
-export type ProbioticRecordWithBrands = ProbioticRecord & {
-  probioticBrands: ProbioticBrand[];
 };
 
 export type ProbioticRecordResultEntry = {

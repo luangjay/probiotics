@@ -3,7 +3,7 @@ import {
   type ApiContext,
   type ApiHandler,
   type ApiRequest,
-} from "@/types/rest";
+} from "@/types/api";
 import { UserType } from "@/types/user";
 import { Prisma } from "@prisma/client";
 import { getToken } from "next-auth/jwt";

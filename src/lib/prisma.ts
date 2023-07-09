@@ -6,9 +6,34 @@ import { PrismaClient } from "@prisma/client";
 // Learn more:
 // https://pris.ly/d/help/next-js-best-practices
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const client = () =>
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
+  }).$extends({
+    result: {
+      user: {
+        name: {
+          needs: { prefix: true, firstName: true, lastName: true },
+          compute: (user) =>
+            `${user.prefix} ${user.firstName} ${user.lastName}`,
+        },
+      },
+      probiotic: {
+        alias: {
+          needs: { name: true },
+          compute: (probiotic) => probiotic.name.split(";").at(-1) ?? "",
+        },
+      },
+    },
+  });
 
-export const prisma =
-  globalForPrisma.prisma || new PrismaClient({ log: ["query"] });
+const globalForPrisma = global as unknown as {
+  prisma: ReturnType<typeof client>;
+};
+
+export const prisma = globalForPrisma.prisma || client();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

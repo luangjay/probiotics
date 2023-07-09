@@ -1,6 +1,5 @@
 import { DummyNav } from "@/components/dummy-nav";
 import { getCurrentUser } from "@/lib/auth";
-import { fullName } from "@/lib/user";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -15,7 +14,7 @@ export default async function Home() {
           <p className="leading-none">Not logged in</p>
         ) : (
           <>
-            <p className="text-xl">{fullName(user)}</p>
+            <p className="text-xl">{user.name}</p>
             <p className="text-lg">{user.username}</p>
           </>
         )}

@@ -10,7 +10,7 @@ export enum UserType {
 }
 
 export type PartialUserInfo = Omit<
-  User,
+  User & { name: string },
   "password" | "salt" | "createdAt" | "updatedAt"
 >;
 

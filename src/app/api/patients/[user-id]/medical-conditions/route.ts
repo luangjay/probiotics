@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { addPatientMedicalConditionSchema } from "@/lib/schema";
-import { ApiResponse } from "@/types/rest";
+import { ApiResponse } from "@/types/api";
 import { handler } from "../handler";
 
 const GET = handler(async (req, ctx) => {

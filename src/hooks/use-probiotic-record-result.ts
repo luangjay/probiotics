@@ -3,7 +3,7 @@ import {
   type ProbioticRecordResultEntry,
   type ProbioticRecordResultRow,
 } from "@/types/probiotic-record";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
 interface UseProbioticRecordResultOptions {
@@ -24,10 +24,19 @@ export function useProbioticRecordResult(
 
   useEffect(() => void setLoading(false), []);
 
-  const reset = async () => {
-    const emptyRows = await createEmptyResultRows(0, 20);
-    setRows(emptyRows);
-  };
+  const resetRows = useCallback(async () => {
+    if (!initialResult) {
+      const emptyRows = await createEmptyResultRows(0, 20);
+      setRows(emptyRows);
+      return;
+    }
+    const rows = initialResult.map((entry, idx) => ({
+      idx,
+      probiotic: entry.probiotic,
+      value: entry.value.toString(),
+    }));
+    setRows(rows);
+  }, [initialResult]);
 
   const createEmptyRows = async (startIdx: number, count: number) => {
     const emptyRows = await createEmptyResultRows(startIdx, count);
@@ -95,18 +104,7 @@ export function useProbioticRecordResult(
     setReader(reader);
   }, []);
 
-  useEffect(() => {
-    if (!initialResult) {
-      void reset();
-      return;
-    }
-    const rows = initialResult.map((entry, idx) => ({
-      idx,
-      probiotic: entry.probiotic,
-      value: entry.value.toString(),
-    }));
-    setRows(rows);
-  }, [initialResult]);
+  useEffect(() => void resetRows(), [resetRows]);
 
   useEffect(() => {
     if (file && reader) {
@@ -135,7 +133,7 @@ export function useProbioticRecordResult(
   return {
     rows,
     setRows,
-    reset,
+    resetRows,
     createEmptyRows,
     exportFile,
   };

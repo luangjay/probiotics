@@ -84,6 +84,7 @@ async function getTimeSeriesResults(
       id: "asc",
     },
   });
+
   const keys = new Set<string>();
 
   const table = probiotics.map((probiotic) =>
@@ -102,6 +103,12 @@ async function getTimeSeriesResults(
     })
   );
 
+  const sum = table[0].map((_, idx) =>
+    table.reduce((acc, cur) => acc + (cur[idx] ?? 0), 0)
+  );
+
+  console.log(sum);
+
   const results = probiotics.map((probiotic, idx) => {
     if (!keys.has(alias(probiotic.name))) {
       return null;
@@ -109,13 +116,13 @@ async function getTimeSeriesResults(
     const values = table[idx];
     return Object.fromEntries(
       values.map((value, idx) => [
-        probioticRecords[idx].createdAt.toLocaleString(),
+        probioticRecords[idx].createdAt.getTime().toString(),
         value,
       ])
     );
   });
 
-  console.log(Object.keys(results[0] ?? {}));
+  // console.log(results);
 
   return probiotics
     .map((probiotic, idx) => ({

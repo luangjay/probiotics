@@ -38,13 +38,17 @@ export function TimeSeriesResults({
           return {
             key,
             name: "Probiotic",
-            width: 300,
             sortable: true,
+            minWidth: 300,
           };
         }
         return {
           key,
           name: key,
+          minWidth: 60,
+          renderHeaderCell: () => (
+            <>{new Date(parseInt(key)).toLocaleDateString()}</>
+          ),
         };
       }),
     [keys]

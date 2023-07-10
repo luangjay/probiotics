@@ -71,14 +71,12 @@ export function EditProbioticRecordDialog({
   });
   const fileList = useWatch<UploadFileData>({ control, name: "fileList" });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
-  const {
-    rows: rows,
-    setRows: setRows,
-    // resetResults: resetRows,
-    exportFile,
-  } = useProbioticRecordResult(file, {
-    initialResult: probioticRecord.result as ProbioticRecordResultEntry[],
-  });
+  const { rows, setRows, resetRows, exportFile } = useProbioticRecordResult(
+    file,
+    {
+      initialResult: probioticRecord.result as ProbioticRecordResultEntry[],
+    }
+  );
 
   const onSubmit = async () => {
     const file = exportFile();
@@ -124,6 +122,12 @@ export function EditProbioticRecordDialog({
     router.refresh();
     reset();
   };
+
+  useEffect(() => {
+    if (!open) {
+      void resetRows();
+    }
+  }, [open, resetRows]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);

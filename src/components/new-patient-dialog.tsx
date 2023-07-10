@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { patientSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
@@ -60,6 +61,9 @@ interface NewPatientDialogProps {
 export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  const { setPatient: setSelectedPatient } = useSelectPatientStore();
+
   const {
     register,
     handleSubmit,
@@ -87,7 +91,22 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
     if (response.ok) {
       setOpen(false);
       router.refresh();
-      router.replace("?abc=2", { as: "" });
+
+      // NAIVE
+      const patient = (await response.json()) as { id: string };
+      setSelectedPatient({
+        id: patient.id,
+        ssn: data.ssn,
+        prefix: data.prefix,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: `${data.prefix} ${data.firstName} ${data.lastName}`,
+        gender: data.gender,
+        birthDate: data.birthDate as Date,
+        ethnicity: data.ethnicity ?? null,
+        medicalConditions: selectedM14ns,
+      });
+
       setSelectedM14ns([]);
       reset();
     }

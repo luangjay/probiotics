@@ -64,6 +64,7 @@ export function EditPatientDialog({
 }: EditPatientDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+
   const selectPatientStore = useSelectPatientStore();
   const patient = selectPatientStore.patient as PatientRow;
   const setSelectedPatient = selectPatientStore.setPatient;
@@ -112,7 +113,19 @@ export function EditPatientDialog({
     if (response.ok) {
       setOpen(false);
       router.refresh();
-      alert("refreshed");
+      // NAIVE
+      setSelectedPatient({
+        ...patient,
+        ssn: data.ssn,
+        prefix: data.prefix,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: `${data.prefix} ${data.firstName} ${data.lastName}`,
+        gender: data.gender,
+        birthDate: data.birthDate as Date,
+        ethnicity: data.ethnicity ?? null,
+        medicalConditions: selectedM14ns,
+      });
     }
   };
 

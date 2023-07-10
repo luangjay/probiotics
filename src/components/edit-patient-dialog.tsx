@@ -86,7 +86,9 @@ export function EditPatientDialog({
       ethnicity: patient.ethnicity,
       gender: patient.gender,
       birthDate: patient.birthDate,
-      medicalConditionIds: patient.medicalConditions.map((m14n) => m14n.id),
+      medicalConditionIds: patient.medicalConditions.map(
+        (medicalCondition) => medicalCondition.id
+      ),
     },
   });
   const {
@@ -109,8 +111,8 @@ export function EditPatientDialog({
     });
     if (response.ok) {
       setOpen(false);
-      // setSelectedPatient(undefined);
       router.refresh();
+      alert("refreshed");
     }
   };
 
@@ -317,20 +319,20 @@ export function EditPatientDialog({
                   No medical conditions
                 </DropdownMenuItem>
               ) : (
-                medicalConditions.map((m14n) => (
+                medicalConditions.map((medicalCondition) => (
                   <DropdownMenuItem
-                    disabled={medicalConditionIds.includes(m14n.id)}
-                    key={`medical_condition_${m14n.id}`}
+                    disabled={medicalConditionIds.includes(medicalCondition.id)}
+                    key={`medical_condition_${medicalCondition.id}`}
                     className="block h-10 max-w-[17.5rem] truncate rounded leading-7"
                     onSelect={() => {
-                      setSelectedM14ns((prev) => [...prev, m14n]);
+                      setSelectedM14ns((prev) => [...prev, medicalCondition]);
                       setValue("medicalConditionIds", [
                         ...medicalConditionIds,
-                        m14n.id,
+                        medicalCondition.id,
                       ]);
                     }}
                   >
-                    {m14n.name}
+                    {medicalCondition.name}
                   </DropdownMenuItem>
                 ))
               )}

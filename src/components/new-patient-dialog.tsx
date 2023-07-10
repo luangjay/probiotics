@@ -87,6 +87,7 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
     if (response.ok) {
       setOpen(false);
       router.refresh();
+      router.replace("?abc=2", { as: "" });
       setSelectedM14ns([]);
       reset();
     }

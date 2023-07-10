@@ -23,14 +23,15 @@ export const selectPatientColumn: Column<PatientRow, any> = {
 };
 
 function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
-  const { setPatient } = useSelectPatientStore();
+  const { patient, setPatient } = useSelectPatientStore();
+  const value = patient !== undefined;
   return (
     <SelectCellFormatter
       aria-label="Select All"
       tabIndex={tabIndex}
-      value={false}
+      value={value}
       onChange={(checked) => {
-        if (checked) {
+        if (!checked) {
           void setPatient(undefined);
         }
       }}
@@ -40,12 +41,12 @@ function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
 
 function SelectRenderer({ row, tabIndex }: RenderCellProps<PatientRow, any>) {
   const { patient, setPatient } = useSelectPatientStore();
-  const selected = patient?.id === row.id;
+  const value = patient?.id === row.id;
   return (
     <SelectCellFormatter
       aria-label="Select"
       tabIndex={tabIndex}
-      value={selected}
+      value={value}
       onChange={(checked) => {
         void setPatient(checked ? row : undefined);
       }}

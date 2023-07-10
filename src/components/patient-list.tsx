@@ -18,6 +18,7 @@ import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
+  patient?: PatientRow;
   patients: PatientRow[];
   medicalConditions: MedicalConditionRow[];
 }
@@ -26,19 +27,28 @@ interface FilterPatients {
   filter: string;
 }
 
-export function PatientList({ patients, medicalConditions }: PatientListProps) {
+export function PatientList({
+  patient,
+  patients,
+  medicalConditions,
+}: PatientListProps) {
   // Router
   const router = useRouter();
 
-  // Select rows
-  const { patient: selectedPatient } = useSelectPatientStore();
-
   // States
   const [loading, setLoading] = useState(true);
+  const { patient: selectedPatient, setPatient: setSelectedPatient } =
+    useSelectPatientStore();
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
+
+  useEffect(() => {
+    if (patient !== undefined) {
+      setSelectedPatient(patient);
+    }
+  }, [setSelectedPatient, patient]);
 
   // Filter rows
   const { register, control } = useForm<FilterPatients>({ mode: "onChange" });
@@ -163,9 +173,7 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
           <Button className="h-10 w-10 p-0">
             <RotateCwIcon
               className="h-4 w-4"
-              onClick={() => {
-                router.refresh();
-              }}
+              onClick={() => void router.refresh()}
             />
           </Button>
           <NewPatientDialog medicalConditions={medicalConditions} />

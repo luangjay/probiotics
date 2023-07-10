@@ -21,7 +21,10 @@ import { splitClipboard } from "@/lib/rdg";
 import { uploadFileSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 import { type ProbioticRow } from "@/types/probiotic";
-import { type ProbioticRecordResultRow } from "@/types/probiotic-record";
+import {
+  type ProbioticRecordResultEntry,
+  type ProbioticRecordResultRow,
+} from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type ProbioticRecord } from "@prisma/client";
 import { PlusIcon } from "lucide-react";
@@ -82,19 +85,20 @@ export function NewProbioticRecordDialog({
     const doctor = session.user;
 
     const file = exportFile();
-    const result = Object.fromEntries<number>(
-      (
-        rows.filter(
-          (row) =>
-            row.probiotic !== null &&
-            row.value !== null &&
-            !Number.isNaN(parseFloat(row.value))
-        ) as {
-          probiotic: string;
-          value: string;
-        }[]
-      ).map((row) => [row.probiotic, parseFloat(row.value)])
-    );
+    const result: ProbioticRecordResultEntry[] = (
+      rows.filter(
+        (row) =>
+          row.probiotic !== null &&
+          row.value !== null &&
+          !Number.isNaN(parseFloat(row.value))
+      ) as {
+        probiotic: string;
+        value: string;
+      }[]
+    ).map((row) => ({
+      probiotic: row.probiotic,
+      value: parseFloat(row.value),
+    }));
 
     const postReqBody = {
       doctorId: doctor.id,

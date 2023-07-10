@@ -1,7 +1,10 @@
 import { TimeSeriesResults } from "@/components/time-series-results";
 import { prisma } from "@/lib/prisma";
 import { type PatientRow } from "@/types/patient";
-import { type TimeSeriesResult } from "@/types/probiotic-record";
+import {
+  type ProbioticRecordResultEntry,
+  type TimeSeriesResult,
+} from "@/types/probiotic-record";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -61,6 +64,10 @@ async function getPatient(userId: string): Promise<PatientRow> {
   };
 }
 
+function alias(name: string) {
+  return name.split(";").at(-1) ?? "";
+}
+
 async function getTimeSeriesResults(
   patientId: string
 ): Promise<TimeSeriesResult[]> {
@@ -72,25 +79,31 @@ async function getTimeSeriesResults(
       id: "asc",
     },
   });
-  const probiotics = await prisma.probiotic.findMany();
+  const probiotics = await prisma.probiotic.findMany({
+    orderBy: {
+      id: "asc",
+    },
+  });
   const keys = new Set<string>();
 
   const table = probiotics.map((probiotic) =>
     probioticRecords.map((probioticRecord) => {
-      const result = probioticRecord.result as {
-        [name: string]: number | undefined;
-      };
+      const result = Object.fromEntries<number>(
+        (probioticRecord.result as ProbioticRecordResultEntry[]).map(
+          (entry) => [entry.probiotic, entry.value]
+        )
+      );
       const value = result[probiotic.name];
       if (value === undefined) {
         return null;
       }
-      keys.add(probiotic.alias);
+      keys.add(alias(probiotic.name));
       return value;
     })
   );
 
   const results = probiotics.map((probiotic, idx) => {
-    if (!keys.has(probiotic.alias)) {
+    if (!keys.has(alias(probiotic.name))) {
       return null;
     }
     const values = table[idx];
@@ -102,9 +115,11 @@ async function getTimeSeriesResults(
     );
   });
 
+  console.log(Object.keys(results[0] ?? {}));
+
   return probiotics
     .map((probiotic, idx) => ({
-      probiotic: probiotic.alias,
+      probiotic: alias(probiotic.name),
       ...results[idx],
     }))
     .filter((result) => keys.has(result.probiotic));

@@ -17,13 +17,9 @@ export type TimeSeriesResult = {
   [timepoint: string]: string | number;
 };
 
-export type ProbioticRecordResult = {
-  [x: string]: number;
-};
-
 export type ProbioticRecordResultEntry = {
-  Probiotic: string | null;
-  Value: number | null;
+  probiotic: string;
+  value: number;
 };
 
 export type ProbioticRecordResultRow = {

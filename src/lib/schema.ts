@@ -122,7 +122,12 @@ export const probioticRecordSchema = z
     doctorId: z.string().cuid(),
     patientId: z.string().cuid(),
     fileId: z.string().cuid().nullable().optional(),
-    result: z.record(z.string().min(1), z.number()),
+    result: z.array(
+      z.object({
+        probiotic: z.string().min(1),
+        value: z.number(),
+      })
+    ),
   })
   .strict();
 

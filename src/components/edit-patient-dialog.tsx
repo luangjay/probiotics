@@ -109,7 +109,7 @@ export function EditPatientDialog({
     });
     if (response.ok) {
       setOpen(false);
-      setSelectedPatient(undefined);
+      // setSelectedPatient(undefined);
       router.refresh();
     }
   };

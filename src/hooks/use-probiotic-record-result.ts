@@ -1,6 +1,5 @@
 import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/file";
 import {
-  type ProbioticRecordResult,
   type ProbioticRecordResultEntry,
   type ProbioticRecordResultRow,
 } from "@/types/probiotic-record";
@@ -8,7 +7,7 @@ import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
 interface UseProbioticRecordResultOptions {
-  initialResult?: ProbioticRecordResult;
+  initialResult?: ProbioticRecordResultEntry[];
 }
 
 export function useProbioticRecordResult(
@@ -37,20 +36,24 @@ export function useProbioticRecordResult(
   };
 
   const exportFile = () => {
-    const worksheet = XLSX.utils.json_to_sheet<ProbioticRecordResultEntry>(
-      (
-        rows.filter((row) => row.probiotic !== null && row.value !== null) as {
-          probiotic: string;
-          value: string;
-        }[]
-      ).map((rows) => ({
-        Probiotic: rows.probiotic,
-        Value: parseFloat(rows.value),
-      })),
-      {
-        header: ["Probiotic", "Value"],
-      }
-    );
+    const header = [["Probiotic", "Value"]];
+    const worksheet = XLSX.utils.book_new();
+    XLSX.utils.sheet_add_aoa(worksheet, header);
+
+    const result: ProbioticRecordResultEntry[] = (
+      rows.filter((row) => row.probiotic !== null && row.value !== null) as {
+        probiotic: string;
+        value: string;
+      }[]
+    ).map((rows) => ({
+      probiotic: rows.probiotic,
+      value: parseFloat(rows.value),
+    }));
+    XLSX.utils.sheet_add_json(worksheet, result, {
+      origin: "A2",
+      skipHeader: true,
+    });
+
     const csv = XLSX.utils.sheet_to_csv(worksheet, {
       FS: ",",
       forceQuotes: true,
@@ -97,10 +100,10 @@ export function useProbioticRecordResult(
       void reset();
       return;
     }
-    const rows = Object.keys(initialResult).map((probiotic, idx) => ({
+    const rows = initialResult.map((entry, idx) => ({
       idx,
-      probiotic,
-      value: initialResult[probiotic].toString(),
+      probiotic: entry.probiotic,
+      value: entry.value.toString(),
     }));
     setRows(rows);
   }, [initialResult]);

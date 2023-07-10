@@ -52,11 +52,6 @@ export function ProbioticRecordList({
         name: "Updated at",
         renderCell: ({ row }) => row.updatedAt.toLocaleString(),
       },
-      // {
-      //   key: "probioticBrands",
-      //   name: "Updated at",
-      //   renderCell: ({row}) => row.
-      // },
       {
         key: "probioticBrands",
         name: "Probiotic brands",

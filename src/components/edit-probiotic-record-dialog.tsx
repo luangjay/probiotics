@@ -21,7 +21,7 @@ import { uploadFileSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 import { type ProbioticRow } from "@/types/probiotic";
 import {
-  type ProbioticRecordResult,
+  type ProbioticRecordResultEntry,
   type ProbioticRecordResultRow,
   type ProbioticRecordRow,
 } from "@/types/probiotic-record";
@@ -77,24 +77,25 @@ export function EditProbioticRecordDialog({
     // resetResults: resetRows,
     exportFile,
   } = useProbioticRecordResult(file, {
-    initialResult: probioticRecord.result as ProbioticRecordResult,
+    initialResult: probioticRecord.result as ProbioticRecordResultEntry[],
   });
 
   const onSubmit = async () => {
     const file = exportFile();
-    const result = Object.fromEntries<number>(
-      (
-        rows.filter(
-          (row) =>
-            row.probiotic !== null &&
-            row.value !== null &&
-            !Number.isNaN(parseFloat(row.value))
-        ) as {
-          probiotic: string;
-          value: string;
-        }[]
-      ).map((row) => [row.probiotic, parseFloat(row.value)])
-    );
+    const result: ProbioticRecordResultEntry[] = (
+      rows.filter(
+        (row) =>
+          row.probiotic !== null &&
+          row.value !== null &&
+          !Number.isNaN(parseFloat(row.value))
+      ) as {
+        probiotic: string;
+        value: string;
+      }[]
+    ).map((row) => ({
+      probiotic: row.probiotic,
+      value: parseFloat(row.value),
+    }));
 
     const postReqBody = {
       result,

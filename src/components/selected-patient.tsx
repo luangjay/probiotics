@@ -51,14 +51,14 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
       </CardHeader>
       {!patient ? (
         <CardContent
-          key="patient_selected_none"
+          key="selected_patient_none"
           className="flex flex-col gap-4 text-sm"
         >
           <div>No patient selected</div>
         </CardContent>
       ) : (
         <CardContent
-          key={`patient_selected_${patient.id}`}
+          key={`selected_patient_${patient.id}`}
           className="flex flex-col gap-4 text-sm"
         >
           <div className="flex gap-2">

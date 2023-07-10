@@ -34,6 +34,23 @@
     --ring: 215 20.2% 65.1%;
 
     --radius: 0.5rem;
+
+    .rdg {
+      --rdg-color: hsl(var(--foreground));
+      --rdg-border-color: hsl(var(--border));
+      --rdg-summary-border-color: #aaa;
+      --rdg-background-color: hsl(var(--background));
+      --rdg-header-background-color: hsl(var(--secondary));
+      --rdg-row-hover-background-color: hsl(var(--muted));
+      --rdg-row-selected-background-color: hsl(207deg 76% 92%);
+      --rdg-row-selected-hover-background-color: hsl(207deg 76% 88%);
+      --rdg-checkbox-color: hsl(207deg 100% 29%);
+      --rdg-checkbox-focus-color: hsl(207deg 100% 69%);
+      --rdg-checkbox-disabled-border-color: #ccc;
+      --rdg-checkbox-disabled-background-color: #ddd;
+      --rdg-selection-color: #66afe9;
+      --rdg-font-size: 14px;
+    }
   }
 
   .dark {
@@ -67,6 +84,23 @@
     --ring: 216 34% 17%;
 
     --radius: 0.5rem;
+
+    .rdg {
+      --rdg-color: hsl(var(--foreground));
+      --rdg-border-color: hsl(var(--border));
+      --rdg-summary-border-color: #555;
+      --rdg-background-color: hsl(var(--background));
+      --rdg-header-background-color: hsl(var(--secondary));
+      --rdg-row-hover-background-color: hsl(var(--muted));
+      --rdg-row-selected-background-color: hsl(207deg 76% 42%);
+      --rdg-row-selected-hover-background-color: hsl(207deg 76% 38%);
+      --rdg-checkbox-color: hsl(207deg 100% 79%);
+      --rdg-checkbox-focus-color: hsl(207deg 100% 89%);
+      --rdg-checkbox-disabled-border-color: #000;
+      --rdg-checkbox-disabled-background-color: #333;
+      --rdg-selection-color: #66afe9;
+      --rdg-font-size: 14px;
+    }
   }
 }
 
@@ -106,13 +140,11 @@ p {
   display: none; /* Safari and Chrome */
 }
 
-.rdg-light {
-  /* --rdg-color: #000; */
-  --rdg-color: hsl(var(--foreground));
+/* .rdg-light {
+  --rdg-color: #000;
   --rdg-border-color: #ddd;
   --rdg-summary-border-color: #aaa;
-  /* --rdg-background-color: hsl(0deg 0% 100%); */
-  --rdg-background-color: hsl(var(--background));
+  --rdg-background-color: hsl(0deg 0% 100%);
   --rdg-header-background-color: hsl(0deg 0% 97.5%);
   --rdg-row-hover-background-color: hsl(0deg 0% 96%);
   --rdg-row-selected-background-color: hsl(207deg 76% 92%);
@@ -123,26 +155,24 @@ p {
   --rdg-checkbox-disabled-background-color: #ddd;
   --rdg-selection-color: #66afe9;
   --rdg-font-size: 14px;
-}
+} */
 
-.rdg-dark {
-  --rdg-color-scheme: dark;
-  /* --rdg-color: #000; */
+/* .rdg {
   --rdg-color: hsl(var(--foreground));
-  --rdg-border-color: #444;
-  --rdg-summary-border-color: #555;
-  /* --rdg-background-color: hsl(0deg 0% 100%); */
+  --rdg-border-color: hsl(var(--border));
+  --rdg-summary-border-color: #aaa;
   --rdg-background-color: hsl(var(--background));
-  --rdg-header-background-color: hsl(0deg 0% 10.5%);
-  --rdg-row-hover-background-color: hsl(0deg 0% 9%);
-  --rdg-row-selected-background-color: hsl(207deg 76% 42%);
-  --rdg-row-selected-hover-background-color: hsl(207deg 76% 38%);
-  --rdg-checkbox-color: hsl(207deg 100% 79%);
-  --rdg-checkbox-focus-color: hsl(207deg 100% 89%);
-  --rdg-checkbox-disabled-border-color: #000;
-  --rdg-checkbox-disabled-background-color: #333;
+  --rdg-header-background-color: hsl(var(--secondary));
+  --rdg-row-hover-background-color: hsl(var(--muted));
+  --rdg-row-selected-background-color: hsl(207deg 76% 92%);
+  --rdg-row-selected-hover-background-color: hsl(207deg 76% 88%);
+  --rdg-checkbox-color: hsl(207deg 100% 29%);
+  --rdg-checkbox-focus-color: hsl(207deg 100% 69%);
+  --rdg-checkbox-disabled-border-color: #ccc;
+  --rdg-checkbox-disabled-background-color: #ddd;
+  --rdg-selection-color: #66afe9;
   --rdg-font-size: 14px;
-}
+} */
 
 .custom-scroll::-webkit-scrollbar {
   @apply block h-[11px] w-[11px];

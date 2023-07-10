@@ -1,4 +1,5 @@
 import { Indicator } from "@/components/ui/indicator";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import localFont from "next/font/local";
@@ -31,12 +32,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body
         className={cn(
-          "flex min-h-screen flex-col bg-background font-sans antialiased",
+          "min-h-screen flex-col bg-background font-sans antialiased",
           fontSans.variable,
           fontMono.variable
         )}
       >
-        <div className="flex flex-1 flex-col">{children}</div>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
         <Indicator />
       </body>
     </html>

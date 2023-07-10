@@ -132,8 +132,6 @@ export function EditProbioticRecordDialog({
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
-  useEffect(() => console.log(rows), [rows]);
-
   // Columns
   const columns = useMemo<Column<ProbioticRecordResultRow>[]>(
     () => [
@@ -262,9 +260,7 @@ export function EditProbioticRecordDialog({
         <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="flex gap-2">
             <Input id="file" type="file" {...register("fileList")} />
-            {/* <Button id="reset" onClick={void resetRows()}>
-              Reset
-            </Button> */}
+            <Button onClick={() => void resetRows()}>Reset</Button>
           </div>
           {errors.fileList && (
             <p className="mx-auto text-sm text-destructive">
@@ -283,15 +279,6 @@ export function EditProbioticRecordDialog({
               Confirm
             </Button>
           </form>
-          {/* <Button
-            onClick={() => alert(ref.current?.element?.className)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting && (
-              <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            abc
-          </Button> */}
         </div>
       </DialogContent>
     </Dialog>

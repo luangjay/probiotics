@@ -305,13 +305,10 @@ async function seedProbiotics({ reset, clear, count }: SeedOptions) {
       Array.from({ length: count }, (_, idx) => {
         // Probiotic fields
         const name = pool[idx];
-        const red = faker.number.int({ min: 0, max: 333 });
-        const yellow = faker.number.int({ min: red, max: 666 });
-        const green = faker.number.int({ min: yellow, max: 999 });
 
         // Create probiotics
         return tx.probiotic.create({
-          data: { name, red, yellow, green },
+          data: { name },
         });
       })
     );

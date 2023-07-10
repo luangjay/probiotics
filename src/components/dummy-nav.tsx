@@ -1,5 +1,6 @@
 "use client";
 
+import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
@@ -46,6 +47,7 @@ export function DummyNav({ authenticated = false }: DummyNavProps) {
             </>
           )}
         </nav>
+        <ModeToggle />
       </div>
     </div>
   );

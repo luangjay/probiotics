@@ -119,7 +119,7 @@ export function PatientList({
       ) : (
         <DataGrid
           direction="ltr"
-          className="rdg-light flex-1"
+          className="flex-1"
           rows={rows}
           columns={columns}
           headerRowHeight={40}
@@ -170,7 +170,7 @@ export function PatientList({
           />
         </div>
         <div className="flex h-10 gap-4">
-          <Button className="h-10 w-10 p-0">
+          <Button variant="outline" className="h-10 w-10 p-0">
             <RotateCwIcon
               className="h-4 w-4"
               onClick={() => void router.refresh()}

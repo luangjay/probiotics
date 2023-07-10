@@ -72,12 +72,8 @@ export function NewProbioticRecordDialog({
   });
   const fileList = useWatch<UploadFileData>({ control, name: "fileList" });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
-  const {
-    rows: rows,
-    setRows: setRows,
-    // resetResults: resetRows,
-    exportFile,
-  } = useProbioticRecordResult(file);
+  const { rows, setRows, resetRows, exportFile } =
+    useProbioticRecordResult(file);
 
   const onSubmit = async () => {
     const session = await getSession();
@@ -132,8 +128,6 @@ export function NewProbioticRecordDialog({
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
-
-  useEffect(() => console.log(rows), [rows]);
 
   // Columns
   const columns = useMemo<Column<ProbioticRecordResultRow>[]>(
@@ -264,9 +258,7 @@ export function NewProbioticRecordDialog({
         <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="flex gap-2">
             <Input id="file" type="file" {...register("fileList")} />
-            {/* <Button id="reset" onClick={void resetRows()}>
-              Reset
-            </Button> */}
+            <Button onClick={() => void resetRows()}>Reset</Button>
           </div>
           {errors.fileList && (
             <p className="mx-auto text-sm text-destructive">
@@ -285,15 +277,6 @@ export function NewProbioticRecordDialog({
               Confirm
             </Button>
           </form>
-          {/* <Button
-            onClick={() => alert(ref.current?.element?.className)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting && (
-              <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            abc
-          </Button> */}
         </div>
       </DialogContent>
     </Dialog>

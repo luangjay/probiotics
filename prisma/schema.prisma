@@ -69,9 +69,6 @@ model Patient {
 model Probiotic {
   id        Int      @id @default(autoincrement())
   name      String   @unique
-  red       Float
-  yellow    Float
-  green     Float
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

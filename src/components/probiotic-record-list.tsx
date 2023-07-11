@@ -88,11 +88,6 @@ export function ProbioticRecordList({
           headerRowHeight={40}
           rowHeight={40}
           rowKeyGetter={(row) => row.id}
-          // sortColumns={sortColumns}
-          // onSortColumnsChange={setSortColumns}
-          defaultColumnOptions={{
-            sortable: true,
-          }}
           renderers={{
             noRowsFallback: (
               <div

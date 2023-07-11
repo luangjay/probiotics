@@ -79,7 +79,7 @@ async function getTimeSeriesResults(patientId: string): Promise<{
       patientId,
     },
     orderBy: {
-      id: "asc",
+      timestamp: "asc",
     },
   });
   const probiotics = await prisma.probiotic.findMany({

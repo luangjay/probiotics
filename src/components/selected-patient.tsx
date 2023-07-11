@@ -18,6 +18,7 @@ import {
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { cn } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
+import { format } from "date-fns";
 import {
   ChevronsUpDownIcon,
   FileCheck2Icon,
@@ -76,7 +77,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
           <div className="flex gap-2">
             <div className="w-1/3 truncate font-medium">Birth date</div>
             <div className="flex-1 truncate">
-              {patient.birthDate.toLocaleDateString()}
+              {format(patient.birthDate, "yyyy-MM-dd")}
             </div>
           </div>
           <div className="flex gap-2">

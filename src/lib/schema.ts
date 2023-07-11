@@ -46,18 +46,41 @@ export const doctorSchema = z
     username: z
       .string()
       .trim()
-      .min(MIN_USERNAME)
-      .max(MAX_USERNAME)
-      .regex(REGEX_USERNAME),
-    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
+      .min(
+        MIN_USERNAME,
+        `Username must contain at least ${MIN_USERNAME} characters`
+      )
+      .max(
+        MAX_USERNAME,
+        `Username must contain at most ${MAX_USERNAME} characters`
+      )
+      .regex(REGEX_USERNAME, `Username must be alphanumerical`),
+    password: z
+      .string()
+      .min(
+        MIN_PASSWORD,
+        `Password must contain at least ${MIN_PASSWORD} characters`
+      )
+      .max(
+        MAX_PASSWORD,
+        `Password must contain at most ${MAX_PASSWORD} characters`
+      ),
     email: z.preprocess((field) => {
       if (field === undefined) return undefined;
       if (typeof field !== "string" || field.trim() === "") return null;
       return field;
-    }, z.string().trim().email().toLowerCase().nullable().optional()),
-    prefix: z.string().trim().min(1),
-    firstName: z.string().trim().min(1).regex(REGEX_FIRSTNAME),
-    lastName: z.string().trim().min(1).regex(REGEX_LASTNAME),
+    }, z.string().trim().email("Invalid email").toLowerCase().nullable().optional()),
+    prefix: z.string().trim().min(1, "Prefix is required"),
+    firstName: z
+      .string()
+      .trim()
+      .min(1, "First name is required")
+      .regex(REGEX_FIRSTNAME, "First name must be alphabetical"),
+    lastName: z
+      .string()
+      .trim()
+      .min(1, "Last name is required")
+      .regex(REGEX_LASTNAME, "Last name must be alphabetical"),
   })
   .strict();
 
@@ -140,14 +163,14 @@ export const fileSchema = z.custom<File>().superRefine((file, ctx) => {
   if (file?.type !== csvFileType) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: "Only .csv files are accepted.",
+      message: "Only .csv files are accepted",
     });
   }
   if (file?.size > 2 << 20) {
     ctx.addIssue({
       code: z.ZodIssueCode.too_big,
       type: "array",
-      message: "Maximum file size is 1 MB.",
+      message: "Maximum file size is 1 MB",
       maximum: 2 << 20, // 1 MB
       inclusive: true,
     });
@@ -173,10 +196,25 @@ export const loginSchema = z
     username: z
       .string()
       .trim()
-      .min(MIN_USERNAME)
-      .max(MAX_USERNAME)
-      .regex(REGEX_USERNAME),
-    password: z.string().min(MIN_PASSWORD).max(MAX_PASSWORD),
+      .min(
+        MIN_USERNAME,
+        `Username must contain at least ${MIN_USERNAME} characters`
+      )
+      .max(
+        MAX_USERNAME,
+        `Username must contain at most ${MAX_USERNAME} characters`
+      )
+      .regex(REGEX_USERNAME, `Username must be alphanumerical`),
+    password: z
+      .string()
+      .min(
+        MIN_PASSWORD,
+        `Password must contain at least ${MIN_PASSWORD} characters`
+      )
+      .max(
+        MAX_PASSWORD,
+        `Password must contain at most ${MAX_PASSWORD} characters`
+      ),
   })
   .strict();
 

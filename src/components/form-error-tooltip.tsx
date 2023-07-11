@@ -9,10 +9,11 @@ import { BadgeAlertIcon } from "lucide-react";
 import { useState } from "react";
 
 interface FormErrorTooltipProps {
+  id?: string;
   message?: string;
 }
 
-export function FormErrorTooltip({ message }: FormErrorTooltipProps) {
+export function FormErrorTooltip({ id, message }: FormErrorTooltipProps) {
   const [open, setOpen] = useState(false);
 
   if (message === undefined) {
@@ -27,14 +28,14 @@ export function FormErrorTooltip({ message }: FormErrorTooltipProps) {
             className={cn("overflow-hidden focus-visible:outline-none")}
             onClick={() => void setOpen(!open)}
           >
-            <BadgeAlertIcon className="h-5 w-5 fill-destructive text-destructive-foreground" />
+            <BadgeAlertIcon className="mr-px h-5 w-5 fill-destructive text-destructive-foreground" />
           </button>
         </TooltipTrigger>
         <TooltipContent
           className="bg-destructive text-sm text-destructive-foreground"
           onClick={() => void setOpen(false)}
         >
-          <p>{message}</p>
+          <p id={id}>{message}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

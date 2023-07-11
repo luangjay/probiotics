@@ -1,11 +1,12 @@
 "use client";
 
+import { Toggle } from "@/components/ui/toggle";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { type PatientRow } from "@/types/patient";
 import { type TimeSeriesResultRow } from "@/types/probiotic-record";
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
-import DataGrid, { type Column, type SortColumn } from "react-data-grid";
+import DataGrid, { type Column } from "react-data-grid";
 
 interface TimeSeriesResultsProps {
   patient: PatientRow;
@@ -19,12 +20,14 @@ export function TimeSeriesResults({
   timeSeriesResultSummary: summaryRows,
 }: TimeSeriesResultsProps) {
   // Initialize
-  const keys = Object.keys(rows[0] ?? {});
+  const keys = Object.keys(rows[0] ?? { probiotic: null });
 
   // States
   const [loading, setLoading] = useState(true);
   const { setPatient: setSelectedPatient } = useSelectPatientStore();
-  const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
+  const [normalized, setNormalized] = useState(false);
+
+  console.log(summaryRows);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
@@ -43,7 +46,6 @@ export function TimeSeriesResults({
           return {
             key,
             name: "Probiotic",
-            sortable: true,
             minWidth: 300,
             renderSummaryCell: ({ row }) => row.probiotic,
           };
@@ -53,10 +55,13 @@ export function TimeSeriesResults({
           name: key,
           minWidth: 60,
           renderHeaderCell: () => format(new Date(parseInt(key)), "yyyy-MM-dd"),
-          renderSummaryCell: ({ row }) => row[key],
+          renderCell: ({ row }) =>
+            formatValueCell(normalized, row[key], summaryRows[0][key]),
+          renderSummaryCell: ({ row }) =>
+            formatValueCell(normalized, row[key], summaryRows[0][key]),
         };
       }),
-    [keys]
+    [keys, normalized, summaryRows]
   );
 
   const gridElement = useMemo(
@@ -73,26 +78,41 @@ export function TimeSeriesResults({
           headerRowHeight={40}
           rowHeight={40}
           rowKeyGetter={(row) => row.key}
-          sortColumns={sortColumns}
-          onSortColumnsChange={setSortColumns}
           renderers={{
             noRowsFallback: (
-              <div style={{ textAlign: "center", gridColumn: "1/-1" }}>
+              <div
+                className="flex h-full w-full items-center justify-center"
+                style={{ textAlign: "center", gridColumn: "1/-1" }}
+              >
                 Nothing to show (´・ω・`)
               </div>
             ),
           }}
         />
       ),
-    [loading, rows, columns, sortColumns]
+    [loading, rows, columns, summaryRows]
   );
 
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex h-10 items-center justify-between">
         <h3 className="text-2xl font-semibold">Time series results</h3>
+        <Toggle onClick={() => void setNormalized((prev) => !prev)}>
+          Normalize
+        </Toggle>
       </div>
       {gridElement}
     </div>
   );
+}
+
+function formatValueCell(
+  normalized: boolean,
+  value: string | number,
+  total: string | number
+) {
+  if (value === 0) return null;
+  return normalized && typeof total === "number" && typeof value === "number"
+    ? (value / total).toFixed(4)
+    : value;
 }

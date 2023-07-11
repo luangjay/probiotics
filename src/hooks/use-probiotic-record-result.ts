@@ -38,8 +38,12 @@ export function useProbioticRecordResult(
     setRows(rows);
   }, [initialResult]);
 
-  const createEmptyRows = async (startIdx: number, count: number) => {
-    const emptyRows = await createEmptyResultRows(startIdx, count);
+  const createEmptyRows = async (
+    startIdx: number,
+    count: number,
+    timeout = 0
+  ) => {
+    const emptyRows = await createEmptyResultRows(startIdx, count, timeout);
     console.log("on: createEmptyResults");
     setRows((prev) => [...prev, ...emptyRows]);
   };

@@ -1,12 +1,13 @@
 "use client";
 
+import { Logo } from "@/components/logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 
 const dummyLinkClassname = cn(
-  "flex items-center text-base font-medium transition-colors hover:text-foreground/80"
+  "flex items-center text-base transition-colors hover:text-foreground/80"
 );
 
 interface DummyNavProps {
@@ -14,14 +15,14 @@ interface DummyNavProps {
 }
 
 export function DummyNav({ authenticated = false }: DummyNavProps) {
-  // interesting
+  // TODO: interesting
   // const segment = useSelectedLayoutSegment()
 
   return (
     <div className="h-20 w-full border-b drop-shadow-sm">
       <div className="container flex h-full w-full items-center justify-between">
-        <Link href="/" className="flex justify-between">
-          <span className="inline-block text-xl font-semibold">Hello</span>
+        <Link href="/" className="flex flex-1 justify-between">
+          <Logo />
         </Link>
         <nav className="flex items-center gap-6">
           {!authenticated ? (
@@ -47,7 +48,9 @@ export function DummyNav({ authenticated = false }: DummyNavProps) {
             </>
           )}
         </nav>
-        <ModeToggle />
+        <div className="flex flex-1 justify-end">
+          <ModeToggle />
+        </div>
       </div>
     </div>
   );

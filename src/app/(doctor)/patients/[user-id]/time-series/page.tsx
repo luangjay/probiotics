@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { type PatientRow } from "@/types/patient";
 import {
   type ProbioticRecordResultEntry,
-  type TimeSeriesResult,
+  type TimeSeriesResultRow,
 } from "@/types/probiotic-record";
 import { notFound } from "next/navigation";
 
@@ -16,13 +16,15 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
   const patient = await getPatient(userId);
-  const timeSeriesResults = await getTimeSeriesResults(userId);
+  const { timeSeriesResults, timeSeriesResultSummary } =
+    await getTimeSeriesResults(userId);
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
       <TimeSeriesResults
         patient={patient}
         timeSeriesResults={timeSeriesResults}
+        timeSeriesResultSummary={timeSeriesResultSummary}
       />
     </div>
   );
@@ -68,9 +70,10 @@ function alias(name: string) {
   return name.split(";").at(-1) ?? "";
 }
 
-async function getTimeSeriesResults(
-  patientId: string
-): Promise<TimeSeriesResult[]> {
+async function getTimeSeriesResults(patientId: string): Promise<{
+  timeSeriesResults: TimeSeriesResultRow[];
+  timeSeriesResultSummary: TimeSeriesResultRow[];
+}> {
   const probioticRecords = await prisma.probioticRecord.findMany({
     where: {
       patientId,
@@ -103,11 +106,9 @@ async function getTimeSeriesResults(
     })
   );
 
-  const sum = table[0].map((_, idx) =>
+  const total = table[0].map((_, idx) =>
     table.reduce((acc, cur) => acc + (cur[idx] ?? 0), 0)
   );
-
-  console.log(sum);
 
   const results = probiotics.map((probiotic, idx) => {
     if (!keys.has(alias(probiotic.name))) {
@@ -116,18 +117,26 @@ async function getTimeSeriesResults(
     const values = table[idx];
     return Object.fromEntries(
       values.map((value, idx) => [
-        probioticRecords[idx].createdAt.getTime().toString(),
-        value,
+        probioticRecords[idx].timestamp.getTime().toString(),
+        value ?? 0,
       ])
     );
   });
 
-  // console.log(results);
+  const resultSummary = Object.fromEntries(
+    total.map((value, idx) => [
+      probioticRecords[idx].timestamp.getTime().toString(),
+      value,
+    ])
+  );
 
-  return probiotics
-    .map((probiotic, idx) => ({
-      probiotic: alias(probiotic.name),
-      ...results[idx],
-    }))
-    .filter((result) => keys.has(result.probiotic));
+  return {
+    timeSeriesResults: probiotics
+      .map((probiotic, idx) => ({
+        probiotic: alias(probiotic.name),
+        ...results[idx],
+      }))
+      .filter((result) => keys.has(result.probiotic)),
+    timeSeriesResultSummary: [{ probiotic: "Total", ...resultSummary }],
+  };
 }

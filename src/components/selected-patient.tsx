@@ -84,7 +84,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
             <div className="flex-1 truncate">{patient.ethnicity}</div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-1/3 font-medium">Info</div>
+            <div className="w-1/3 font-medium">Information</div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

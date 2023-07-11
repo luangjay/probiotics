@@ -1,5 +1,6 @@
 "use client";
 
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
@@ -47,13 +48,13 @@ export default function Register() {
         id="register-form"
         noValidate
         onSubmit={(...a) => void handleSubmit(onSubmit)(...a)}
-        className="flex w-full max-w-sm flex-col gap-4"
+        className="flex w-full max-w-sm flex-col items-center gap-4"
       >
-        <h2 className="mx-auto text-5xl font-bold leading-normal">LOGO</h2>
+        <Logo className="text-6xl" />
         <Input
           id="username"
           key="username"
-          placeholder="username: string"
+          placeholder="Username"
           autoCapitalize="none"
           autoCorrect="off"
           disabled={isLoading}
@@ -66,7 +67,7 @@ export default function Register() {
           id="password"
           key="password"
           type="password"
-          placeholder="password: string"
+          placeholder="Password"
           autoCapitalize="none"
           {...register("password")}
         />
@@ -76,7 +77,7 @@ export default function Register() {
         <Input
           id="prefix"
           key="prefix"
-          placeholder="prefix: string"
+          placeholder="Prefix"
           autoCorrect="off"
           disabled={isLoading}
           {...register("prefix")}
@@ -87,7 +88,7 @@ export default function Register() {
         <Input
           id="firstName"
           key="firstName"
-          placeholder="firstName: string"
+          placeholder="First name"
           // type="number"
           autoCorrect="off"
           disabled={isLoading}
@@ -100,7 +101,7 @@ export default function Register() {
         <Input
           id="lastName"
           key="lastName"
-          placeholder="lastName: string"
+          placeholder="Last name"
           autoCorrect="off"
           disabled={isLoading}
           {...register("lastName")}
@@ -111,7 +112,7 @@ export default function Register() {
         <Input
           id="email"
           key="email"
-          placeholder="email: string?"
+          placeholder="Email"
           autoCorrect="off"
           disabled={isLoading}
           {...register("email")}

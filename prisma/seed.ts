@@ -393,6 +393,8 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
           probiotic: name,
           value: faker.number.int({ min: 0, max: 999 }),
         }));
+        const createdAt = new Date(Date.now() - (count - idx) * 60 * 60 * 1000);
+        const timestamp = faker.date.past({ refDate: createdAt });
 
         // Create probiotic records
         return tx.probioticRecord.create({
@@ -400,7 +402,8 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
             doctorId,
             patientId,
             result,
-            createdAt: new Date(Date.now() - (count - idx) * 60 * 60 * 1000),
+            timestamp,
+            createdAt,
           },
         });
       })

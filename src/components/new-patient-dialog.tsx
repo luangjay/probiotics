@@ -1,6 +1,7 @@
 "use client";
 
 import { FormErrorTooltip } from "@/components/form-error-tooltip";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -34,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { patientSchema } from "@/lib/schema";
+import { patientSchema as basePatientSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,8 +50,11 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { type z } from "zod";
-import { Badge } from "./ui/badge";
+import { z } from "zod";
+
+const patientSchema = basePatientSchema.extend({
+  birthDate: z.date(),
+});
 
 type NewPatientData = z.infer<typeof patientSchema>;
 
@@ -72,8 +76,8 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
     setValue,
     reset,
   } = useForm<NewPatientData>({
-    resolver: zodResolver(patientSchema),
     mode: "onChange",
+    resolver: zodResolver(patientSchema),
   });
   const {
     gender,
@@ -102,7 +106,7 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
         lastName: data.lastName,
         name: `${data.prefix} ${data.firstName} ${data.lastName}`,
         gender: data.gender,
-        birthDate: data.birthDate as Date,
+        birthDate: data.birthDate,
         ethnicity: data.ethnicity ?? null,
         medicalConditions: selectedM14ns,
       });
@@ -224,11 +228,7 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {birthDate ? (
-                    format(birthDate as Date, "PPP")
-                  ) : (
-                    <span>Birth date</span>
-                  )}
+                  {birthDate ? format(birthDate, "PPP") : "Birth date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -236,9 +236,9 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
                   initialFocus
                   mode="single"
                   captionLayout="dropdown-buttons"
-                  selected={birthDate as Date}
+                  selected={birthDate ?? undefined}
                   onSelect={(day, selectedDay) =>
-                    void setValue("birthDate", selectedDay)
+                    setValue("birthDate", selectedDay)
                   }
                 />
               </PopoverContent>

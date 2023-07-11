@@ -25,7 +25,7 @@ export function ProbioticEditor<R, SR>({
     <input
       ref={ref}
       value={typeof value === "string" ? value : ""}
-      className="-mx-2 h-full w-[calc(100%+1rem)] p-2 focus:outline-none"
+      className="-mx-2 h-full w-[calc(100%+1rem)] bg-background p-2 focus:outline-none"
       spellCheck={false}
       onChange={(e) => {
         const targetValue = e.target.value.match(PROBIOTIC_REGEX)

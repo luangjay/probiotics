@@ -1,5 +1,6 @@
 "use client";
 
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
@@ -43,16 +44,16 @@ export default function Register() {
       <form
         noValidate
         onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}
-        className="flex w-full max-w-sm flex-col gap-4"
+        className="flex w-full max-w-sm flex-col items-center gap-6"
       >
         {error && (
           <p className="text-center text-sm text-destructive">Login failed</p>
         )}
-        <h2 className="mx-auto text-5xl font-bold leading-normal">LOGO</h2>
+        <Logo className="text-6xl" />
         <Input
           id="username"
           key="username"
-          placeholder="username"
+          placeholder="Username"
           type="text"
           autoCapitalize="none"
           autoCorrect="off"
@@ -65,7 +66,7 @@ export default function Register() {
         <Input
           id="password"
           key="password"
-          placeholder="password"
+          placeholder="Password"
           type="password"
           autoCapitalize="none"
           {...register("password")}
@@ -73,7 +74,7 @@ export default function Register() {
         {errors?.password && (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting && (
             <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
           )}

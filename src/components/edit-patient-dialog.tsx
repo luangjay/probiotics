@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { patientSchema } from "@/lib/schema";
+import { patientSchema as basePatientSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
@@ -51,7 +51,11 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { type z } from "zod";
+import { z } from "zod";
+
+const patientSchema = basePatientSchema.extend({
+  birthDate: z.date(),
+});
 
 type EditPatientData = z.infer<typeof patientSchema>;
 
@@ -77,8 +81,8 @@ export function EditPatientDialog({
     setValue,
     reset,
   } = useForm<EditPatientData>({
-    resolver: zodResolver(patientSchema),
     mode: "onChange",
+    resolver: zodResolver(patientSchema),
     values: {
       prefix: patient.prefix,
       firstName: patient.firstName,
@@ -122,7 +126,7 @@ export function EditPatientDialog({
         lastName: data.lastName,
         name: `${data.prefix} ${data.firstName} ${data.lastName}`,
         gender: data.gender,
-        birthDate: data.birthDate as Date,
+        birthDate: data.birthDate,
         ethnicity: data.ethnicity ?? null,
         medicalConditions: selectedM14ns,
       });
@@ -248,11 +252,7 @@ export function EditPatientDialog({
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {birthDate ? (
-                    format(birthDate as Date, "PPP")
-                  ) : (
-                    <span>Birth date</span>
-                  )}
+                  {birthDate ? format(birthDate, "PPP") : "Birth date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -260,9 +260,9 @@ export function EditPatientDialog({
                   initialFocus
                   mode="single"
                   captionLayout="dropdown-buttons"
-                  selected={birthDate as Date}
+                  selected={birthDate ?? undefined}
                   onSelect={(day, selectedDay) =>
-                    void setValue("birthDate", selectedDay)
+                    setValue("birthDate", selectedDay)
                   }
                 />
               </PopoverContent>

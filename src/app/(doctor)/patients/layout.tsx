@@ -18,21 +18,15 @@ export default async function Layout({ children }: LayoutProps) {
           <CardContent className="flex h-full flex-col gap-4 p-6">
             <Link
               href="/"
-              className="text-primary underline-offset-4 hover:text-primary/90 hover:underline"
+              className="transition-colors hover:text-foreground/80"
             >
               Home
             </Link>
             <Link
               href="/patients"
-              className="text-primary underline-offset-4 hover:text-primary/90 hover:underline"
+              className="transition-colors hover:text-foreground/80"
             >
               Patients
-            </Link>
-            <Link
-              href="/probiotic-brands"
-              className="text-primary underline-offset-4 hover:text-primary/90 hover:underline"
-            >
-              Probiotic brands
             </Link>
           </CardContent>
         </Card>

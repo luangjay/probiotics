@@ -2,18 +2,21 @@
 
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { type PatientRow } from "@/types/patient";
-import { type TimeSeriesResult } from "@/types/probiotic-record";
+import { type TimeSeriesResultRow } from "@/types/probiotic-record";
+import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column, type SortColumn } from "react-data-grid";
 
 interface TimeSeriesResultsProps {
   patient: PatientRow;
-  timeSeriesResults: TimeSeriesResult[];
+  timeSeriesResults: TimeSeriesResultRow[];
+  timeSeriesResultSummary: TimeSeriesResultRow[];
 }
 
 export function TimeSeriesResults({
   patient,
   timeSeriesResults: rows,
+  timeSeriesResultSummary: summaryRows,
 }: TimeSeriesResultsProps) {
   // Initialize
   const keys = Object.keys(rows[0] ?? {});
@@ -31,7 +34,9 @@ export function TimeSeriesResults({
     [setSelectedPatient, patient]
   );
 
-  const columns = useMemo<readonly Column<TimeSeriesResult>[]>(
+  const columns = useMemo<
+    readonly Column<TimeSeriesResultRow, TimeSeriesResultRow>[]
+  >(
     () =>
       keys.map((key) => {
         if (key === "probiotic") {
@@ -40,15 +45,15 @@ export function TimeSeriesResults({
             name: "Probiotic",
             sortable: true,
             minWidth: 300,
+            renderSummaryCell: ({ row }) => row.probiotic,
           };
         }
         return {
           key,
           name: key,
           minWidth: 60,
-          renderHeaderCell: () => (
-            <>{new Date(parseInt(key)).toLocaleDateString()}</>
-          ),
+          renderHeaderCell: () => format(new Date(parseInt(key)), "yyyy-MM-dd"),
+          renderSummaryCell: ({ row }) => row[key],
         };
       }),
     [keys]
@@ -64,6 +69,7 @@ export function TimeSeriesResults({
           className="rdg-light flex-1 overflow-y-scroll"
           rows={rows}
           columns={columns}
+          bottomSummaryRows={summaryRows}
           headerRowHeight={40}
           rowHeight={40}
           rowKeyGetter={(row) => row.key}

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { type PatientRow } from "@/types/patient";
 import { type ProbioticRow } from "@/types/probiotic";
 import { type ProbioticRecordRow } from "@/types/probiotic-record";
+import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
 import { EditProbioticRecordDialog } from "./edit-probiotic-record-dialog";
@@ -43,14 +44,9 @@ export function ProbioticRecordList({
         renderCell: ({ row }) => row.doctor.name,
       },
       {
-        key: "createdAt",
-        name: "Created at",
-        renderCell: ({ row }) => row.createdAt.toLocaleString(),
-      },
-      {
-        key: "updatedAt",
-        name: "Updated at",
-        renderCell: ({ row }) => row.updatedAt.toLocaleString(),
+        key: "timestamp",
+        name: "Timestamp",
+        renderCell: ({ row }) => format(row.timestamp, "yyyy-MM-dd"),
       },
       {
         key: "probioticBrands",

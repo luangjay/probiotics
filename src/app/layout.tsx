@@ -1,5 +1,5 @@
-import { Indicator } from "@/components/ui/indicator";
-import { ThemeProvider } from "@/components/ui/theme-provider";
+import { Indicator } from "@/components/indicator";
+import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import localFont from "next/font/local";
@@ -7,14 +7,22 @@ import "react-data-grid/lib/styles.css";
 
 const fontSans = localFont({
   src: "../../assets/fonts/Inter.var.woff2",
-  display: "swap",
   variable: "--font-sans",
+});
+
+const fontHeading = localFont({
+  src: "../../assets/fonts/CalSans-SemiBold.woff2",
+  variable: "--font-heading",
 });
 
 const fontMono = localFont({
   src: "../../assets/fonts/Jack-Regular.woff2",
-  display: "swap",
   variable: "--font-mono",
+});
+
+const fontLogo = localFont({
+  src: "../../assets/fonts/JeeWish.woff2",
+  variable: "--font-logo",
 });
 
 export const metadata = {
@@ -34,7 +42,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         className={cn(
           "min-h-screen flex-col bg-background font-sans antialiased",
           fontSans.variable,
-          fontMono.variable
+          fontMono.variable,
+          fontHeading.variable,
+          fontLogo.variable
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

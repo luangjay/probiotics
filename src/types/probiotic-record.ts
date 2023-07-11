@@ -6,15 +6,11 @@ export type ProbioticRecordRow = {
   id: string;
   fileUri: string | null;
   result: Prisma.JsonValue;
+  timestamp: Date;
   createdAt: Date;
   updatedAt: Date;
   doctor: DoctorRow;
   probioticBrands: ProbioticBrandRow[];
-};
-
-export type TimeSeriesResult = {
-  probiotic: string;
-  [timepoint: string]: string | number;
 };
 
 export type ProbioticRecordResultEntry = {
@@ -26,4 +22,9 @@ export type ProbioticRecordResultRow = {
   idx: number;
   probiotic: string | null;
   value: string | null;
+};
+
+export type TimeSeriesResultRow = {
+  probiotic: string;
+  [timepoint: string]: string | number;
 };

@@ -9,7 +9,7 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col">
       <DummyNav authenticated={authenticated} />
       <div className="container flex flex-1 flex-col items-center justify-center gap-8">
-        <h1 className="text-4xl font-semibold">Welcome</h1>
+        <h1 className="font-heading text-4xl font-extrabold">Welcome</h1>
         {!user ? (
           <p className="leading-none">Not logged in</p>
         ) : (

@@ -15,7 +15,7 @@ interface FormErrorTooltipProps {
 export function FormErrorTooltip({ message }: FormErrorTooltipProps) {
   const [open, setOpen] = useState(false);
 
-  if (!message) {
+  if (message === undefined) {
     return <></>;
   }
   return (

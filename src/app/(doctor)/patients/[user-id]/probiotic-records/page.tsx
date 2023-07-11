@@ -92,6 +92,7 @@ async function getProbioticRecords(
     id: probioticRecord.id,
     fileUri: probioticRecord.fileUri,
     result: probioticRecord.result,
+    timestamp: probioticRecord.timestamp,
     createdAt: probioticRecord.createdAt,
     updatedAt: probioticRecord.updatedAt,
     doctor: {

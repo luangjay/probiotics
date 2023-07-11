@@ -1,11 +1,13 @@
 "use client";
 
+import { FormErrorTooltip } from "@/components/form-error-tooltip";
 import {
   ProbioticEditor,
   refineProbiotic,
 } from "@/components/rdg/probiotic-editor";
 import { ValueEditor, refineValue } from "@/components/rdg/value-editor";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -15,9 +17,14 @@ import {
 } from "@/components/ui/dialog";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useProbioticRecordResult } from "@/hooks/use-probiotic-record-result";
 import { splitClipboard } from "@/lib/rdg";
-import { uploadFileSchema } from "@/lib/schema";
+import { uploadResultSchema as baseUploadResultSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 import { type ProbioticRow } from "@/types/probiotic";
 import {
@@ -26,7 +33,8 @@ import {
   type ProbioticRecordRow,
 } from "@/types/probiotic-record";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileEditIcon } from "lucide-react";
+import { format, isValid, parse } from "date-fns";
+import { CalendarIcon, FileEditIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
@@ -36,9 +44,13 @@ import DataGrid, {
   type CopyEvent,
 } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
-import { type z } from "zod";
+import { z } from "zod";
 
-type UploadFileData = z.infer<typeof uploadFileSchema>;
+const uploadResultSchema = baseUploadResultSchema.extend({
+  timestamp: z.date({ required_error: "Timestamp is required" }),
+});
+
+type UploadResultData = z.infer<typeof uploadResultSchema>;
 
 interface EditProbioticRecordDialogProps {
   probioticRecord: ProbioticRecordRow;
@@ -64,12 +76,16 @@ export function EditProbioticRecordDialog({
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
+    setValue,
     reset,
-  } = useForm<UploadFileData>({
+  } = useForm<UploadResultData>({
     mode: "onChange",
-    resolver: zodResolver(uploadFileSchema),
+    resolver: zodResolver(uploadResultSchema),
+    values: {
+      timestamp: probioticRecord.timestamp,
+    },
   });
-  const fileList = useWatch<UploadFileData>({ control, name: "fileList" });
+  const { fileList, timestamp } = useWatch<UploadResultData>({ control });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
   const { rows, setRows, resetRows, exportFile } = useProbioticRecordResult(
     file,
@@ -77,6 +93,18 @@ export function EditProbioticRecordDialog({
       initialResult: probioticRecord.result as ProbioticRecordResultEntry[],
     }
   );
+
+  // REQUIREMENT: Try to infer timestamp from file name
+  // HN1234 KP 20230630
+  useEffect(() => {
+    if (file) {
+      const dateString = file.name.replace(/\.[^.]+$/, "").split(" ")[2];
+      const date = parse(dateString, "yyyyMMdd", new Date());
+      if (isValid(date)) {
+        setValue("timestamp", date);
+      }
+    }
+  }, [file, setValue]);
 
   const onSubmit = async () => {
     const file = exportFile();
@@ -97,6 +125,7 @@ export function EditProbioticRecordDialog({
 
     const postReqBody = {
       result,
+      timestamp,
     };
     const postResponse = await fetch(
       `/api/probiotic-records/${probioticRecord.id}`,
@@ -227,7 +256,7 @@ export function EditProbioticRecordDialog({
             cn(
               row.probiotic !== null &&
                 !probioticNames.includes(row.probiotic) &&
-                "bg-red-100"
+                "bg-destructive text-destructive-foreground"
             )
           }
           renderers={{
@@ -259,8 +288,45 @@ export function EditProbioticRecordDialog({
         </DialogDescription>
         <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="flex gap-2">
-            <Input id="file" type="file" {...register("fileList")} />
-            <Button onClick={() => void resetRows()}>Reset</Button>
+            <Input
+              id="file"
+              type="file"
+              className="flex-1"
+              {...register("fileList")}
+            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[30%] justify-start text-left font-normal",
+                    !timestamp && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {timestamp ? (
+                    format(timestamp, "yyyy-MM-dd")
+                  ) : (
+                    <span>Timestamp</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  initialFocus
+                  mode="single"
+                  captionLayout="dropdown-buttons"
+                  selected={timestamp ?? undefined}
+                  onSelect={(day, selectedDay) =>
+                    setValue("timestamp", selectedDay)
+                  }
+                />
+              </PopoverContent>
+            </Popover>
+            <Button variant="outline" onClick={() => void resetRows()}>
+              Reset
+            </Button>
+            <FormErrorTooltip message={errors.timestamp?.message} />
           </div>
           {errors.fileList && (
             <p className="mx-auto text-sm text-destructive">

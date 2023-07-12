@@ -90,7 +90,7 @@ async function getTimeSeriesResults(patientId: string): Promise<{
       const { genus, species } = cur;
       const rootIdx = acc.map((root) => root.genus).indexOf(genus);
       if (rootIdx === -1) {
-        acc.push({ genus: genus, species: [species] });
+        acc.push({ genus, species: [species] });
       } else {
         acc[rootIdx].species.push(cur.species);
       }
@@ -110,35 +110,62 @@ async function getTimeSeriesResults(patientId: string): Promise<{
     )
   );
 
-  const table = tree.reduce<(number | null)[][]>((acc, cur) => {
-    acc.push(
-      cur.species.map((species) =>
-        probioticRecords.map((_, idx) => {
-          const value = results[idx][species];
-          return value ?? null;
-        })
-      )
-    );
+  const keys = tree.reduce<string[]>((acc, cur) => {
+    const { genus, species } = cur;
+    acc.push(genus, ...species);
     return acc;
   }, []);
 
-  console.log(table);
+  // console.log(keys);
 
-  const total = table[0].map((_, idx) =>
-    table.reduce((acc, cur) => acc + (cur[idx] ?? 0), 0)
+  const values = tree.reduce<(number | null)[][]>((acc, cur) => {
+    const { species } = cur;
+    const values = species.map((species) =>
+      probioticRecords.map((_, idx) => {
+        const value = results[idx][species];
+        return value ?? null;
+      })
+    );
+    const total = values[0].map((_, idx) =>
+      values.reduce((acc, cur) => acc + (cur[idx] ?? 0), 0)
+    );
+    acc.push(total, ...values);
+    return acc;
+  }, []);
+
+  // console.log(values);
+
+  const total = values[0].map((_, idx) =>
+    values.reduce((acc, cur) => acc + (cur[idx] ?? 0) / 2, 0)
   );
 
+  const table = Object.fromEntries(
+    Array.from({ length: keys.length }, (_, idx) => [keys[idx], values[idx]])
+  );
+
+  // console.log(table);
+
   return {
-    timeSeriesResults: probiotics.map((probiotic, idx) => {
-      const values = table[idx];
+    timeSeriesResults: tree.map((node) => {
+      const { genus, species } = node;
       return {
-        probiotic: probiotic.species,
+        probiotic: genus,
         timepoints: Object.fromEntries(
-          values.map((value, idx) => [
+          table[genus].map((value, idx) => [
             probioticRecords[idx].timestamp.getTime().toString(),
             value ?? 0,
           ])
         ),
+        expanded: false,
+        children: species.map((species) => ({
+          probiotic: species,
+          timepoints: Object.fromEntries(
+            table[species].map((value, idx) => [
+              probioticRecords[idx].timestamp.getTime().toString(),
+              value ?? 0,
+            ])
+          ),
+        })),
       };
     }),
     timeSeriesResultSummary: [

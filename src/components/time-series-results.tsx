@@ -11,6 +11,7 @@ import DataGrid, {
   type RenderCellProps,
   type RenderSummaryCellProps,
 } from "react-data-grid";
+import { ProbioticCellExpander } from "./rdg/probiotic-cell-expander";
 
 interface TimeSeriesResultsProps {
   patient: PatientRow;
@@ -20,15 +21,18 @@ interface TimeSeriesResultsProps {
 
 export function TimeSeriesResults({
   patient,
-  timeSeriesResults: rows,
+  timeSeriesResults,
   timeSeriesResultSummary: summaryRows,
 }: TimeSeriesResultsProps) {
   // Initialize
+  const [rows, setRows] = useState(timeSeriesResults);
   const keys = Object.keys(rows[0]?.timepoints ?? { probiotic: null });
+
+  // Store
+  const { setPatient: setSelectedPatient } = useSelectPatientStore();
 
   // States
   const [loading, setLoading] = useState(true);
-  const { setPatient: setSelectedPatient } = useSelectPatientStore();
   const [normalized, setNormalized] = useState(false);
 
   console.log(summaryRows);
@@ -49,6 +53,28 @@ export function TimeSeriesResults({
         key: "probiotic",
         name: "Probiotic",
         minWidth: 300,
+        renderCell: (p) => (
+          <ProbioticCellExpander
+            {...p}
+            expanded={p.row.expanded}
+            onCellExpand={() => {
+              /*** Do something ***/
+              const newRows = [...rows];
+              const rowIdx = newRows.findIndex(
+                (row) => row.probiotic === p.row.probiotic
+              );
+              const row = newRows[rowIdx];
+              const children = row.children ?? [];
+              row.expanded = !row.expanded;
+              if (row.expanded) {
+                newRows.splice(rowIdx + 1, 0, ...children);
+              } else {
+                newRows.splice(rowIdx + 1, children.length);
+              }
+              setRows(newRows);
+            }}
+          />
+        ),
         renderSummaryCell: ({ row }) => row.probiotic,
       },
       ...keys.map((key) => ({

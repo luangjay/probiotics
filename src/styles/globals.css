@@ -202,10 +202,6 @@ p {
   border-color: var(--rdg-border-color);
 }
 
-.rdg-cell[aria-selected="true"] > .rdg-checkbox-label > .rdg-checkbox {
-  border-color: var(--rdg-checkbox-focus-color);
-}
-
 .rdg-cell[aria-selected="true"] {
   @apply outline-none;
 }
@@ -216,8 +212,16 @@ p {
   @apply pointer-events-none absolute inset-0 block border-2;
 }
 
+.rdg-cell[aria-selected="true"] > .rdg-checkbox-label > .rdg-checkbox {
+  border-color: var(--rdg-checkbox-focus-color);
+}
+
 .rdg-sort-arrow {
   @apply h-[40px] max-h-[40px] min-h-[40px] align-middle;
+}
+
+.rdg-sort-arrow > path {
+  @apply duration-0;
 }
 
 .rdg-checkbox {

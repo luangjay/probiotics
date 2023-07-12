@@ -1,7 +1,7 @@
 "use client";
 
 import { NewPatientDialog } from "@/components/new-patient-dialog";
-import { selectPatientColumn } from "@/components/select-patient-column";
+import { selectPatientColumn } from "@/components/rdg/select-patient-column";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,7 +103,7 @@ export function PatientList({
     const sorted = sortedRows(patients, sortColumns);
     const filtered = filteredRows(
       sorted,
-      ["fullName", "gender", "birthDate", "ethnicity"],
+      ["name", "gender", "birthDate", "ethnicity"],
       filter
     );
     return filtered;

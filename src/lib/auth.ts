@@ -86,8 +86,8 @@ async function authorizeUser({
     admin,
     doctor,
     patient,
-    password: _password,
-    salt: _salt,
+    password: _1,
+    salt: _2,
     createdAt,
     updatedAt,
     ...userInfo

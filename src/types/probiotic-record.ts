@@ -26,5 +26,9 @@ export type ProbioticRecordResultRow = {
 
 export type TimeSeriesResultRow = {
   probiotic: string;
-  [timepoint: string]: string | number;
+  expanded?: boolean;
+  children?: ProbioticRecordResultRow[];
+  timepoints: {
+    [timepoint: string]: number;
+  };
 };

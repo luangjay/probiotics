@@ -1,3 +1,4 @@
+import { genus, species } from "@/lib/probiotic";
 import { PrismaClient } from "@prisma/client";
 
 // PrismaClient is attached to the `global` object in development to prevent
@@ -22,9 +23,13 @@ const client = () =>
         },
       },
       probiotic: {
-        alias: {
+        genus: {
           needs: { name: true },
-          compute: (probiotic) => probiotic.name.split(";").at(-1) ?? "",
+          compute: (probiotic) => genus(probiotic.name),
+        },
+        species: {
+          needs: { name: true },
+          compute: (probiotic) => species(probiotic.name),
         },
       },
     },

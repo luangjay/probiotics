@@ -44,17 +44,17 @@ export function ProbioticRecordList({
         renderCell: ({ row }) => row.doctor.name,
       },
       {
-        key: "timestamp",
-        name: "Timestamp",
-        renderCell: ({ row }) => format(row.timestamp, "yyyy-MM-dd"),
-      },
-      {
         key: "probioticBrands",
         name: "Probiotic brands",
         renderCell: ({ row }) =>
           row.probioticBrands
             .map((probioticBrand) => probioticBrand.name)
             .join(", "),
+      },
+      {
+        key: "timestamp",
+        name: "Timestamp",
+        renderCell: ({ row }) => format(row.timestamp, "yyyy-MM-dd"),
       },
       {
         key: "action1",

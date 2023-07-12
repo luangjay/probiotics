@@ -6,7 +6,11 @@ import { type PatientRow } from "@/types/patient";
 import { type TimeSeriesResultRow } from "@/types/probiotic-record";
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
-import DataGrid, { type Column } from "react-data-grid";
+import DataGrid, {
+  type Column,
+  type RenderCellProps,
+  type RenderSummaryCellProps,
+} from "react-data-grid";
 
 interface TimeSeriesResultsProps {
   patient: PatientRow;
@@ -20,7 +24,7 @@ export function TimeSeriesResults({
   timeSeriesResultSummary: summaryRows,
 }: TimeSeriesResultsProps) {
   // Initialize
-  const keys = Object.keys(rows[0] ?? { probiotic: null });
+  const keys = Object.keys(rows[0]?.timepoints ?? { probiotic: null });
 
   // States
   const [loading, setLoading] = useState(true);
@@ -40,27 +44,59 @@ export function TimeSeriesResults({
   const columns = useMemo<
     readonly Column<TimeSeriesResultRow, TimeSeriesResultRow>[]
   >(
-    () =>
-      keys.map((key) => {
-        if (key === "probiotic") {
-          return {
-            key,
-            name: "Probiotic",
-            minWidth: 300,
-            renderSummaryCell: ({ row }) => row.probiotic,
-          };
-        }
-        return {
-          key,
-          name: key,
-          minWidth: 60,
-          renderHeaderCell: () => format(new Date(parseInt(key)), "yyyy-MM-dd"),
-          renderCell: ({ row }) =>
-            formatValueCell(normalized, row[key], summaryRows[0][key]),
-          renderSummaryCell: ({ row }) =>
-            formatValueCell(normalized, row[key], summaryRows[0][key]),
-        };
-      }),
+    () => [
+      {
+        key: "probiotic",
+        name: "Probiotic",
+        minWidth: 300,
+        renderSummaryCell: ({ row }) => row.probiotic,
+      },
+      ...keys.map((key) => ({
+        key,
+        name: key,
+        minWidth: 60,
+        renderHeaderCell: () => format(new Date(parseInt(key)), "yyyy-MM-dd"),
+        renderCell: ({
+          row,
+        }: RenderCellProps<TimeSeriesResultRow, TimeSeriesResultRow>) =>
+          formatValue(
+            normalized,
+            row.timepoints[key],
+            summaryRows[0].timepoints[key]
+          ),
+        renderSummaryCell: ({
+          row,
+        }: RenderSummaryCellProps<TimeSeriesResultRow, TimeSeriesResultRow>) =>
+          formatValue(
+            normalized,
+            row.timepoints[key],
+            summaryRows[0].timepoints[key]
+          ),
+      })),
+    ],
+    // keys.map((key) => {
+    //   if (key === "probiotic") {
+    //     return {
+    //       key,
+    //       name: "Probiotic",
+    //       minWidth: 300,
+    //       renderSummaryCell: ({ row }) => row.probiotic,
+    //     };
+    //   }
+    //   if (key === "data") {
+    //     return {
+    //       key,
+    //       name: key,
+    //       minWidth: 60,
+    //       renderHeaderCell: () =>
+    //         format(new Date(parseInt(key)), "yyyy-MM-dd"),
+    //       renderCell: ({ row }) =>
+    //         formatValue(normalized, row.data[key], summaryRows.data[0][key]),
+    //       renderSummaryCell: ({ row }) =>
+    //         formatValue(normalized, row.data[key], summaryRows.data[0][key]),
+    //     };
+    //   }
+    // })
     [keys, normalized, summaryRows]
   );
 
@@ -77,7 +113,6 @@ export function TimeSeriesResults({
           bottomSummaryRows={summaryRows}
           headerRowHeight={40}
           rowHeight={40}
-          rowKeyGetter={(row) => row.key}
           renderers={{
             noRowsFallback: (
               <div
@@ -106,7 +141,7 @@ export function TimeSeriesResults({
   );
 }
 
-function formatValueCell(
+function formatValue(
   normalized: boolean,
   value: string | number,
   total: string | number

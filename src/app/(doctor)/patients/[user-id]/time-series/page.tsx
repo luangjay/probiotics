@@ -1,5 +1,6 @@
 import { TimeSeriesResults } from "@/components/time-series-results";
 import { prisma } from "@/lib/prisma";
+import { species } from "@/lib/probiotic";
 import { type PatientRow } from "@/types/patient";
 import {
   type ProbioticRecordResultEntry,
@@ -66,10 +67,6 @@ async function getPatient(userId: string): Promise<PatientRow> {
   };
 }
 
-function alias(name: string) {
-  return name.split(";").at(-1) ?? "";
-}
-
 async function getTimeSeriesResults(patientId: string): Promise<{
   timeSeriesResults: TimeSeriesResultRow[];
   timeSeriesResultSummary: TimeSeriesResultRow[];
@@ -88,55 +85,72 @@ async function getTimeSeriesResults(patientId: string): Promise<{
     },
   });
 
-  const keys = new Set<string>();
-
-  const table = probiotics.map((probiotic) =>
-    probioticRecords.map((probioticRecord) => {
-      const result = Object.fromEntries<number>(
-        (probioticRecord.result as ProbioticRecordResultEntry[]).map(
-          (entry) => [entry.probiotic, entry.value]
-        )
-      );
-      const value = result[probiotic.name];
-      if (value === undefined) {
-        return null;
+  const tree = probiotics.reduce<{ genus: string; species: string[] }[]>(
+    (acc, cur) => {
+      const { genus, species } = cur;
+      const rootIdx = acc.map((root) => root.genus).indexOf(genus);
+      if (rootIdx === -1) {
+        acc.push({ genus: genus, species: [species] });
+      } else {
+        acc[rootIdx].species.push(cur.species);
       }
-      keys.add(alias(probiotic.name));
-      return value;
-    })
+      return acc;
+    },
+    []
   );
+
+  // console.log(probioticTree);
+
+  const results = probioticRecords.map((probioticRecord) =>
+    Object.fromEntries<number | undefined>(
+      (probioticRecord.result as ProbioticRecordResultEntry[]).map((entry) => [
+        species(entry.probiotic),
+        entry.value,
+      ])
+    )
+  );
+
+  const table = tree.reduce<(number | null)[][]>((acc, cur) => {
+    acc.push(
+      cur.species.map((species) =>
+        probioticRecords.map((_, idx) => {
+          const value = results[idx][species];
+          return value ?? null;
+        })
+      )
+    );
+    return acc;
+  }, []);
+
+  console.log(table);
 
   const total = table[0].map((_, idx) =>
     table.reduce((acc, cur) => acc + (cur[idx] ?? 0), 0)
   );
 
-  const results = probiotics.map((probiotic, idx) => {
-    if (!keys.has(alias(probiotic.name))) {
-      return null;
-    }
-    const values = table[idx];
-    return Object.fromEntries(
-      values.map((value, idx) => [
-        probioticRecords[idx].timestamp.getTime().toString(),
-        value ?? 0,
-      ])
-    );
-  });
-
-  const resultSummary = Object.fromEntries(
-    total.map((value, idx) => [
-      probioticRecords[idx].timestamp.getTime().toString(),
-      value,
-    ])
-  );
-
   return {
-    timeSeriesResults: probiotics
-      .map((probiotic, idx) => ({
-        probiotic: alias(probiotic.name),
-        ...results[idx],
-      }))
-      .filter((result) => keys.has(result.probiotic)),
-    timeSeriesResultSummary: [{ probiotic: "Total", ...resultSummary }],
+    timeSeriesResults: probiotics.map((probiotic, idx) => {
+      const values = table[idx];
+      return {
+        probiotic: probiotic.species,
+        timepoints: Object.fromEntries(
+          values.map((value, idx) => [
+            probioticRecords[idx].timestamp.getTime().toString(),
+            value ?? 0,
+          ])
+        ),
+      };
+    }),
+    timeSeriesResultSummary: [
+      {
+        probiotic: "Total",
+        timepoints: Object.fromEntries(
+          total.map((value, idx) => [
+            probioticRecords[idx].timestamp.getTime().toString(),
+            value,
+          ])
+        ),
+      },
+    ],
   };
 }

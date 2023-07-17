@@ -1,7 +1,7 @@
+import { Swagger } from "@/components/swagger";
 import { spec } from "@/lib/swagger";
-import Swagger from "./swagger";
 
-export default function IndexPage() {
+export default function Page() {
   return (
     <section className="container">
       <Swagger spec={spec} />

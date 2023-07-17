@@ -311,7 +311,7 @@ export function NewProbioticRecordDialog({
                   initialFocus
                   mode="single"
                   captionLayout="dropdown-buttons"
-                  selected={timestamp ?? undefined}
+                  selected={timestamp}
                   onSelect={(day, selectedDay) =>
                     setValue("timestamp", selectedDay)
                   }
@@ -327,13 +327,16 @@ export function NewProbioticRecordDialog({
             >
               Reset
             </Button>
-            <FormErrorTooltip message={errors.timestamp?.message} />
+            <FormErrorTooltip
+              message={
+                errors.fileList
+                  ? errors.fileList.message
+                  : errors.timestamp
+                  ? errors.timestamp.message
+                  : undefined
+              }
+            />
           </div>
-          {errors.fileList && (
-            <p className="mx-auto text-sm text-destructive">
-              {errors.fileList.message}
-            </p>
-          )}
           {gridElement}
           <form
             className="flex justify-center"

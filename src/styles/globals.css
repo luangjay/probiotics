@@ -170,7 +170,7 @@ p {
 }
 
 .rdg {
-  @apply custom-scroll overflow-scroll rounded-md border shadow-sm;
+  @apply custom-scroll select-none overflow-scroll rounded-md border shadow-sm;
 }
 
 .rdg-header-row {
@@ -195,7 +195,7 @@ p {
 
 .rdg-cell {
   border-color: var(--rdg-border-color);
-  @apply select-none border-b border-r px-2 shadow-none;
+  @apply border-b border-r px-2 shadow-none;
 }
 
 .rdg-cell > .rdg-checkbox-label > .rdg-checkbox {

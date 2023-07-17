@@ -7,7 +7,7 @@ type ReactSwaggerProps = {
   spec?: Record<string, any>;
 };
 
-function Swagger({ spec }: ReactSwaggerProps) {
+export function Swagger({ spec }: ReactSwaggerProps) {
   return (
     <SwaggerUI
       spec={spec}
@@ -18,5 +18,3 @@ function Swagger({ spec }: ReactSwaggerProps) {
     />
   );
 }
-
-export default Swagger;

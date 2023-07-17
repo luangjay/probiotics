@@ -1,7 +1,9 @@
 "use client";
 
 import { NewPatientDialog } from "@/components/new-patient-dialog";
+import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
 import { selectPatientColumn } from "@/components/rdg/select-patient-column";
+import { SortStatusRenderer } from "@/components/rdg/sort-status-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,7 +71,7 @@ export function PatientList({
       },
       {
         key: "birthDate",
-        name: "Birth Date",
+        name: "Birth date",
         renderCell: ({ row }) => <>{row.birthDate.toLocaleDateString()}</>,
         width: "20%",
       },
@@ -131,14 +133,8 @@ export function PatientList({
             sortable: true,
           }}
           renderers={{
-            noRowsFallback: (
-              <div
-                className="flex h-full w-full items-center justify-center"
-                style={{ textAlign: "center", gridColumn: "1/-1" }}
-              >
-                Nothing to show (´・ω・`)
-              </div>
-            ),
+            noRowsFallback: <NoRowsFallback />,
+            renderSortStatus: (p) => <SortStatusRenderer {...p} />,
             renderRow: (key, p) =>
               key !== selectedPatient?.id ? (
                 <Row {...p} key={key} />

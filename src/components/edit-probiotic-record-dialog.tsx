@@ -1,6 +1,7 @@
 "use client";
 
 import { FormErrorTooltip } from "@/components/form-error-tooltip";
+import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
 import {
   ProbioticEditor,
   refineProbiotic,
@@ -260,14 +261,7 @@ export function EditProbioticRecordDialog({
             )
           }
           renderers={{
-            noRowsFallback: (
-              <div
-                className="flex h-full w-full items-center justify-center"
-                style={{ textAlign: "center", gridColumn: "1/-1" }}
-              >
-                Nothing to show (´・ω・`)
-              </div>
-            ),
+            noRowsFallback: <NoRowsFallback />,
           }}
         />
       ),
@@ -316,23 +310,32 @@ export function EditProbioticRecordDialog({
                   initialFocus
                   mode="single"
                   captionLayout="dropdown-buttons"
-                  selected={timestamp ?? undefined}
+                  selected={timestamp}
                   onSelect={(day, selectedDay) =>
                     setValue("timestamp", selectedDay)
                   }
                 />
               </PopoverContent>
             </Popover>
-            <Button variant="outline" onClick={() => void resetRows()}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                void resetRows();
+                reset();
+              }}
+            >
               Reset
             </Button>
-            <FormErrorTooltip message={errors.timestamp?.message} />
+            <FormErrorTooltip
+              message={
+                errors.fileList
+                  ? errors.fileList.message
+                  : errors.timestamp
+                  ? errors.timestamp.message
+                  : undefined
+              }
+            />
           </div>
-          {errors.fileList && (
-            <p className="mx-auto text-sm text-destructive">
-              {errors.fileList.message}
-            </p>
-          )}
           {gridElement}
           <form
             className="flex justify-center"

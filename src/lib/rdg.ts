@@ -21,15 +21,18 @@ function sortFunction<R extends Row>(key: keyof R): SortFunction<R> {
 }
 
 function textSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
-  return (a, b) => (a[key] as string).localeCompare(b[key] as string);
+  return (a, b) =>
+    ((a[key] ?? "") as string).localeCompare((b[key] ?? "") as string);
 }
 
 function numberSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
-  return (a, b) => (a[key] as number) - (b[key] as number);
+  return (a, b) => ((a[key] ?? 0) as number) - ((b[key] ?? 0) as number);
 }
 
 function dateSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
-  return (a, b) => (a[key] as Date).getTime() - (b[key] as Date).getTime();
+  return (a, b) =>
+    ((a[key] ?? new Date(0)) as Date).getTime() -
+    ((b[key] ?? new Date(0)) as Date).getTime();
 }
 
 export function filteredRows<R extends Row>(
@@ -91,4 +94,15 @@ export function splitClipboard(clipboard: string) {
 
   console.log(rows);
   return rows;
+}
+
+export function formatTimeSeriesValue(
+  normalized: boolean,
+  value: string | number,
+  total: string | number
+) {
+  if (value === 0) return null;
+  return normalized && typeof total === "number" && typeof value === "number"
+    ? (value / total).toFixed(4)
+    : value;
 }

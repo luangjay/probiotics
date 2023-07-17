@@ -9,7 +9,7 @@ import {
 
 const SELECT_COLUMN_KEY = "select-row";
 
-export const selectPatientColumn: Column<PatientRow, any> = {
+export const selectPatientColumn: Column<PatientRow> = {
   key: SELECT_COLUMN_KEY,
   name: "",
   width: 40,
@@ -39,7 +39,7 @@ function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
   );
 }
 
-function SelectRenderer({ row, tabIndex }: RenderCellProps<PatientRow, any>) {
+function SelectRenderer({ row, tabIndex }: RenderCellProps<PatientRow>) {
   const { patient, setPatient } = useSelectPatientStore();
   const value = patient?.id === row.id;
   return (

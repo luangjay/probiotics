@@ -85,128 +85,148 @@ async function seedAdmins({ reset, clear, count }: SeedOptions) {
   faker.seed(42001);
   const rootCount = 1;
 
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.user.deleteMany({
-        where: !reset
-          ? {
-              OR: [
-                {
-                  NOT: {
-                    admin: null,
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.user.deleteMany({
+          where: !reset
+            ? {
+                OR: [
+                  {
+                    NOT: {
+                      admin: null,
+                    },
                   },
-                },
-                {
-                  admin: null,
-                  doctor: null,
-                  patient: null,
-                },
-              ],
-            }
-          : undefined,
-      });
-      if (reset) return;
-    }
+                  {
+                    admin: null,
+                    doctor: null,
+                    patient: null,
+                  },
+                ],
+              }
+            : undefined,
+        });
+        if (reset) return;
+      }
 
-    await Promise.all(
-      Array.from({ length: rootCount }, async () => {
-        // User fields
-        const email = "root@luangjay.com";
-        const prefix = "Dr.";
-        const firstName = "Root*";
-        const lastName = "Tree->";
-        const username = "root";
-        const { password, salt } = saltHashPassword("1234");
+      await Promise.all(
+        Array.from({ length: rootCount }, async () => {
+          // User fields
+          const email = "root@luangjay.com";
+          const prefix = "Dr.";
+          const firstName = "Root*";
+          const lastName = "Tree->";
+          const username = "root";
+          const { password, salt } = saltHashPassword("1234");
 
-        // Create admin roots
-        return tx.admin.create({
-          data: {
-            user: {
-              create: {
-                username,
-                password,
-                salt,
-                email,
-                prefix,
-                firstName,
-                lastName,
+          // Create admin roots
+          return tx.admin.create({
+            data: {
+              user: {
+                create: {
+                  username,
+                  password,
+                  salt,
+                  email,
+                  prefix,
+                  firstName,
+                  lastName,
+                },
               },
             },
-          },
-        });
-      })
-    );
+          });
+        })
+      );
 
-    await Promise.all(
-      Array.from({ length: count - rootCount }, () => {
-        // User fields
-        const sex = faker.helpers.arrayElement(["male", "female"] as const);
-        const prefix = "Dr.";
-        const firstName = faker.person.firstName(sex);
-        const lastName = faker.person.lastName(sex);
-        const username = faker.internet.userName({ firstName, lastName });
-        const { password, salt } = saltHashPassword("secret");
+      await Promise.all(
+        Array.from({ length: count - rootCount }, () => {
+          // User fields
+          const sex = faker.helpers.arrayElement(["male", "female"] as const);
+          const prefix = "Dr.";
+          const firstName = faker.person.firstName(sex);
+          const lastName = faker.person.lastName(sex);
+          const username = faker.internet.userName({ firstName, lastName });
+          const { password, salt } = saltHashPassword("secret");
 
-        // Create admins
-        return tx.admin.create({
-          data: {
-            user: {
-              create: { username, password, salt, prefix, firstName, lastName },
+          // Create admins
+          return tx.admin.create({
+            data: {
+              user: {
+                create: {
+                  username,
+                  password,
+                  salt,
+                  prefix,
+                  firstName,
+                  lastName,
+                },
+              },
             },
-          },
-        });
-      })
-    );
-  });
+          });
+        })
+      );
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 async function seedDoctors({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42002);
 
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.user.deleteMany({
-        where: !reset
-          ? {
-              OR: [
-                {
-                  NOT: {
-                    doctor: null,
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.user.deleteMany({
+          where: !reset
+            ? {
+                OR: [
+                  {
+                    NOT: {
+                      doctor: null,
+                    },
                   },
-                },
-                {
-                  admin: null,
-                  doctor: null,
-                  patient: null,
-                },
-              ],
-            }
-          : undefined,
-      });
-      if (reset) return;
-    }
-    await Promise.all(
-      Array.from({ length: count }, () => {
-        // User fields
-        const sex = faker.helpers.arrayElement(["male", "female"] as const);
-        const prefix = "Dr.";
-        const firstName = faker.person.firstName(sex);
-        const lastName = faker.person.lastName(sex);
-        const username = faker.internet.userName({ firstName, lastName });
-        const { password, salt } = saltHashPassword("secret");
-
-        // Create doctors
-        return tx.doctor.create({
-          data: {
-            user: {
-              create: { username, password, salt, prefix, firstName, lastName },
-            },
-          },
+                  {
+                    admin: null,
+                    doctor: null,
+                    patient: null,
+                  },
+                ],
+              }
+            : undefined,
         });
-      })
-    );
-  });
+        if (reset) return;
+      }
+      await Promise.all(
+        Array.from({ length: count }, () => {
+          // User fields
+          const sex = faker.helpers.arrayElement(["male", "female"] as const);
+          const prefix = "Dr.";
+          const firstName = faker.person.firstName(sex);
+          const lastName = faker.person.lastName(sex);
+          const username = faker.internet.userName({ firstName, lastName });
+          const { password, salt } = saltHashPassword("secret");
+
+          // Create doctors
+          return tx.doctor.create({
+            data: {
+              user: {
+                create: {
+                  username,
+                  password,
+                  salt,
+                  prefix,
+                  firstName,
+                  lastName,
+                },
+              },
+            },
+          });
+        })
+      );
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 async function seedPatients({ reset, clear, count }: SeedOptions) {
@@ -287,7 +307,7 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
         })
       );
     },
-    { timeout: 60 * 60 * 1000 }
+    { timeout: 10 * 60 * 1000 }
   );
 }
 
@@ -296,23 +316,26 @@ async function seedProbiotics({ reset, clear, count }: SeedOptions) {
   faker.seed(42005);
   const pool = probioticPool();
 
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.probiotic.deleteMany();
-      if (reset) return;
-    }
-    await Promise.all(
-      Array.from({ length: count }, (_, idx) => {
-        // Probiotic fields
-        const name = pool[idx];
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.probiotic.deleteMany();
+        if (reset) return;
+      }
+      await Promise.all(
+        Array.from({ length: count }, (_, idx) => {
+          // Probiotic fields
+          const name = pool[idx];
 
-        // Create probiotics
-        return tx.probiotic.create({
-          data: { name },
-        });
-      })
-    );
-  });
+          // Create probiotics
+          return tx.probiotic.create({
+            data: { name },
+          });
+        })
+      );
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 async function seedProbioticBrands({ reset, clear, count }: SeedOptions) {
@@ -323,17 +346,20 @@ async function seedProbioticBrands({ reset, clear, count }: SeedOptions) {
   const names = faker.helpers.uniqueArray(() => faker.person.lastName(), count);
 
   // Create probiotic brands
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.probioticBrand.deleteMany();
-      if (reset) return;
-    }
-    await tx.probioticBrand.createMany({
-      data: Array.from({ length: count }, (_, idx) => ({
-        name: names[idx],
-      })),
-    });
-  });
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.probioticBrand.deleteMany();
+        if (reset) return;
+      }
+      await tx.probioticBrand.createMany({
+        data: Array.from({ length: count }, (_, idx) => ({
+          name: names[idx],
+        })),
+      });
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
@@ -345,17 +371,20 @@ async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
   const names = [...pool].slice(0, count);
 
   // Create medical conditions
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.medicalCondition.deleteMany();
-      if (reset) return;
-    }
-    await tx.medicalCondition.createMany({
-      data: Array.from({ length: count }, (_, idx) => ({
-        name: names[idx],
-      })),
-    });
-  });
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.medicalCondition.deleteMany();
+        if (reset) return;
+      }
+      await tx.medicalCondition.createMany({
+        data: Array.from({ length: count }, (_, idx) => ({
+          name: names[idx],
+        })),
+      });
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
@@ -371,46 +400,51 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
   const patientIds = patients.map((patient) => patient.userId);
   const probioticNames = probiotics.map((probiotic) => probiotic.name);
 
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.probioticRecord.deleteMany();
-      if (reset) return;
-    }
-    await Promise.all(
-      Array.from({ length: count }, (_, idx) => {
-        // Probiotic record fields
-        const doctorId = faker.helpers.arrayElement(doctorIds);
-        const patientId = faker.helpers.arrayElement(patientIds);
-        const length = faker.number.int({ min: 20, max: 40 });
-        const names = faker.helpers.arrayElements(probioticNames, length);
-        // const result = Object.fromEntries(
-        //   Array.from({ length }, (_, idx) => [
-        //     names[idx],
-        //     faker.number.int({ min: 0, max: 999 }),
-        //   ])
-        // );
-        const note = faker.lorem.sentence();
-        const result = names.map((name) => ({
-          probiotic: name,
-          value: faker.number.int({ min: 0, max: 999 }),
-        }));
-        const createdAt = new Date(Date.now() - (count - idx) * 60 * 60 * 1000);
-        const timestamp = faker.date.past({ refDate: createdAt });
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.probioticRecord.deleteMany();
+        if (reset) return;
+      }
+      await Promise.all(
+        Array.from({ length: count }, (_, idx) => {
+          // Probiotic record fields
+          const doctorId = faker.helpers.arrayElement(doctorIds);
+          const patientId = faker.helpers.arrayElement(patientIds);
+          const length = faker.number.int({ min: 20, max: 40 });
+          const names = faker.helpers.arrayElements(probioticNames, length);
+          // const result = Object.fromEntries(
+          //   Array.from({ length }, (_, idx) => [
+          //     names[idx],
+          //     faker.number.int({ min: 0, max: 999 }),
+          //   ])
+          // );
+          const note = faker.lorem.sentence();
+          const result = names.map((name) => ({
+            probiotic: name,
+            value: faker.number.int({ min: 0, max: 999 }),
+          }));
+          const createdAt = new Date(
+            Date.now() - (count - idx) * 60 * 60 * 1000
+          );
+          const timestamp = faker.date.past({ refDate: createdAt });
 
-        // Create probiotic records
-        return tx.probioticRecord.create({
-          data: {
-            doctorId,
-            patientId,
-            note,
-            result,
-            timestamp,
-            createdAt,
-          },
-        });
-      })
-    );
-  });
+          // Create probiotic records
+          return tx.probioticRecord.create({
+            data: {
+              doctorId,
+              patientId,
+              note,
+              result,
+              timestamp,
+              createdAt,
+            },
+          });
+        })
+      );
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 async function seedProbioticBrandProbioticRecord({
@@ -432,32 +466,36 @@ async function seedProbioticBrandProbioticRecord({
     (probioticRecord) => probioticRecord.id
   );
 
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.probioticBrandProbioticRecord.deleteMany();
-      if (reset) return;
-    }
-    await Promise.all(
-      Array.from({ length: count }, () => {
-        // Probiotic brand probiotic record fields
-        const probioticBrandId = faker.helpers.arrayElement(probioticBrandIds);
-        const probioticRecordId =
-          faker.helpers.arrayElement(probioticRecordIds);
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.probioticBrandProbioticRecord.deleteMany();
+        if (reset) return;
+      }
+      await Promise.all(
+        Array.from({ length: count }, () => {
+          // Probiotic brand probiotic record fields
+          const probioticBrandId =
+            faker.helpers.arrayElement(probioticBrandIds);
+          const probioticRecordId =
+            faker.helpers.arrayElement(probioticRecordIds);
 
-        // Create probiotic brand probiotic record
-        return tx.probioticBrandProbioticRecord.upsert({
-          where: {
-            probioticBrandId_probioticRecordId: {
-              probioticBrandId,
-              probioticRecordId,
+          // Create probiotic brand probiotic record
+          return tx.probioticBrandProbioticRecord.upsert({
+            where: {
+              probioticBrandId_probioticRecordId: {
+                probioticBrandId,
+                probioticRecordId,
+              },
             },
-          },
-          update: {},
-          create: { probioticBrandId, probioticRecordId },
-        });
-      })
-    );
-  });
+            update: {},
+            create: { probioticBrandId, probioticRecordId },
+          });
+        })
+      );
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 async function seedMedicalConditionPatient({
@@ -477,25 +515,28 @@ async function seedMedicalConditionPatient({
   );
   const patientIds = patients.map((patient) => patient.userId);
 
-  return prisma.$transaction(async (tx) => {
-    if (clear) {
-      await tx.medicalConditionPatient.deleteMany();
-      if (reset) return;
-    }
-    await Promise.all(
-      Array.from({ length: count }, () => {
-        // Medical condition patient fields
-        const medicalConditionId =
-          faker.helpers.arrayElement(medicalConditionIds);
-        const patientId = faker.helpers.arrayElement(patientIds);
+  return prisma.$transaction(
+    async (tx) => {
+      if (clear) {
+        await tx.medicalConditionPatient.deleteMany();
+        if (reset) return;
+      }
+      await Promise.all(
+        Array.from({ length: count }, () => {
+          // Medical condition patient fields
+          const medicalConditionId =
+            faker.helpers.arrayElement(medicalConditionIds);
+          const patientId = faker.helpers.arrayElement(patientIds);
 
-        // Create medical condition patient
-        return tx.medicalConditionPatient.create({
-          data: { medicalConditionId, patientId },
-        });
-      })
-    );
-  });
+          // Create medical condition patient
+          return tx.medicalConditionPatient.create({
+            data: { medicalConditionId, patientId },
+          });
+        })
+      );
+    },
+    { timeout: 10 * 60 * 1000 }
+  );
 }
 
 /* Custom pools */

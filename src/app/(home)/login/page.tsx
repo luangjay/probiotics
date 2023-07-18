@@ -109,3 +109,5 @@ export default function Register() {
     </div>
   );
 }
+
+export const revalidate = 0;

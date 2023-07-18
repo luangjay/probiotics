@@ -115,7 +115,7 @@ async function seedAdmins({ reset, clear, count }: SeedOptions) {
           const email = "root@luangjay.com";
           const prefix = "Dr.";
           const firstName = "Root*";
-          const lastName = "Tree->";
+          const lastName = "Tree-<";
           const username = "root";
           const { password, salt } = saltHashPassword("1234");
 

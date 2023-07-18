@@ -8,14 +8,12 @@ import { Label } from "@/components/ui/label";
 import { doctorSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
 
 type RegisterData = z.infer<typeof doctorSchema>;
 
 export default function Register() {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -35,9 +33,9 @@ export default function Register() {
       await signIn("credentials", {
         username,
         password,
-        callbackUrl: "/",
+        redirect: true,
+        callbackUrl: "/patients",
       });
-      router.push("/patients");
     }
   };
 
@@ -198,3 +196,5 @@ export default function Register() {
     </div>
   );
 }
+
+export const revalidate = 0;

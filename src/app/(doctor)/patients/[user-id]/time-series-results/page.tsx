@@ -181,3 +181,5 @@ async function getTimeSeriesResults(patientId: string): Promise<{
     ],
   };
 }
+
+export const revalidate = 0;

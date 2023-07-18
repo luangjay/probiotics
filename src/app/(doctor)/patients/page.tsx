@@ -57,3 +57,5 @@ async function getMedicalConditions(): Promise<MedicalConditionRow[]> {
     name: medicalCondition.name,
   }));
 }
+
+export const revalidate = 0;

@@ -115,3 +115,5 @@ async function getProbiotics(): Promise<ProbioticRow[]> {
     name: probiotic.name,
   }));
 }
+
+export const revalidate = 0;

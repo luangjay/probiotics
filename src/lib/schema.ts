@@ -145,13 +145,14 @@ export const probioticRecordSchema = z
     doctorId: z.string().cuid(),
     patientId: z.string().cuid(),
     fileId: z.string().cuid().nullable().optional(),
+    timestamp: z.date().or(z.string().datetime()),
     result: z.array(
       z.object({
         probiotic: z.string().min(1),
         value: z.number(),
       })
     ),
-    timestamp: z.date().or(z.string().datetime()),
+    note: z.string().nullable().optional(),
   })
   .strict();
 
@@ -219,6 +220,7 @@ export const loginSchema = z
   .strict();
 
 export const uploadResultSchema = z.object({
+  timestamp: z.date().or(z.string().datetime()),
   fileList: z
     .custom<FileList>()
     .superRefine((fileList, ctx) => {
@@ -242,5 +244,5 @@ export const uploadResultSchema = z.object({
     })
     .nullable()
     .optional(),
-  timestamp: z.date().or(z.string().datetime()),
+  note: z.string().nullable().optional(),
 });

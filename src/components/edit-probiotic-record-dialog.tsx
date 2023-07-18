@@ -12,7 +12,6 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -84,9 +83,11 @@ export function EditProbioticRecordDialog({
     resolver: zodResolver(uploadResultSchema),
     values: {
       timestamp: probioticRecord.timestamp,
+      fileList: null,
+      note: probioticRecord.note,
     },
   });
-  const { fileList, timestamp } = useWatch<UploadResultData>({ control });
+  const { timestamp, fileList, note } = useWatch<UploadResultData>({ control });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
   const { rows, setRows, resetRows, exportFile } = useProbioticRecordResult(
     file,
@@ -125,8 +126,9 @@ export function EditProbioticRecordDialog({
     }));
 
     const postReqBody = {
-      result,
       timestamp,
+      result,
+      note,
     };
     const postResponse = await fetch(
       `/api/probiotic-records/${probioticRecord.id}`,
@@ -155,9 +157,10 @@ export function EditProbioticRecordDialog({
 
   useEffect(() => {
     if (!open) {
+      reset();
       void resetRows();
     }
-  }, [open, resetRows]);
+  }, [open, reset, resetRows]);
 
   // Component mounted
   useEffect(() => void setLoading(false), []);
@@ -185,17 +188,17 @@ export function EditProbioticRecordDialog({
     []
   );
 
-  function handleCopy({
+  const handleCopy = ({
     sourceRow,
     sourceColumnKey,
-  }: CopyEvent<ProbioticRecordResultRow>): void {
+  }: CopyEvent<ProbioticRecordResultRow>) => {
     if (window.isSecureContext) {
       const text = sourceRow[sourceColumnKey as keyof ProbioticRecordResultRow];
       if (typeof text === "string") {
         void navigator.clipboard.writeText(text);
       }
     }
-  }
+  };
 
   const handleCellKeyDown = useCallback(
     (
@@ -277,9 +280,6 @@ export function EditProbioticRecordDialog({
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
         <DialogTitle className="px-1">Edit probiotic record</DialogTitle>
-        <DialogDescription className="px-1">
-          Make changes to your profile here. Click save when you&apos;re done.
-        </DialogDescription>
         <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="flex gap-2">
             <Input
@@ -318,6 +318,7 @@ export function EditProbioticRecordDialog({
               </PopoverContent>
             </Popover>
             <Button
+              type="reset"
               variant="outline"
               onClick={() => {
                 void resetRows();
@@ -337,6 +338,7 @@ export function EditProbioticRecordDialog({
             />
           </div>
           {gridElement}
+          <Input id="note" placeholder="Add notes..." {...register("note")} />
           <form
             className="flex justify-center"
             onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}

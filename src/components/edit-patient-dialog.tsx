@@ -143,7 +143,7 @@ export function EditPatientDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-full w-full">
+        <Button size="sm" className="w-full">
           <EditIcon className="mr-2 h-4 w-4" />
           Edit patient
         </Button>
@@ -305,7 +305,7 @@ export function EditPatientDialog({
                 >
                   <span className="whitespace-nowrap">{m14n.name}</span>
                   <button
-                    className="ml-2 flex h-fit w-fit items-center justify-center rounded-full focus:ring-2 focus-visible:outline-none focus-visible:ring-ring"
+                    className="ml-2 flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     onClick={() => {
                       setSelectedM14ns((prev) =>
                         prev.filter(({ id }) => id !== m14n.id)

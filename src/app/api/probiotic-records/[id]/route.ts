@@ -22,6 +22,8 @@ const PUT = handler(async (req, ctx) => {
   const body: unknown = await req.json();
   const probioticRecordInfo = partialProbioticRecordSchema.parse(body);
 
+  console.log(probioticRecordInfo)
+
   const probioticRecord = await prisma.probioticRecord.update({
     where: {
       id,

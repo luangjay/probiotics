@@ -34,46 +34,43 @@ const PUT = handler(async (req, ctx) => {
   const { ssn, gender, birthDate, ethnicity, medicalConditionIds, ...pUser } =
     partialPatientSchema.parse(body);
 
-  const patient = await prisma.$transaction(
-    async (tx) => {
-      const txPatient = await tx.patient.update({
-        where: {
-          userId,
-        },
-        data: {
-          user: {
-            update: {
-              ...pUser,
-              ...(pUser.password && saltHashPassword(pUser.password)),
-            },
+  const patient = await prisma.$transaction(async (tx) => {
+    const txPatient = await tx.patient.update({
+      where: {
+        userId,
+      },
+      data: {
+        user: {
+          update: {
+            ...pUser,
+            ...(pUser.password && saltHashPassword(pUser.password)),
           },
-          ssn,
-          gender,
-          birthDate,
-          ethnicity,
         },
-        include: {
-          user: true,
-        },
-      });
-      if (medicalConditionIds !== undefined) {
-        await Promise.all([
-          tx.medicalConditionPatient.deleteMany({
-            where: { patientId: txPatient.userId },
-          }),
-          ...medicalConditionIds.map((m14nId) => {
-            // Create or update medical condition patient
-            return tx.medicalConditionPatient.create({
-              data: { medicalConditionId: m14nId, patientId: txPatient.userId },
-            });
-          }),
-        ]);
-      }
+        ssn,
+        gender,
+        birthDate,
+        ethnicity,
+      },
+      include: {
+        user: true,
+      },
+    });
+    if (medicalConditionIds !== undefined) {
+      await Promise.all([
+        tx.medicalConditionPatient.deleteMany({
+          where: { patientId: txPatient.userId },
+        }),
+        ...medicalConditionIds.map((m14nId) => {
+          // Create or update medical condition patient
+          return tx.medicalConditionPatient.create({
+            data: { medicalConditionId: m14nId, patientId: txPatient.userId },
+          });
+        }),
+      ]);
+    }
 
-      return txPatient;
-    },
-    { timeout: 60 * 1000 }
-  );
+    return txPatient;
+  });
 
   const { user, userId: _, ...patientInfo } = patient;
   const { password, salt, ...userInfo } = user;

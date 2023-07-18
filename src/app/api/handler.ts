@@ -30,16 +30,19 @@ export function handler(fn: ApiHandler) {
     } catch (error) {
       if (error instanceof SyntaxError) {
         const message = "Bad request";
+        console.log(message);
         return new ApiResponse(message, { status: 400 });
       }
       if (error instanceof z.ZodError) {
         const { message } = fromZodError(error, {
           issueSeparator: ". ",
         });
+        console.log(message);
         return new ApiResponse(message, { status: 400 });
       }
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         const message = error.message.split("\n").at(-1);
+        console.log(message);
         return new ApiResponse(message, { status: 409 });
       }
       console.error(error);

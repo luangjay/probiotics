@@ -21,9 +21,11 @@ export function DummyNav({ authenticated = false }: DummyNavProps) {
 
   return (
     <div className="container flex h-full w-full items-center justify-between">
-      <Link href="/" className="flex flex-1 justify-between">
-        <Logo />
-      </Link>
+      <div className="flex-1">
+        <Link href="/" className="flex w-fit">
+          <Logo />
+        </Link>
+      </div>
       <nav className="flex items-center gap-6">
         {!authenticated ? (
           <>

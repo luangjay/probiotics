@@ -6,7 +6,7 @@ interface LogoProps extends React.HTMLAttributes<HTMLSpanElement> {}
 const Logo = React.forwardRef<HTMLSpanElement, LogoProps>(
   ({ className, ...props }, ref) => (
     <span
-      className="inline-flex select-none items-center gap-2 font-logo text-[3rem] font-medium leading-[36px]"
+      className="inline-flex select-none items-center gap-2 font-logo text-[3rem] font-medium leading-[2.25rem]"
       ref={ref}
       {...props}
     >

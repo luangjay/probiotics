@@ -22,12 +22,11 @@ function Calendar({
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
+        month: "space-y-2",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "hidden",
         caption_dropdowns: "flex items-center justify-center gap-1",
-        dropdown:
-          "h-7 rounded-md bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+        dropdown: "h-7 rounded-md bg-transparent focus-visible:outline-none",
         vhidden: "sr-only",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
@@ -37,9 +36,9 @@ function Calendar({
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-1",
-        head_row: "flex h-7",
+        head_row: "flex",
         head_cell:
-          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+          "text-muted-foreground rounded-md w-9 h-9 flex items-center justify-center font-normal text-[0.8rem]",
         row: "flex w-full mt-1",
         cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(

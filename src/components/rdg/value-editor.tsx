@@ -21,9 +21,9 @@ export function ValueEditor<R, SR>({
   return (
     <input
       ref={ref}
+      spellCheck={false}
       value={typeof value === "string" ? value : ""}
       className="-mx-2 h-full w-[calc(100%+1rem)] bg-background p-2 focus:outline-none"
-      spellCheck={false}
       onChange={(e) => {
         const targetValue = e.target.value.match(VALUE_REGEX)
           ? e.target.value

@@ -100,8 +100,9 @@ model ProbioticRecord {
   doctorId        String                          @map("doctor_id")
   patientId       String                          @map("patient_id")
   fileUri         String?                         @map("file_uri")
-  result          Json
   timestamp       DateTime
+  result          Json
+  note            String?
   createdAt       DateTime                        @default(now()) @map("created_at")
   updatedAt       DateTime                        @updatedAt @map("updated_at")
   doctor          Doctor                          @relation(fields: [doctorId], references: [userId], onUpdate: Cascade, onDelete: Cascade)

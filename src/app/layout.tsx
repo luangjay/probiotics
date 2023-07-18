@@ -7,21 +7,25 @@ import "react-data-grid/lib/styles.css";
 
 const fontSans = localFont({
   src: "../../assets/fonts/Inter.var.woff2",
+  preload: true,
   variable: "--font-sans",
 });
 
 const fontHeading = localFont({
   src: "../../assets/fonts/CalSans-SemiBold.woff2",
+  preload: true,
   variable: "--font-heading",
 });
 
 const fontMono = localFont({
   src: "../../assets/fonts/Jack-Regular.woff2",
+  preload: true,
   variable: "--font-mono",
 });
 
 const fontLogo = localFont({
   src: "../../assets/fonts/JeeWish.woff2",
+  preload: true,
   variable: "--font-logo",
 });
 

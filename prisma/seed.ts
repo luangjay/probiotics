@@ -389,6 +389,7 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
         //     faker.number.int({ min: 0, max: 999 }),
         //   ])
         // );
+        const note = faker.lorem.sentence();
         const result = names.map((name) => ({
           probiotic: name,
           value: faker.number.int({ min: 0, max: 999 }),
@@ -401,6 +402,7 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
           data: {
             doctorId,
             patientId,
+            note,
             result,
             timestamp,
             createdAt,
@@ -417,7 +419,7 @@ async function seedProbioticBrandProbioticRecord({
   count,
 }: SeedOptions) {
   // Options
-  faker.seed(42004);
+  faker.seed(42009);
 
   // Initialize
   const probioticBrands = await prisma.probioticBrand.findMany();
@@ -443,8 +445,15 @@ async function seedProbioticBrandProbioticRecord({
           faker.helpers.arrayElement(probioticRecordIds);
 
         // Create probiotic brand probiotic record
-        return tx.probioticBrandProbioticRecord.create({
-          data: { probioticBrandId, probioticRecordId },
+        return tx.probioticBrandProbioticRecord.upsert({
+          where: {
+            probioticBrandId_probioticRecordId: {
+              probioticBrandId,
+              probioticRecordId,
+            },
+          },
+          update: {},
+          create: { probioticBrandId, probioticRecordId },
         });
       })
     );
@@ -700,7 +709,7 @@ async function getOptions() {
       "medical-conditions": options["medical-conditions"] || 40,
       "probiotic-records": options["probiotic-brands"] || 100,
       "probiotic-brand-probiotic-record":
-        options["probiotic-brand-probiotic-record"] || 80,
+        options["probiotic-brand-probiotic-record"] || 160,
       "medical-condition-patient": options["medical-condition-patient"] || 20,
     };
   }

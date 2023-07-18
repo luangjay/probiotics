@@ -91,8 +91,9 @@ async function getProbioticRecords(
   return probioticRecords.map((probioticRecord) => ({
     id: probioticRecord.id,
     fileUri: probioticRecord.fileUri,
-    result: probioticRecord.result,
     timestamp: probioticRecord.timestamp,
+    result: probioticRecord.result,
+    note: probioticRecord.note,
     createdAt: probioticRecord.createdAt,
     updatedAt: probioticRecord.updatedAt,
     doctor: {

@@ -1,7 +1,8 @@
 "use client";
 
 import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
-import { TimeSeriesProbioticRenderer } from "@/components/rdg/time-series-probiotic-renderer";
+import { TimeSeriesProbioticCell } from "@/components/rdg/time-series-probiotic-cell";
+import { TimeSeriesProbioticHeader } from "@/components/rdg/time-series-probiotic-header";
 import { Toggle } from "@/components/ui/toggle";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { formatTimeSeriesValue } from "@/lib/rdg";
@@ -23,7 +24,7 @@ export function TimeSeriesResults({
   timeSeriesResultSummary: summaryRows,
 }: TimeSeriesResultsProps) {
   // Initialize
-  const [rows, setRows] = useState(timeSeriesResults);
+  const [rows, setRows] = useState<TimeSeriesResultRow[]>(timeSeriesResults);
   const keys = Object.keys(rows[0]?.timepoints ?? { probiotic: null });
 
   // Store
@@ -33,14 +34,17 @@ export function TimeSeriesResults({
   const [loading, setLoading] = useState(true);
   const [normalized, setNormalized] = useState(false);
 
-  console.log(summaryRows);
-
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
   useEffect(
     () => void setSelectedPatient(patient),
     [setSelectedPatient, patient]
+  );
+
+  const expanded = useMemo<boolean>(
+    () => rows.every((row) => row.expanded !== false),
+    [rows]
   );
 
   const columns = useMemo<
@@ -51,19 +55,33 @@ export function TimeSeriesResults({
         key: "probiotic",
         name: "Probiotic",
         minWidth: 300,
-        renderCell: (p) => (
-          <TimeSeriesProbioticRenderer
+        renderHeaderCell: (p) => (
+          <TimeSeriesProbioticHeader
             {...p}
-            onCellExpand={() => {
-              /*** Do something ***/
-              const newRows = [...rows];
-              const rowIdx = newRows.findIndex(
+            expanded={expanded}
+            onExpandAll={() => {
+              const newRows: TimeSeriesResultRow[] = [];
+              timeSeriesResults.forEach((row) => {
+                const children = row.children ?? [];
+                row = { ...row, expanded: !expanded };
+                newRows.push(row, ...(!expanded ? children : []));
+              });
+              setRows(newRows);
+            }}
+          />
+        ),
+        renderCell: (p) => (
+          <TimeSeriesProbioticCell
+            {...p}
+            onExpand={() => {
+              const rowIdx = rows.findIndex(
                 (row) => row.probiotic === p.row.probiotic
               );
-              const row = newRows[rowIdx];
+              const row = rows[rowIdx];
+              const newRows = [...rows];
               const children = row.children ?? [];
-              row.expanded = !row.expanded;
-              if (row.expanded) {
+              newRows[rowIdx] = { ...row, expanded: !row.expanded };
+              if (!row.expanded) {
                 newRows.splice(rowIdx + 1, 0, ...children);
               } else {
                 newRows.splice(rowIdx + 1, children.length);
@@ -99,7 +117,9 @@ export function TimeSeriesResults({
   const gridElement = useMemo(
     () =>
       loading ? (
-        <>Loading...</>
+        <div className="flex flex-1 items-center justify-center">
+          Loading...
+        </div>
       ) : (
         <DataGrid
           direction="ltr"

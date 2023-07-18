@@ -127,13 +127,10 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
       {patient && (
         <CardFooter className="flex flex-col gap-4">
           <EditPatientDialog medicalConditions={medicalConditions} />
-          {/* <Button size="sm" className="w-full">
-            Edit patient
-          </Button> */}
           <div className="flex w-full">
             {probioticRecordsPage ? (
               <Link
-                href={`/patients/${patient.id}/time-series`}
+                href={`/patients/${patient.id}/time-series-results`}
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
                 <FileClockIcon className="mr-2 h-4 w-4" />

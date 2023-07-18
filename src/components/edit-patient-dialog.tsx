@@ -161,6 +161,7 @@ export function EditPatientDialog({
             <Input
               id="prefix"
               key="prefix"
+              disabled={isSubmitting}
               placeholder="Prefix"
               className="w-24"
               {...register("prefix")}
@@ -168,6 +169,7 @@ export function EditPatientDialog({
             <Input
               id="firstName"
               key="firstName"
+              disabled={isSubmitting}
               placeholder="First name"
               className="flex-1"
               {...register("firstName")}
@@ -175,6 +177,7 @@ export function EditPatientDialog({
             <Input
               id="lastName"
               key="lastName"
+              disabled={isSubmitting}
               placeholder="Last name"
               className="flex-1"
               {...register("lastName")}
@@ -196,6 +199,7 @@ export function EditPatientDialog({
             <Input
               id="ssn"
               key="ssn"
+              disabled={isSubmitting}
               placeholder="SSN"
               className="w-1/2"
               {...register("ssn")}
@@ -203,6 +207,7 @@ export function EditPatientDialog({
             <Input
               id="ethnicity"
               key="ethnicity"
+              disabled={isSubmitting}
               placeholder="Ethnicity"
               className="flex-1"
               {...register("ethnicity")}
@@ -221,6 +226,7 @@ export function EditPatientDialog({
             <Select
               key="select_gender"
               value={gender}
+              disabled={isSubmitting}
               onValueChange={(value: Gender) => {
                 setValue("gender", value);
               }}
@@ -246,6 +252,7 @@ export function EditPatientDialog({
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
+                  disabled={isSubmitting}
                   className={cn(
                     "w-[55%] justify-start text-left font-normal",
                     !birthDate && "text-muted-foreground"
@@ -259,6 +266,7 @@ export function EditPatientDialog({
                 <Calendar
                   initialFocus
                   mode="single"
+                  disabled={isSubmitting}
                   captionLayout="dropdown-buttons"
                   selected={birthDate ?? undefined}
                   onSelect={(day, selectedDay) =>
@@ -290,9 +298,10 @@ export function EditPatientDialog({
             ) : (
               selectedM14ns.map((m14n) => (
                 <Badge
+                  aria-disabled={isSubmitting}
                   key={`selected_medical_condition_${m14n.name}`}
                   variant="secondary"
-                  className="h-full"
+                  className="h-full aria-disabled:pointer-events-none aria-disabled:opacity-50"
                 >
                   <span className="whitespace-nowrap">{m14n.name}</span>
                   <button

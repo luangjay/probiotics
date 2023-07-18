@@ -5,8 +5,9 @@ import { type Prisma } from "@prisma/client";
 export type ProbioticRecordRow = {
   id: string;
   fileUri: string | null;
-  result: Prisma.JsonValue;
   timestamp: Date;
+  result: Prisma.JsonValue;
+  note: string | null;
   createdAt: Date;
   updatedAt: Date;
   doctor: DoctorRow;

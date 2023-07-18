@@ -55,7 +55,13 @@ module.exports = {
       //   sm: "calc(var(--radius) - 4px)",
       // },
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
+        sans: [
+          "var(--font-sans)",
+          {
+            ...fontFamily.sans,
+            fontFeatureSettings: '"cv02", "cv03", "cv04", "cv11"',
+          },
+        ],
         heading: ["var(--font-heading)", ...fontFamily.sans],
         mono: ["var(--font-mono)", ...fontFamily.mono],
         logo: ["var(--font-logo)", ...fontFamily.mono],

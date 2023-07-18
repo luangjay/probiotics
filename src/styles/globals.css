@@ -195,7 +195,7 @@ p {
 
 .rdg-cell {
   border-color: var(--rdg-border-color);
-  @apply border-b border-r px-2 shadow-none;
+  @apply border-b border-r px-2 tabular-nums shadow-none;
 }
 
 .rdg-cell > .rdg-checkbox-label > .rdg-checkbox {

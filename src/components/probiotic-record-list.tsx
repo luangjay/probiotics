@@ -1,5 +1,6 @@
 "use client";
 
+import { EditProbioticRecordDialog } from "@/components/edit-probiotic-record-dialog";
 import { NewProbioticRecordDialog } from "@/components/new-probiotic-record-dialog";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,6 @@ import { type ProbioticRecordRow } from "@/types/probiotic-record";
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
-import { EditProbioticRecordDialog } from "./edit-probiotic-record-dialog";
 
 interface ProbioticRecordListProps {
   patient: PatientRow;
@@ -22,8 +22,6 @@ export function ProbioticRecordList({
   probioticRecords: rows,
   probiotics,
 }: ProbioticRecordListProps) {
-  // Initialize
-
   // States
   const [loading, setLoading] = useState(true);
   const { setPatient: setSelectedPatient } = useSelectPatientStore();
@@ -39,6 +37,11 @@ export function ProbioticRecordList({
   const columns = useMemo<readonly Column<ProbioticRecordRow>[]>(() => {
     return [
       {
+        key: "timestamp",
+        name: "Timestamp",
+        renderCell: ({ row }) => format(row.timestamp, "yyyy-MM-dd"),
+      },
+      {
         key: "doctor",
         name: "Doctor",
         renderCell: ({ row }) => row.doctor.name,
@@ -52,9 +55,10 @@ export function ProbioticRecordList({
             .join(", "),
       },
       {
-        key: "timestamp",
-        name: "Timestamp",
-        renderCell: ({ row }) => format(row.timestamp, "yyyy-MM-dd"),
+        key: "note",
+        name: "Notes",
+        width: "25%",
+        renderCell: ({ row }) => row.note,
       },
       {
         key: "action1",

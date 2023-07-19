@@ -9,19 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { filteredRows, sortedRows } from "@/lib/rdg";
-import { cn } from "@/lib/utils";
+import { cn, sleep } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
 import { format } from "date-fns";
 import { FileCheck2Icon, RotateCwIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
-  patient?: PatientRow;
   patients: PatientRow[];
   medicalConditions: MedicalConditionRow[];
 }
@@ -30,16 +29,13 @@ interface FilterPatients {
   filter: string;
 }
 
-export function PatientList({
-  patient,
-  patients,
-  medicalConditions,
-}: PatientListProps) {
+export function PatientList({ patients, medicalConditions }: PatientListProps) {
   // Router
   const router = useRouter();
 
   // States
   const [loading, setLoading] = useState(true);
+  const [cooldown, setCooldown] = useState(0);
   const { patient: selectedPatient, setPatient: setSelectedPatient } =
     useSelectPatientStore();
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
@@ -47,11 +43,15 @@ export function PatientList({
   // Component mounted
   useEffect(() => void setLoading(false), []);
 
+  // Refresh selected patient on updates
   useEffect(() => {
-    if (patient !== undefined) {
+    if (selectedPatient) {
+      const patient = patients.find(
+        (patient) => selectedPatient.id === patient.id
+      );
       setSelectedPatient(patient);
     }
-  }, [setSelectedPatient, patient]);
+  }, [patients, selectedPatient, setSelectedPatient]);
 
   // Filter rows
   const { register, control } = useForm<FilterPatients>({ mode: "onChange" });
@@ -73,8 +73,9 @@ export function PatientList({
       {
         key: "birthDate",
         name: "Birth date",
-        renderCell: ({ row }) => format(row.birthDate, "yyyy-MM-dd"),
         width: "20%",
+        cellClass: "tabular-nums tracking-tighter",
+        renderCell: ({ row }) => format(row.birthDate, "yyyy-MM-dd"),
       },
       {
         key: "ethnicity",
@@ -148,6 +149,21 @@ export function PatientList({
     [loading, rows, columns, selectedPatient, sortColumns]
   );
 
+  // Refresh
+  const INITIAL_COOLDOWN = 5000;
+  const INTERVAL_COOLDOWN = 1000;
+
+  const refresh = useCallback(async () => {
+    let cooldown = INITIAL_COOLDOWN;
+    setCooldown(cooldown);
+    router.refresh();
+    while (cooldown > 0) {
+      await sleep(INTERVAL_COOLDOWN);
+      cooldown -= INTERVAL_COOLDOWN;
+      setCooldown(cooldown);
+    }
+  }, [router]);
+
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex h-10 items-center justify-between">
@@ -167,10 +183,17 @@ export function PatientList({
           />
         </div>
         <div className="flex h-10 gap-4">
-          <Button variant="outline" className="h-10 w-10 p-0">
+          <Button
+            variant="outline"
+            disabled={cooldown > 0}
+            className="h-10 w-10 p-0"
+            onClick={() => void refresh()}
+          >
             <RotateCwIcon
-              className="h-4 w-4"
-              onClick={() => void router.refresh()}
+              className={cn(
+                "h-4 w-4",
+                cooldown >= INITIAL_COOLDOWN && "animate-[spin_1s]"
+              )}
             />
           </Button>
           <NewPatientDialog medicalConditions={medicalConditions} />

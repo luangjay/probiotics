@@ -11,22 +11,25 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 function Calendar({
   className,
   classNames,
+  captionLayout = "buttons",
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
   return (
     <DayPicker
-      fromYear={1923}
-      toYear={2023}
+      fromYear={1900}
+      toDate={new Date()}
+      captionLayout={captionLayout}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-2",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "hidden",
+        caption_label: cn(captionLayout !== "buttons" && "hidden"),
         caption_dropdowns: "flex items-center justify-center gap-1",
-        dropdown: "h-7 rounded-md bg-transparent focus-visible:outline-none",
+        dropdown:
+          "h-7 rounded-md bg-transparent ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         vhidden: "sr-only",
         nav: "space-x-1 flex items-center",
         nav_button: cn(

@@ -71,7 +71,6 @@ export function EditPatientDialog({
 
   const selectPatientStore = useSelectPatientStore();
   const patient = selectPatientStore.patient as PatientRow;
-  const setSelectedPatient = selectPatientStore.setPatient;
 
   const {
     register,
@@ -79,6 +78,7 @@ export function EditPatientDialog({
     control,
     formState: { errors, isSubmitting },
     setValue,
+    clearErrors,
     reset,
   } = useForm<EditPatientData>({
     mode: "onChange",
@@ -117,19 +117,6 @@ export function EditPatientDialog({
     if (response.ok) {
       setOpen(false);
       router.refresh();
-      // NAIVE
-      setSelectedPatient({
-        ...patient,
-        ssn: data.ssn,
-        prefix: data.prefix,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        name: `${data.prefix} ${data.firstName} ${data.lastName}`,
-        gender: data.gender,
-        birthDate: data.birthDate,
-        ethnicity: data.ethnicity ?? null,
-        medicalConditions: selectedM14ns,
-      });
     }
   };
 
@@ -158,30 +145,44 @@ export function EditPatientDialog({
           </DialogHeader>
           <DialogDescription>Name</DialogDescription>
           <div className="flex w-full items-center gap-4">
-            <Input
-              id="prefix"
-              key="prefix"
-              disabled={isSubmitting}
-              placeholder="Prefix"
-              className="w-24"
-              {...register("prefix")}
-            />
-            <Input
-              id="firstName"
-              key="firstName"
-              disabled={isSubmitting}
-              placeholder="First name"
-              className="flex-1"
-              {...register("firstName")}
-            />
-            <Input
-              id="lastName"
-              key="lastName"
-              disabled={isSubmitting}
-              placeholder="Last name"
-              className="flex-1"
-              {...register("lastName")}
-            />
+            <fieldset className="flex flex-1 items-center gap-4">
+              <Input
+                id="prefix"
+                key="prefix"
+                disabled={isSubmitting}
+                placeholder="Prefix"
+                className={cn(
+                  "w-24",
+                  errors.prefix &&
+                    "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+                )}
+                {...register("prefix")}
+              />
+              <Input
+                id="firstName"
+                key="firstName"
+                disabled={isSubmitting}
+                placeholder="First name"
+                className={cn(
+                  "flex-1",
+                  errors.firstName &&
+                    "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+                )}
+                {...register("firstName")}
+              />
+              <Input
+                id="lastName"
+                key="lastName"
+                disabled={isSubmitting}
+                placeholder="Last name"
+                className={cn(
+                  "flex-1",
+                  errors.lastName &&
+                    "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+                )}
+                {...register("lastName")}
+              />
+            </fieldset>
             <FormErrorTooltip
               message={
                 errors.prefix
@@ -196,22 +197,32 @@ export function EditPatientDialog({
           </div>
           <DialogDescription>Personal information</DialogDescription>
           <div className="flex w-full items-center gap-4">
-            <Input
-              id="ssn"
-              key="ssn"
-              disabled={isSubmitting}
-              placeholder="SSN"
-              className="w-1/2"
-              {...register("ssn")}
-            />
-            <Input
-              id="ethnicity"
-              key="ethnicity"
-              disabled={isSubmitting}
-              placeholder="Ethnicity"
-              className="flex-1"
-              {...register("ethnicity")}
-            />
+            <fieldset className="flex flex-1 items-center gap-4">
+              <Input
+                id="ssn"
+                key="ssn"
+                disabled={isSubmitting}
+                placeholder="SSN"
+                className={cn(
+                  "w-1/2",
+                  errors.ssn &&
+                    "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+                )}
+                {...register("ssn")}
+              />
+              <Input
+                id="ethnicity"
+                key="ethnicity"
+                disabled={isSubmitting}
+                placeholder="Ethnicity"
+                className={cn(
+                  "flex-1",
+                  errors.ethnicity &&
+                    "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+                )}
+                {...register("ethnicity")}
+              />
+            </fieldset>
             <FormErrorTooltip
               message={
                 errors.ssn
@@ -223,58 +234,65 @@ export function EditPatientDialog({
             />
           </div>
           <div className="flex w-full items-center gap-4">
-            <Select
-              key="select_gender"
-              value={gender}
-              disabled={isSubmitting}
-              onValueChange={(value: Gender) => {
-                setValue("gender", value);
-              }}
-            >
-              <SelectTrigger
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "flex-1 justify-between font-normal",
-                  !gender && "text-muted-foreground"
-                )}
+            <fieldset className="flex flex-1 items-center gap-4">
+              <Select
+                key="select_gender"
+                value={gender}
+                disabled={isSubmitting}
+                onValueChange={(value: Gender) => {
+                  setValue("gender", value);
+                  clearErrors("gender");
+                }}
               >
-                <SelectValue placeholder="Gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value={Gender.Male}>Male</SelectItem>
-                  <SelectItem value={Gender.Female}>Female</SelectItem>
-                  <SelectItem value={Gender.Others}>Others</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  disabled={isSubmitting}
+                <SelectTrigger
                   className={cn(
-                    "w-[55%] justify-start text-left font-normal",
-                    !birthDate && "text-muted-foreground"
+                    buttonVariants({ variant: "outline" }),
+                    "flex-1 justify-between font-normal",
+                    !gender && "text-muted-foreground",
+                    errors.gender &&
+                      "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {birthDate ? format(birthDate, "PPP") : "Birth date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  initialFocus
-                  mode="single"
-                  disabled={isSubmitting}
-                  captionLayout="dropdown-buttons"
-                  selected={birthDate ?? undefined}
-                  onSelect={(day, selectedDay) =>
-                    setValue("birthDate", selectedDay)
-                  }
-                />
-              </PopoverContent>
-            </Popover>
+                  <SelectValue placeholder="Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value={Gender.Male}>Male</SelectItem>
+                    <SelectItem value={Gender.Female}>Female</SelectItem>
+                    <SelectItem value={Gender.Others}>Others</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    disabled={isSubmitting}
+                    className={cn(
+                      "w-[55%] justify-start text-left font-normal",
+                      !birthDate && "text-muted-foreground",
+                      errors.birthDate &&
+                        "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {birthDate ? format(birthDate, "PPP") : "Birth date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    initialFocus
+                    mode="single"
+                    disabled={isSubmitting}
+                    selected={birthDate ?? undefined}
+                    onSelect={(day, selectedDay) => {
+                      setValue("birthDate", selectedDay);
+                      clearErrors("birthDate");
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </fieldset>
             <FormErrorTooltip
               message={
                 errors.gender
@@ -289,9 +307,10 @@ export function EditPatientDialog({
           <div className="flex h-6 w-full gap-2 overflow-auto">
             {selectedM14ns.length === 0 ? (
               <Badge
-                key="selected_medical_condition_none"
+                key="select_medical_condition_none"
                 variant="secondary"
-                className="h-full"
+                aria-disabled={isSubmitting}
+                className="h-full aria-disabled:pointer-events-none aria-disabled:opacity-50"
               >
                 None selected
               </Badge>
@@ -299,7 +318,7 @@ export function EditPatientDialog({
               selectedM14ns.map((m14n) => (
                 <Badge
                   aria-disabled={isSubmitting}
-                  key={`selected_medical_condition_${m14n.name}`}
+                  key={`select_medical_condition_${m14n.name}`}
                   variant="secondary"
                   className="h-full aria-disabled:pointer-events-none aria-disabled:opacity-50"
                 >
@@ -326,6 +345,7 @@ export function EditPatientDialog({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
+                disabled={isSubmitting}
                 className="flex-1 font-normal text-muted-foreground"
               >
                 Select a medical condition

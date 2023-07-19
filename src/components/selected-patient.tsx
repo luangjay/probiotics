@@ -64,7 +64,9 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
         >
           <div className="flex gap-2">
             <div className="w-1/3 truncate font-medium">SSN</div>
-            <div className="flex-1 truncate">{patient.ssn}</div>
+            <div className="flex-1 truncate tabular-nums tracking-tighter">
+              {patient.ssn}
+            </div>
           </div>
           <div className="flex gap-2">
             <div className="w-1/3 truncate font-medium">Name</div>
@@ -76,7 +78,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
           </div>
           <div className="flex gap-2">
             <div className="w-1/3 truncate font-medium">Birth date</div>
-            <div className="flex-1 truncate">
+            <div className="flex-1 truncate tabular-nums tracking-tighter">
               {format(patient.birthDate, "yyyy-MM-dd")}
             </div>
           </div>

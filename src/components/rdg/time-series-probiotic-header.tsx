@@ -8,6 +8,7 @@ interface TimeSeriesProbioticHeaderProps
 }
 
 export function TimeSeriesProbioticHeader({
+  column,
   tabIndex,
   expanded,
   onExpandAll,
@@ -20,7 +21,7 @@ export function TimeSeriesProbioticHeader({
   };
   return (
     <div className="relative flex items-center">
-      Probiotic
+      {column.name}
       <button
         tabIndex={tabIndex}
         className="absolute right-0 rounded-sm text-xs leading-none text-secondary-foreground transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-transparent"

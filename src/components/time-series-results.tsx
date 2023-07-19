@@ -53,8 +53,8 @@ export function TimeSeriesResults({
     () => [
       {
         key: "probiotic",
-        name: "Probiotic",
-        minWidth: 300,
+        name: "Microorganism",
+        width: "50%",
         renderHeaderCell: (p) => (
           <TimeSeriesProbioticHeader
             {...p}
@@ -92,26 +92,30 @@ export function TimeSeriesResults({
         ),
         renderSummaryCell: ({ row }) => row.probiotic,
       },
-      ...keys.map<Column<TimeSeriesResultRow, TimeSeriesResultRow>>((key) => ({
-        key,
-        name: key,
-        minWidth: 60,
-        renderHeaderCell: () => format(new Date(parseInt(key)), "yyyy-MM-dd"),
-        renderCell: ({ row }) =>
-          formatTimeSeriesValue(
-            normalized,
-            row.timepoints[key],
-            summaryRows[0].timepoints[key]
-          ),
-        renderSummaryCell: ({ row }) =>
-          formatTimeSeriesValue(
-            normalized,
-            row.timepoints[key],
-            summaryRows[0].timepoints[key]
-          ),
-      })),
+      ...keys
+        .slice(-2)
+        .map<Column<TimeSeriesResultRow, TimeSeriesResultRow>>((key) => ({
+          key,
+          name: key,
+          width: "25%",
+          cellClass: "tabular-nums tracking-tighter text-end",
+          renderHeaderCell: () => format(new Date(parseInt(key)), "yyyy-MM-dd"),
+          renderCell: ({ row }) =>
+            formatTimeSeriesValue(
+              normalized,
+              row.timepoints[key],
+              summaryRows[0].timepoints[key]
+            ),
+          summaryCellClass: "tabular-nums tracking-tighter text-end",
+          renderSummaryCell: ({ row }) =>
+            formatTimeSeriesValue(
+              normalized,
+              row.timepoints[key],
+              summaryRows[0].timepoints[key]
+            ),
+        })),
     ],
-    [rows, keys, normalized, summaryRows]
+    [rows, keys, normalized, summaryRows, expanded, timeSeriesResults]
   );
 
   const gridElement = useMemo(

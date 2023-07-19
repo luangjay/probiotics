@@ -23,7 +23,7 @@ export function ValueEditor<R, SR>({
       ref={ref}
       spellCheck={false}
       value={typeof value === "string" ? value : ""}
-      className="-mx-2 h-full w-[calc(100%+1rem)] bg-background p-2 focus:outline-none"
+      className="-mx-2 h-full w-[calc(100%+16px)] bg-inherit px-[8px] py-0 focus:outline-none"
       onChange={(e) => {
         const targetValue = e.target.value.match(VALUE_REGEX)
           ? e.target.value

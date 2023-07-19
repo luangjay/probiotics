@@ -48,7 +48,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 const uploadResultSchema = baseUploadResultSchema.extend({
-  timestamp: z.date({ required_error: "Timestamp is required" }),
+  timestamp: z.date({ required_error: "Collection date is required" }),
 });
 
 type UploadResultData = z.infer<typeof uploadResultSchema>;
@@ -85,7 +85,7 @@ export function NewProbioticRecordDialog({
       fileList: null,
     },
   });
-  const { timestamp, fileList, note } = useWatch<UploadResultData>({ control });
+  const { timestamp, fileList } = useWatch<UploadResultData>({ control });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
   const { rows, setRows, resetRows, exportFile } =
     useProbioticRecordResult(file);
@@ -128,7 +128,6 @@ export function NewProbioticRecordDialog({
       patientId: patient.id,
       timestamp,
       result,
-      note,
     };
     const postResponse = await fetch("/api/probiotic-records", {
       method: "POST",
@@ -163,7 +162,7 @@ export function NewProbioticRecordDialog({
     () => [
       {
         key: "probiotic",
-        name: "Probiotic",
+        name: "Microorganism",
         minWidth: 416,
         maxWidth: 416,
         width: 416,
@@ -171,7 +170,7 @@ export function NewProbioticRecordDialog({
       },
       {
         key: "value",
-        name: "Value",
+        name: "Reads",
         minWidth: 90,
         maxWidth: 90,
         width: 90,
@@ -276,11 +275,11 @@ export function NewProbioticRecordDialog({
       <DialogTrigger asChild>
         <Button className="h-full">
           <PlusIcon className="mr-2 h-4 w-4" />
-          New probiotic record
+          Import abundance file
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
-        <DialogTitle className="px-1">New probiotic record</DialogTitle>
+        <DialogTitle className="px-1">Import abundance file</DialogTitle>
         <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="flex gap-2">
             <Input
@@ -294,16 +293,14 @@ export function NewProbioticRecordDialog({
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "w-[30%] justify-start text-left font-normal",
+                    "w-[10rem] justify-start text-left font-normal",
                     !timestamp && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {timestamp ? (
-                    format(timestamp, "yyyy-MM-dd")
-                  ) : (
-                    <span>Timestamp</span>
-                  )}
+                  {timestamp
+                    ? format(timestamp, "yyyy-MM-dd")
+                    : "Collection date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -339,7 +336,6 @@ export function NewProbioticRecordDialog({
             />
           </div>
           {gridElement}
-          <Input id="note" placeholder="Add notes..." {...register("note")} />
           <form
             className="flex justify-center"
             onSubmit={(...args) => void handleSubmit(onSubmit)(...args)}

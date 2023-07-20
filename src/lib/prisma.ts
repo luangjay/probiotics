@@ -22,7 +22,7 @@ const client = () =>
             `${user.prefix} ${user.firstName} ${user.lastName}`,
         },
       },
-      probiotic: {
+      microorgranism: {
         genus: {
           needs: { name: true },
           compute: (probiotic) => genus(probiotic.name),

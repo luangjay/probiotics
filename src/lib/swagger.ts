@@ -187,10 +187,10 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/doctors/{user-id}/probiotic-records": {
+      "/api/doctors/{user-id}/visit-datas": {
         get: {
           tags: ["Doctors"],
-          summary: "Get a doctor's probiotic records",
+          summary: "Get a doctor's visit datas",
           parameters: [{ $ref: "#/components/parameters/doctorId" }],
           responses: {
             "200": { description: "OK" },
@@ -264,10 +264,10 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/patients/{user-id}/probiotic-records": {
+      "/api/patients/{user-id}/visit-datas": {
         get: {
           tags: ["Patients"],
-          summary: "Get a patient's probiotic records",
+          summary: "Get a patient's visit datas",
           parameters: [{ $ref: "#/components/parameters/patientId" }],
           responses: {
             "200": { description: "OK" },
@@ -308,7 +308,7 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/patients/{user-id}/medical-conditions/{condition-id}": {
+      "/api/patients/{user-id}/medical-conditions/{medical-condition-id}": {
         delete: {
           tags: ["Patients"],
           summary: "Remove a patient's medical condition",
@@ -325,10 +325,10 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/probiotics": {
+      "/api/microorganisms": {
         get: {
-          tags: ["Probiotics"],
-          summary: "Get all probiotics",
+          tags: ["Microorganisms"],
+          summary: "Get all microorganisms",
           responses: {
             "200": { description: "OK" },
             "401": { description: "Unauthorized" },
@@ -336,11 +336,11 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/probiotics/{id}": {
+      "/api/microorganisms/{id}": {
         get: {
-          tags: ["Probiotics"],
-          summary: "Get a probiotic by id",
-          parameters: [{ $ref: "#/components/parameters/probioticId" }],
+          tags: ["Microorganisms"],
+          summary: "Get a microorganism by id",
+          parameters: [{ $ref: "#/components/parameters/microorganismId" }],
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
@@ -352,7 +352,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/probiotic-brands": {
         get: {
-          tags: ["Probiotic Brands"],
+          tags: ["Probiotic brands"],
           summary: "Get all probiotic brands",
           responses: {
             "200": { description: "OK" },
@@ -361,7 +361,7 @@ export const spec = createSwaggerSpec({
           },
         },
         post: {
-          tags: ["Probiotic Brands"],
+          tags: ["Probiotic brands"],
           summary: "Create a new probiotic brand",
           requestBody: { $ref: "#/components/requestBodies/ProbioticBrand" },
           responses: {
@@ -375,7 +375,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/probiotic-brands/{id}": {
         get: {
-          tags: ["Probiotic Brands"],
+          tags: ["Probiotic brands"],
           summary: "Get a probiotic brand by id",
           parameters: [{ $ref: "#/components/parameters/probioticBrandId" }],
           responses: {
@@ -387,7 +387,7 @@ export const spec = createSwaggerSpec({
           },
         },
         put: {
-          tags: ["Probiotic Brands"],
+          tags: ["Probiotic brands"],
           summary: "Update a probiotic brand by user id",
           parameters: [{ $ref: "#/components/parameters/probioticBrandId" }],
           requestBody: { $ref: "#/components/requestBodies/ProbioticBrand" },
@@ -401,7 +401,7 @@ export const spec = createSwaggerSpec({
           },
         },
         delete: {
-          tags: ["Probiotic Brands"],
+          tags: ["Probiotic brands"],
           summary: "Delete a probiotic brand by user id",
           parameters: [{ $ref: "#/components/parameters/probioticBrandId" }],
           responses: {
@@ -415,7 +415,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/medical-conditions": {
         get: {
-          tags: ["Medical Conditions"],
+          tags: ["Medical conditions"],
           summary: "Get all medical conditions",
           responses: {
             "200": { description: "OK" },
@@ -426,7 +426,7 @@ export const spec = createSwaggerSpec({
       },
       "/api/medical-conditions/{id}": {
         get: {
-          tags: ["Medical Conditions"],
+          tags: ["Medical conditions"],
           summary: "Get a medical condition by id",
           parameters: [{ $ref: "#/components/parameters/medicalConditionId" }],
           responses: {
@@ -438,10 +438,10 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/probiotic-records": {
+      "/api/visit-datas": {
         get: {
-          tags: ["Probiotic Records"],
-          summary: "Get all probiotic records",
+          tags: ["Visit datas"],
+          summary: "Get all visit datas",
           responses: {
             "200": { description: "OK" },
             "401": { description: "Unauthorized" },
@@ -449,9 +449,9 @@ export const spec = createSwaggerSpec({
           },
         },
         post: {
-          tags: ["Probiotic Records"],
-          summary: "Create a new probiotic record",
-          requestBody: { $ref: "#/components/requestBodies/ProbioticRecord" },
+          tags: ["Visit datas"],
+          summary: "Create a new visit data",
+          requestBody: { $ref: "#/components/requestBodies/VisitData" },
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
@@ -461,11 +461,11 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/probiotic-records/{id}": {
+      "/api/visit-datas/{id}": {
         get: {
-          tags: ["Probiotic Records"],
-          summary: "Get a probiotic record by id",
-          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          tags: ["Visit datas"],
+          summary: "Get a visit data by id",
+          parameters: [{ $ref: "#/components/parameters/visitDataId" }],
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
@@ -475,10 +475,10 @@ export const spec = createSwaggerSpec({
           },
         },
         put: {
-          tags: ["Probiotic Records"],
-          summary: "Update a probiotic record by id",
-          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
-          requestBody: { $ref: "#/components/requestBodies/ProbioticRecord" },
+          tags: ["Visit datas"],
+          summary: "Update a visit data by id",
+          parameters: [{ $ref: "#/components/parameters/visitDataId" }],
+          requestBody: { $ref: "#/components/requestBodies/VisitData" },
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
@@ -489,9 +489,9 @@ export const spec = createSwaggerSpec({
           },
         },
         delete: {
-          tags: ["Probiotic Records"],
-          summary: "Delete a probiotic record by id",
-          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          tags: ["Visit datas"],
+          summary: "Delete a visit data by id",
+          parameters: [{ $ref: "#/components/parameters/visitDataId" }],
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
@@ -501,11 +501,11 @@ export const spec = createSwaggerSpec({
           },
         },
       },
-      "/api/probiotic-records/{id}/file": {
+      "/api/visit-datas/{id}/file": {
         get: {
-          tags: ["Probiotic Records"],
-          summary: "Get a probiotic record's file",
-          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+          tags: ["Visit datas"],
+          summary: "Get a visit data's file",
+          parameters: [{ $ref: "#/components/parameters/visitDataId" }],
           responses: {
             "200": { description: "OK" },
             "400": { description: "Bad request" },
@@ -514,12 +514,12 @@ export const spec = createSwaggerSpec({
             "500": { description: "Internal server error" },
           },
         },
-        post: {
-          tags: ["Probiotic Records"],
-          summary: "Add a probiotic record's file",
-          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
+        put: {
+          tags: ["Visit datas"],
+          summary: "Upload a visit data's file",
+          parameters: [{ $ref: "#/components/parameters/visitDataId" }],
           requestBody: {
-            $ref: "#/components/requestBodies/AddProbioticRecordFile",
+            $ref: "#/components/requestBodies/AddVisitDataFile",
           },
           responses: {
             "200": { description: "OK" },
@@ -527,53 +527,6 @@ export const spec = createSwaggerSpec({
             "401": { description: "Unauthorized" },
             "404": { description: "Not found" },
             "409": { description: "Conflict" },
-            "500": { description: "Internal server error" },
-          },
-        },
-      },
-      "/api/probiotic-records/{id}/probiotic-brands": {
-        get: {
-          tags: ["Probiotic Records"],
-          summary: "Get a probiotic record's probiotic brands",
-          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
-          responses: {
-            "200": { description: "OK" },
-            "400": { description: "Bad request" },
-            "401": { description: "Unauthorized" },
-            "404": { description: "Not found" },
-            "500": { description: "Internal server error" },
-          },
-        },
-        post: {
-          tags: ["Probiotic Records"],
-          summary: "Add a probiotic record's probiotic brand",
-          parameters: [{ $ref: "#/components/parameters/probioticRecordId" }],
-          requestBody: {
-            $ref: "#/components/requestBodies/AddProbioticRecordProbioticBrand",
-          },
-          responses: {
-            "200": { description: "OK" },
-            "400": { description: "Bad request" },
-            "401": { description: "Unauthorized" },
-            "404": { description: "Not found" },
-            "409": { description: "Conflict" },
-            "500": { description: "Internal server error" },
-          },
-        },
-      },
-      "/api/probiotic-records/{id}/probiotic-brands/{brand-id}": {
-        delete: {
-          tags: ["Probiotic Records"],
-          summary: "Remove a probiotic record's probiotic brand",
-          parameters: [
-            { $ref: "#/components/parameters/probioticRecordId" },
-            { $ref: "#/components/parameters/brandId" },
-          ],
-          responses: {
-            "200": { description: "OK" },
-            "400": { description: "Bad request" },
-            "401": { description: "Unauthorized" },
-            "404": { description: "Not found" },
             "500": { description: "Internal server error" },
           },
         },
@@ -620,10 +573,10 @@ export const spec = createSwaggerSpec({
           type: "string",
           default: "",
         },
-        probioticId: {
+        microorganismId: {
           name: "id",
           in: "path",
-          description: "The id of the probiotic",
+          description: "The id of the microorganism",
           required: true,
           type: "integer",
           default: "",
@@ -653,17 +606,17 @@ export const spec = createSwaggerSpec({
           default: "",
         },
         conditionId: {
-          name: "condition-id",
+          name: "medical-condition-id",
           in: "path",
           description: "The id of the medical condition",
           required: true,
           type: "integer",
           default: "",
         },
-        probioticRecordId: {
+        visitDataId: {
           name: "id",
           in: "path",
-          description: "The id of the probiotic record",
+          description: "The id of the visit data",
           required: true,
           type: "string",
           default: "",
@@ -845,7 +798,7 @@ export const spec = createSwaggerSpec({
             },
           },
         },
-        ProbioticRecord: {
+        VisitData: {
           required: true,
           content: {
             "application/json": {
@@ -855,30 +808,30 @@ export const spec = createSwaggerSpec({
                   doctorId: {
                     type: "string",
                     description:
-                      "The unique identifier of the doctor who created the probiotic record",
+                      "The unique identifier of the doctor who created the visit data",
                   },
                   patientId: {
                     type: "string",
                     description:
-                      "The unique identifier of the patient who the probiotic record is for",
+                      "The unique identifier of the patient who the visit data is for",
                   },
                   fileId: {
                     type: "string",
                     nullable: true,
                     description:
-                      "The unique identifier of the file associated with the probiotic record",
+                      "The unique identifier of the file associated with the visit data",
                   },
                   result: {
                     type: "object",
                     description:
-                      "The probiotic record result, represented as a JSON value",
+                      "The visit data result, represented as a JSON value",
                   },
                 },
               },
             },
           },
         },
-        AddProbioticRecordFile: {
+        AddVisitDataFile: {
           required: true,
           content: {
             "multipart/form-data": {
@@ -895,7 +848,7 @@ export const spec = createSwaggerSpec({
             },
           },
         },
-        AddProbioticRecordProbioticBrand: {
+        AddVisitDataProbioticBrand: {
           required: true,
           content: {
             "application/json": {
@@ -1126,48 +1079,36 @@ export const spec = createSwaggerSpec({
             },
           },
         },
-        Probiotic: {
+        Microorganism: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              description: "The unique identifier of the probiotic",
-            },
-            parentId: {
-              type: "integer",
-              nullable: true,
-              description:
-                "The unique identifier of the parent probiotic (if applicable)",
+              description: "The unique identifier of the microorganism",
             },
             name: {
               type: "string",
-              description: "The name of the probiotic",
+              description: "The name of the microorganism",
               minLength: 1,
             },
-            red: {
-              type: "number",
-              description: "The red threshold for probiotic results",
-              minimum: 0,
+            essential: {
+              type: "boolean",
+              description: "Whether the microorganism is in the essential list",
             },
-            yellow: {
-              type: "number",
-              description: "The yellow threshold for probiotic results",
-              minimum: 0,
-            },
-            green: {
-              type: "number",
-              description: "The green threshold for probiotic results",
-              minimum: 0,
+            probiotic: {
+              type: "boolean",
+              description: "Whether the microorganism is a probiotic",
             },
             createdAt: {
               type: "string",
               format: "date-time",
-              description: "The date and time the probiotic was created",
+              description: "The date and time the microorganism was created",
             },
             updatedAt: {
               type: "string",
               format: "date-time",
-              description: "The date and time the probiotic was last updated",
+              description:
+                "The date and time the microorganism was last updated",
             },
           },
         },
@@ -1220,44 +1161,38 @@ export const spec = createSwaggerSpec({
             },
           },
         },
-        ProbioticRecord: {
+        VisitData: {
           type: "object",
           properties: {
             id: {
               type: "string",
-              description: "The unique identifier of the probiotic record",
+              description: "The unique identifier of the visit data",
             },
             doctorId: {
               type: "string",
               description:
-                "The unique identifier of the doctor who created the probiotic record",
+                "The unique identifier of the doctor who created the visit data",
             },
             patientId: {
               type: "string",
               description:
-                "The unique identifier of the patient who the probiotic record is for",
+                "The unique identifier of the patient who the visit data is for",
             },
-            fileId: {
+            fileUri: {
               type: "string",
               nullable: true,
               description:
-                "The unique identifier of the file associated with the probiotic record",
-            },
-            result: {
-              type: "object",
-              description:
-                "The probiotic record result, represented as a JSON value",
+                "The unique identifier of the file associated with the visit data",
             },
             createdAt: {
               type: "string",
               format: "date-time",
-              description: "The date and time the probiotic record was created",
+              description: "The date and time the visit data was created",
             },
             updatedAt: {
               type: "string",
               format: "date-time",
-              description:
-                "The date and time the probiotic record was last updated",
+              description: "The date and time the visit data was last updated",
             },
           },
         },

@@ -58,8 +58,8 @@ async function seed({
     case "patients":
       await seedPatients({ reset, clear, count });
       break;
-    case "probiotics":
-      await seedProbiotics({ reset, clear, count });
+    case "microorganisms":
+      await seedMicroorganisms({ reset, clear, count });
       break;
     case "probiotic-brands":
       await seedProbioticBrands({ reset, clear, count });
@@ -67,11 +67,11 @@ async function seed({
     case "medical-conditions":
       await seedMedicalConditions({ reset, clear, count });
       break;
-    case "probiotic-records":
-      await seedProbioticRecords({ reset, clear, count });
+    case "visit-datas":
+      await seedVisitDatas({ reset, clear, count });
       break;
-    case "probiotic-brand-probiotic-record":
-      await seedProbioticBrandProbioticRecord({ reset, clear, count });
+    case "microorganism-probiotic-brand":
+      await seedMicroorganismProbioticBrand({ reset, clear, count });
       break;
     case "medical-condition-patient":
       await seedMedicalConditionPatient({ reset, clear, count });
@@ -311,7 +311,7 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
   );
 }
 
-async function seedProbiotics({ reset, clear, count }: SeedOptions) {
+async function seedMicroorganisms({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42005);
   const pool = probioticPool();
@@ -319,17 +319,19 @@ async function seedProbiotics({ reset, clear, count }: SeedOptions) {
   return prisma.$transaction(
     async (tx) => {
       if (clear) {
-        await tx.probiotic.deleteMany();
+        await tx.microorgranism.deleteMany();
         if (reset) return;
       }
       await Promise.all(
         Array.from({ length: count }, (_, idx) => {
           // Probiotic fields
           const name = pool[idx];
+          const probiotic = faker.datatype.boolean(0.4);
+          const essential = faker.datatype.boolean(0.4);
 
           // Create probiotics
-          return tx.probiotic.create({
-            data: { name },
+          return tx.microorgranism.create({
+            data: { name, probiotic, essential },
           });
         })
       );
@@ -387,14 +389,14 @@ async function seedMedicalConditions({ reset, clear, count }: SeedOptions) {
   );
 }
 
-async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
+async function seedVisitDatas({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42008);
 
   // Initialize
   const doctors = await prisma.doctor.findMany();
   const patients = await prisma.patient.findMany();
-  const probiotics = await prisma.probiotic.findMany();
+  const probiotics = await prisma.microorgranism.findMany();
 
   const doctorIds = doctors.map((doctor) => doctor.userId);
   const patientIds = patients.map((patient) => patient.userId);
@@ -403,7 +405,7 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
   return prisma.$transaction(
     async (tx) => {
       if (clear) {
-        await tx.probioticRecord.deleteMany();
+        await tx.visitData.deleteMany();
         if (reset) return;
       }
       await Promise.all(
@@ -413,30 +415,26 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
           const patientId = faker.helpers.arrayElement(patientIds);
           const length = faker.number.int({ min: 20, max: 40 });
           const names = faker.helpers.arrayElements(probioticNames, length);
-          // const result = Object.fromEntries(
-          //   Array.from({ length }, (_, idx) => [
-          //     names[idx],
-          //     faker.number.int({ min: 0, max: 999 }),
-          //   ])
-          // );
-          const note = faker.lorem.sentence();
-          const result = names.map((name) => ({
-            probiotic: name,
-            value: faker.number.int({ min: 0, max: 999 }),
+          const microorganismRecords = names.map((name) => ({
+            microorganism: name,
+            reads: faker.number.int({ min: 0, max: 999 }),
           }));
           const createdAt = new Date(
             Date.now() - (count - idx) * 60 * 60 * 1000
           );
-          const timestamp = faker.date.past({ refDate: createdAt });
+          const collectionDate = faker.date.past({ refDate: createdAt });
 
           // Create probiotic records
-          return tx.probioticRecord.create({
+          return tx.visitData.create({
             data: {
               doctorId,
               patientId,
-              note,
-              result,
-              timestamp,
+              microorganismRecords: {
+                createMany: {
+                  data: microorganismRecords,
+                },
+              },
+              collectionDate,
               createdAt,
             },
           });
@@ -447,7 +445,7 @@ async function seedProbioticRecords({ reset, clear, count }: SeedOptions) {
   );
 }
 
-async function seedProbioticBrandProbioticRecord({
+async function seedMicroorganismProbioticBrand({
   reset,
   clear,
   count,
@@ -456,40 +454,40 @@ async function seedProbioticBrandProbioticRecord({
   faker.seed(42009);
 
   // Initialize
+  const microorganisms = await prisma.microorgranism.findMany();
   const probioticBrands = await prisma.probioticBrand.findMany();
-  const probioticRecords = await prisma.probioticRecord.findMany();
 
+  const microorganismIds = microorganisms.map(
+    (probioticRecord) => probioticRecord.id
+  );
   const probioticBrandIds = probioticBrands.map(
     (probioticBrand) => probioticBrand.id
-  );
-  const probioticRecordIds = probioticRecords.map(
-    (probioticRecord) => probioticRecord.id
   );
 
   return prisma.$transaction(
     async (tx) => {
       if (clear) {
-        await tx.probioticBrandProbioticRecord.deleteMany();
+        await tx.microorgranismProbioticBrand.deleteMany();
         if (reset) return;
       }
       await Promise.all(
         Array.from({ length: count }, () => {
           // Probiotic brand probiotic record fields
+          const microorganismId = faker.helpers.arrayElement(microorganismIds);
           const probioticBrandId =
             faker.helpers.arrayElement(probioticBrandIds);
-          const probioticRecordId =
-            faker.helpers.arrayElement(probioticRecordIds);
 
           // Create probiotic brand probiotic record
-          return tx.probioticBrandProbioticRecord.upsert({
+          // NOTE: skip duplicates
+          return tx.microorgranismProbioticBrand.upsert({
             where: {
-              probioticBrandId_probioticRecordId: {
+              microorganismId_probioticBrandId: {
+                microorganismId,
                 probioticBrandId,
-                probioticRecordId,
               },
             },
             update: {},
-            create: { probioticBrandId, probioticRecordId },
+            create: { probioticBrandId, microorganismId },
           });
         })
       );
@@ -703,7 +701,6 @@ function clamp(x: number, min: number, max: number) {
 }
 
 /* Options */
-/* eslint-disable @typescript-eslint/naming-convention */
 async function getOptions() {
   const args = await yargs(process.argv.slice(2))
     .strict()
@@ -714,11 +711,11 @@ async function getOptions() {
       admins: { type: "number", default: 0 },
       doctors: { type: "number", default: 0 },
       patients: { type: "number", default: 0 },
-      probiotics: { type: "number", default: 0 },
+      microorganisms: { type: "number", default: 0 },
       "probiotic-brands": { type: "number", default: 0 },
       "medical-conditions": { type: "number", default: 0 },
-      "probiotic-records": { type: "number", default: 0 },
-      "probiotic-brand-probiotic-record": { type: "number", default: 0 },
+      "visit-datas": { type: "number", default: 0 },
+      "microorganism-probiotic-brand": { type: "number", default: 0 },
       "medical-condition-patient": { type: "number", default: 0 },
     })
     .coerce({
@@ -726,13 +723,12 @@ async function getOptions() {
         clamp(count > 0 ? Math.max(1, count) : 0, 0, 20),
       doctors: (count: number) => clamp(count, 0, 40),
       patients: (count: number) => clamp(count, 0, 50000),
-      probiotics: (count: number) => clamp(count, 0, 59),
+      microorganisms: (count: number) => clamp(count, 0, 59),
       "probiotic-brands": (count: number) =>
         clamp(count > 0 ? Math.max(5, count) : 0, 0, 80),
       "medical-conditions": (count: number) => clamp(count, 0, 80),
-      "probiotic-records": (count: number) => clamp(count, 0, 400),
-      "probiotic-brand-probiotic-record": (count: number) =>
-        clamp(count, 0, 400),
+      "visit-datas": (count: number) => clamp(count, 0, 400),
+      "microorganism-probiotic-brand": (count: number) => clamp(count, 0, 400),
       "medical-condition-patient": (count: number) => clamp(count, 0, 80),
     })
     .parseAsync();
@@ -745,12 +741,12 @@ async function getOptions() {
       admins: options.admins || 5,
       doctors: options.doctors || 10,
       patients: options.patients || 40,
-      probiotics: options.probiotics || 59,
+      microorganisms: options.microorganisms || 59,
       "probiotic-brands": options["probiotic-brands"] || 40,
       "medical-conditions": options["medical-conditions"] || 40,
-      "probiotic-records": options["probiotic-brands"] || 100,
-      "probiotic-brand-probiotic-record":
-        options["probiotic-brand-probiotic-record"] || 160,
+      "visit-datas": options["visit-datas"] || 100,
+      "microorganism-probiotic-brand":
+        options["microorganism-probiotic-brand"] || 160,
       "medical-condition-patient": options["medical-condition-patient"] || 20,
     };
   }
@@ -760,13 +756,12 @@ async function getOptions() {
     admins: options.admins || 0,
     doctors: options.doctors || 0,
     patients: options.patients || 0,
-    probiotics: options.probiotics || 0,
+    microorganisms: options.microorganisms || 0,
     "probiotic-brands": options["probiotic-brands"] || 0,
     "medical-conditions": options["medical-conditions"] || 0,
-    "probiotic-records": options["probiotic-records"] || 0,
-    "probiotic-brand-probiotic-record":
-      options["probiotic-brand-probiotic-record"] || 0,
+    "visit-datas": options["visit-datas"] || 0,
+    "microorganism-probiotic-brand":
+      options["microorganism-probiotic-brand"] || 0,
     "medical-condition-patient": options["medical-condition-patient"] || 0,
   };
 }
-/* eslint-enable @typescript-eslint/naming-convention */

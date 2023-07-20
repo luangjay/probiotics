@@ -12,7 +12,7 @@ import { handler as baseHandler } from "../../handler";
 export function handler(fn: ApiHandler) {
   return baseHandler(async (req: ApiRequest, ctx: ApiContext) => {
     const id = z.string().cuid().parse(ctx.params.id);
-    const probioticRecord = await prisma.probioticRecord.findUnique({
+    const probioticRecord = await prisma.visitData.findUnique({
       where: {
         id,
       },

@@ -38,8 +38,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
   const pathname = usePathname();
 
   const path = useMemo(() => pathname.split("/"), [pathname]);
-  const probioticRecordsPage =
-    path[1] === "patients" && path[3] === "probiotic-records";
+  const patientsPage = path[1] === "patients" && path[3] === undefined;
 
   const medicalConditionCount = patient?.medicalConditions.length ?? 0;
 
@@ -130,13 +129,13 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
         <CardFooter className="flex flex-col gap-4">
           <EditPatientDialog medicalConditions={medicalConditions} />
           <div className="flex w-full">
-            {probioticRecordsPage ? (
+            {patientsPage ? (
               <Link
-                href={`/patients/${patient.id}/time-series-results`}
+                href={`/patients/${patient.id}/microbiome-changes`}
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
                 <FileClockIcon className="mr-2 h-4 w-4" />
-                Time series results
+                Microbiome changes
               </Link>
             ) : (
               <Link
@@ -144,7 +143,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
                 <FileCheck2Icon className="mr-2 h-4 w-4" />
-                Probiotic records
+                Back to patients
               </Link>
             )}
           </div>

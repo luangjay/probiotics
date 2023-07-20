@@ -3,7 +3,7 @@ import { ApiResponse } from "@/types/api";
 import { handler } from "../handler";
 
 const GET = handler(async () => {
-  const probiotics = await prisma.probiotic.findMany();
+  const probiotics = await prisma.microorgranism.findMany();
   return ApiResponse.json(probiotics);
 });
 

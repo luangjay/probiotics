@@ -1,11 +1,8 @@
-import { TimeSeriesResults } from "@/components/time-series-results";
+import { MicrobiomeChanges } from "@/components/microbiome-changes";
 import { prisma } from "@/lib/prisma";
 import { species } from "@/lib/probiotic";
 import { type PatientRow } from "@/types/patient";
-import {
-  type ProbioticRecordResultEntry,
-  type TimeSeriesResultRow,
-} from "@/types/probiotic-record";
+import { type MicrobiomeChangeRow } from "@/types/visit-data";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -17,15 +14,15 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
   const patient = await getPatient(userId);
-  const { timeSeriesResults, timeSeriesResultSummary } =
-    await getTimeSeriesResults(userId);
+  const { microbiomeChanges, microbiomeChangeSummary } =
+    await getMicrobiomeChanges(userId);
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
-      <TimeSeriesResults
+      <MicrobiomeChanges
         patient={patient}
-        timeSeriesResults={timeSeriesResults}
-        timeSeriesResultSummary={timeSeriesResultSummary}
+        microbiomeChanges={microbiomeChanges}
+        microbiomeChangeSummary={microbiomeChangeSummary}
       />
     </div>
   );
@@ -67,19 +64,22 @@ async function getPatient(userId: string): Promise<PatientRow> {
   };
 }
 
-async function getTimeSeriesResults(patientId: string): Promise<{
-  timeSeriesResults: TimeSeriesResultRow[];
-  timeSeriesResultSummary: TimeSeriesResultRow[];
+async function getMicrobiomeChanges(patientId: string): Promise<{
+  microbiomeChanges: MicrobiomeChangeRow[];
+  microbiomeChangeSummary: MicrobiomeChangeRow[];
 }> {
-  const probioticRecords = await prisma.probioticRecord.findMany({
+  const visitDatas = await prisma.visitData.findMany({
     where: {
       patientId,
     },
+    include: {
+      microorganismRecords: true,
+    },
     orderBy: {
-      timestamp: "asc",
+      collectionDate: "asc",
     },
   });
-  const probiotics = await prisma.probiotic.findMany({
+  const probiotics = await prisma.microorgranism.findMany({
     orderBy: {
       id: "asc",
     },
@@ -101,11 +101,11 @@ async function getTimeSeriesResults(patientId: string): Promise<{
 
   // console.log(probioticTree);
 
-  const results = probioticRecords.map((probioticRecord) =>
+  const results = visitDatas.map((visitData) =>
     Object.fromEntries<number | undefined>(
-      (probioticRecord.result as ProbioticRecordResultEntry[]).map((entry) => [
-        species(entry.probiotic),
-        entry.value,
+      visitData.microorganismRecords.map((microorganismRecord) => [
+        species(microorganismRecord.microorganism),
+        microorganismRecord.reads,
       ])
     )
   );
@@ -121,7 +121,7 @@ async function getTimeSeriesResults(patientId: string): Promise<{
   const values = tree.reduce<(number | null)[][]>((acc, cur) => {
     const { species } = cur;
     const values = species.map((species) =>
-      probioticRecords.map((_, idx) => {
+      visitDatas.map((_, idx) => {
         const value = results[idx][species];
         return value ?? null;
       })
@@ -146,34 +146,34 @@ async function getTimeSeriesResults(patientId: string): Promise<{
   // console.log(table);
 
   return {
-    timeSeriesResults: tree.map((node) => {
+    microbiomeChanges: tree.map((node) => {
       const { genus, species } = node;
       return {
-        probiotic: genus,
+        microorganism: genus,
         timepoints: Object.fromEntries(
           table[genus].map((value, idx) => [
-            probioticRecords[idx].timestamp.getTime().toString(),
+            visitDatas[idx].collectionDate.getTime().toString(),
             value ?? 0,
           ])
         ),
         expanded: false,
         children: species.map((species) => ({
-          probiotic: species,
+          microorganism: species,
           timepoints: Object.fromEntries(
             table[species].map((value, idx) => [
-              probioticRecords[idx].timestamp.getTime().toString(),
+              visitDatas[idx].collectionDate.getTime().toString(),
               value ?? 0,
             ])
           ),
         })),
       };
     }),
-    timeSeriesResultSummary: [
+    microbiomeChangeSummary: [
       {
-        probiotic: "Total",
+        microorganism: "Total",
         timepoints: Object.fromEntries(
           total.map((value, idx) => [
-            probioticRecords[idx].timestamp.getTime().toString(),
+            visitDatas[idx].collectionDate.getTime().toString(),
             value,
           ])
         ),

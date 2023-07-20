@@ -4,7 +4,7 @@ import { ApiResponse } from "@/types/api";
 import { handler } from "../handler";
 
 const GET = handler(async () => {
-  const probioticRecords = await prisma.probioticRecord.findMany();
+  const probioticRecords = await prisma.visitData.findMany();
 
   return ApiResponse.json(probioticRecords);
 });
@@ -13,11 +13,20 @@ const POST = handler(async (req) => {
   // Validate the request body against the schema
   const body: unknown = await req.json();
   console.log(body);
-  const probioticRecordInfo = probioticRecordSchema.parse(body);
+  const {
+    fileUri: _,
+    microorganismRecords,
+    ...probioticRecordInfo
+  } = probioticRecordSchema.parse(body);
 
-  const probioticRecord = await prisma.probioticRecord.create({
+  const probioticRecord = await prisma.visitData.create({
     data: {
       ...probioticRecordInfo,
+      microorganismRecords: {
+        createMany: {
+          data: microorganismRecords,
+        },
+      },
     },
   });
 

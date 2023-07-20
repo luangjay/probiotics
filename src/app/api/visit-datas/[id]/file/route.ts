@@ -12,7 +12,7 @@ const GET = handler(async (req, ctx) => {
   return ApiResponse.csv(csv);
 });
 
-const POST = handler(async (req, ctx) => {
+const PUT = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
   // Validate file type
@@ -21,7 +21,7 @@ const POST = handler(async (req, ctx) => {
 
   const fileUri = await uploadCsv(file, "probiotic-records", id);
 
-  await prisma.probioticRecord.update({
+  await prisma.visitData.update({
     where: {
       id,
     },
@@ -33,4 +33,4 @@ const POST = handler(async (req, ctx) => {
   return new ApiResponse(fileUri);
 });
 
-export { GET, POST };
+export { GET, PUT };

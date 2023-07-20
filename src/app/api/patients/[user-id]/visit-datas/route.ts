@@ -5,9 +5,9 @@ import { handler } from "../handler";
 const GET = handler(async (req, ctx) => {
   const userId = ctx.params["user-id"];
 
-  const probioticRecords = await prisma.probioticRecord.findMany({
+  const probioticRecords = await prisma.visitData.findMany({
     where: {
-      doctorId: userId,
+      patientId: userId,
     },
   });
 

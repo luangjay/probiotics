@@ -1,4 +1,4 @@
-export type ProbioticRow = {
+export type MicroorganismRow = {
   id: number;
   name: string;
 };

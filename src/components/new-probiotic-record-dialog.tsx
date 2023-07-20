@@ -1,9 +1,10 @@
 "use client";
 
 import { FormErrorTooltip } from "@/components/form-error-tooltip";
+import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
 import {
   ProbioticEditor,
-  refineProbiotic,
+  refineMicroorganism,
 } from "@/components/rdg/probiotic-editor";
 import { ValueEditor, refineValue } from "@/components/rdg/value-editor";
 import { Button } from "@/components/ui/button";
@@ -21,18 +22,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useProbioticRecordResult } from "@/hooks/use-probiotic-record-result";
+import { useMicrobiomeRecordRows } from "@/hooks/use-probiotic-record-result";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadResultSchema as baseUploadResultSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
-import { type ProbioticRow } from "@/types/probiotic";
-import {
-  type ProbioticRecordResultEntry,
-  type ProbioticRecordResultRow,
-} from "@/types/probiotic-record";
+import { type MicroorganismRecordRow } from "@/types/microorganism-record";
+import { type MicroorganismRow } from "@/types/probiotic";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type ProbioticRecord } from "@prisma/client";
+import { type VisitData } from "@prisma/client";
 import { format, isValid, parse } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 import { getSession } from "next-auth/react";
@@ -48,17 +46,17 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 const uploadResultSchema = baseUploadResultSchema.extend({
-  timestamp: z.date({ required_error: "Collection date is required" }),
+  collectionDate: z.date({ required_error: "Collection date is required" }),
 });
 
 type UploadResultData = z.infer<typeof uploadResultSchema>;
 
 interface NewProbioticRecordDialogProps {
-  probiotics: ProbioticRow[];
+  microorganisms: MicroorganismRow[];
 }
 
 export function NewProbioticRecordDialog({
-  probiotics,
+  microorganisms,
 }: NewProbioticRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -66,9 +64,9 @@ export function NewProbioticRecordDialog({
   const router = useRouter();
   const { patient } = useSelectPatientStore();
 
-  const probioticNames = useMemo(
-    () => probiotics.map((probiotic) => probiotic.name),
-    [probiotics]
+  const microorganismNames = useMemo(
+    () => microorganisms.map((microorganism) => microorganism.name),
+    [microorganisms]
   );
 
   const {
@@ -85,19 +83,21 @@ export function NewProbioticRecordDialog({
       fileList: null,
     },
   });
-  const { timestamp, fileList } = useWatch<UploadResultData>({ control });
+  const { collectionDate, fileList } = useWatch<UploadResultData>({
+    control,
+  });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
   const { rows, setRows, resetRows, exportFile } =
-    useProbioticRecordResult(file);
+    useMicrobiomeRecordRows(file);
 
-  // REQUIREMENT: Try to infer timestamp from file name
+  // REQUIREMENT: Try to infer collection date from file name
   // HN1234 KP 20230630
   useEffect(() => {
     if (file) {
-      const dateString = file.name.replace(/\.[^.]+$/, "").split(" ")[2];
-      const date = parse(dateString, "yyyyMMdd", new Date());
+      const detected = file.name.replace(/\.[^.]+$/, "").split(" ")[2];
+      const date = parse(detected, "yyyyMMdd", new Date());
       if (isValid(date)) {
-        setValue("timestamp", date);
+        setValue("collectionDate", date);
       }
     }
   }, [file, setValue]);
@@ -108,46 +108,46 @@ export function NewProbioticRecordDialog({
     const doctor = session.user;
 
     const file = exportFile();
-    const result: ProbioticRecordResultEntry[] = (
-      rows.filter(
-        (row) =>
-          row.probiotic !== null &&
-          row.value !== null &&
-          !Number.isNaN(parseFloat(row.value))
-      ) as {
-        probiotic: string;
-        value: string;
-      }[]
-    ).map((row) => ({
-      probiotic: row.probiotic,
-      value: parseFloat(row.value),
-    }));
+    const microorganismRecords = rows
+      .filter(
+        (
+          row
+        ): row is {
+          idx: number;
+          microorganism: string;
+          reads: string;
+        } =>
+          row.microorganism !== null &&
+          row.reads !== null &&
+          !Number.isNaN(parseFloat(row.reads))
+      )
+      .map((row) => ({
+        microorganism: row.microorganism,
+        reads: parseFloat(row.reads),
+      }));
 
     const postReqBody = {
       doctorId: doctor.id,
       patientId: patient.id,
-      timestamp,
-      result,
+      collectionDate,
+      microorganismRecords,
     };
-    const postResponse = await fetch("/api/probiotic-records", {
+    const postResponse = await fetch("/api/visit-datas", {
       method: "POST",
       body: JSON.stringify(postReqBody),
     });
 
     if (!postResponse.ok) return;
-    const postResBody = (await postResponse.json()) as ProbioticRecord;
-    const { id: probioticRecordId } = postResBody;
+    const postResBody = (await postResponse.json()) as VisitData;
+    const { id: visitDataId } = postResBody;
 
     const formData = new FormData();
     formData.append("file", file);
 
-    const putResponse = await fetch(
-      `/api/probiotic-records/${probioticRecordId}/file`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    const putResponse = await fetch(`/api/visit-datas/${visitDataId}/file`, {
+      method: "PUT",
+      body: formData,
+    });
     if (!putResponse.ok) return;
     setOpen(false);
     router.refresh();
@@ -158,7 +158,7 @@ export function NewProbioticRecordDialog({
   useEffect(() => void setLoading(false), []);
 
   // Columns
-  const columns = useMemo<Column<ProbioticRecordResultRow>[]>(
+  const columns = useMemo<Column<MicroorganismRecordRow>[]>(
     () => [
       {
         key: "probiotic",
@@ -180,21 +180,21 @@ export function NewProbioticRecordDialog({
     []
   );
 
-  const handleCopy = ({
-    sourceRow,
-    sourceColumnKey,
-  }: CopyEvent<ProbioticRecordResultRow>) => {
-    if (window.isSecureContext) {
-      const text = sourceRow[sourceColumnKey as keyof ProbioticRecordResultRow];
-      if (typeof text === "string") {
-        void navigator.clipboard.writeText(text);
+  const handleCopy = useCallback(
+    ({ sourceRow, sourceColumnKey }: CopyEvent<MicroorganismRecordRow>) => {
+      if (window.isSecureContext) {
+        const text = sourceRow[sourceColumnKey as keyof MicroorganismRecordRow];
+        if (typeof text === "string") {
+          void navigator.clipboard.writeText(text);
+        }
       }
-    }
-  };
+    },
+    []
+  );
 
   const handleCellKeyDown = useCallback(
     (
-      { row, column }: CellKeyDownArgs<ProbioticRecordResultRow>,
+      { row, column }: CellKeyDownArgs<MicroorganismRecordRow>,
       e: CellKeyboardEvent
     ) => {
       if (e.ctrlKey && e.key === "v") {
@@ -205,20 +205,20 @@ export function NewProbioticRecordDialog({
 
           const replaceRows = pasted.map((result, idx) => {
             const newIdx = row.idx + idx;
-            const probiotic = rows[newIdx]?.probiotic;
-            const value = rows[newIdx]?.value;
+            const microorganism = rows[newIdx]?.microorganism;
+            const reads = rows[newIdx]?.reads;
 
-            const newProbiotic = result[-column.idx];
+            const newMicroorganism = result[-column.idx];
             const newValue = result[-column.idx + 1];
 
             return {
               idx: newIdx,
-              probiotic: newProbiotic
-                ? refineProbiotic(probiotic, newProbiotic)
-                : rows[newIdx]?.probiotic ?? null,
-              value: newValue
-                ? refineValue(value, newValue)
-                : rows[newIdx]?.value ?? null,
+              microorganism: newMicroorganism
+                ? refineMicroorganism(microorganism, newMicroorganism)
+                : rows[newIdx]?.microorganism ?? null,
+              reads: newValue
+                ? refineValue(reads, newValue)
+                : rows[newIdx]?.reads ?? null,
             };
           });
 
@@ -250,24 +250,25 @@ export function NewProbioticRecordDialog({
           rowKeyGetter={(row) => row.idx}
           rowClass={(row) =>
             cn(
-              row.probiotic !== null &&
-                !probioticNames.includes(row.probiotic) &&
+              row.microorganism !== null &&
+                !microorganismNames.includes(row.microorganism) &&
                 "bg-destructive text-destructive-foreground"
             )
           }
           renderers={{
-            noRowsFallback: (
-              <div
-                className="flex h-full w-full items-center justify-center"
-                style={{ textAlign: "center", gridColumn: "1/-1" }}
-              >
-                Nothing to show (´・ω・`)
-              </div>
-            ),
+            noRowsFallback: <NoRowsFallback />,
           }}
         />
       ),
-    [loading, rows, columns, setRows, handleCellKeyDown, probioticNames]
+    [
+      loading,
+      rows,
+      columns,
+      setRows,
+      handleCopy,
+      handleCellKeyDown,
+      microorganismNames,
+    ]
   );
 
   return (
@@ -294,12 +295,12 @@ export function NewProbioticRecordDialog({
                   variant={"outline"}
                   className={cn(
                     "w-[10rem] justify-start text-left font-normal",
-                    !timestamp && "text-muted-foreground"
+                    !collectionDate && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {timestamp
-                    ? format(timestamp, "yyyy-MM-dd")
+                  {collectionDate
+                    ? format(collectionDate, "yyyy-MM-dd")
                     : "Collection date"}
                 </Button>
               </PopoverTrigger>
@@ -308,9 +309,9 @@ export function NewProbioticRecordDialog({
                   initialFocus
                   mode="single"
                   captionLayout="dropdown-buttons"
-                  selected={timestamp}
+                  selected={collectionDate}
                   onSelect={(day, selectedDay) =>
-                    setValue("timestamp", selectedDay)
+                    setValue("collectionDate", selectedDay)
                   }
                 />
               </PopoverContent>
@@ -329,8 +330,8 @@ export function NewProbioticRecordDialog({
               message={
                 errors.fileList
                   ? errors.fileList.message
-                  : errors.timestamp
-                  ? errors.timestamp.message
+                  : errors.collectionDate
+                  ? errors.collectionDate.message
                   : undefined
               }
             />

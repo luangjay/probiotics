@@ -7,7 +7,7 @@ function ref(input: HTMLInputElement | null) {
   input?.select();
 }
 
-export function refineProbiotic(
+export function refineMicroorganism(
   probiotic: string | null,
   newProbiotic: string
 ) {

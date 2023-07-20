@@ -11,13 +11,13 @@ import { handler as baseHandler } from "../../handler";
 export function handler(fn: ApiHandler) {
   return baseHandler(async (req: ApiRequest, ctx: ApiContext) => {
     const id = z.number().int().parse(parseInt(ctx.params.id));
-    const probiotic = await prisma.probiotic.findUnique({
+    const probiotic = await prisma.microorgranism.findUnique({
       where: {
         id,
       },
     });
     if (probiotic === null) {
-      return new ApiResponse("Probiotic not found", { status: 404 });
+      return new ApiResponse("Microorganism not found", { status: 404 });
     }
     const response = await fn(req, ctx);
     return response;

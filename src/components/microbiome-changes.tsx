@@ -7,24 +7,24 @@ import { Toggle } from "@/components/ui/toggle";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { formatTimeSeriesValue } from "@/lib/rdg";
 import { type PatientRow } from "@/types/patient";
-import { type TimeSeriesResultRow } from "@/types/probiotic-record";
+import { type MicrobiomeChangeRow } from "@/types/visit-data";
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
 
-interface TimeSeriesResultsProps {
+interface MicrobiomeChangesProps {
   patient: PatientRow;
-  timeSeriesResults: TimeSeriesResultRow[];
-  timeSeriesResultSummary: TimeSeriesResultRow[];
+  microbiomeChanges: MicrobiomeChangeRow[];
+  microbiomeChangeSummary: MicrobiomeChangeRow[];
 }
 
-export function TimeSeriesResults({
+export function MicrobiomeChanges({
   patient,
-  timeSeriesResults,
-  timeSeriesResultSummary: summaryRows,
-}: TimeSeriesResultsProps) {
+  microbiomeChanges,
+  microbiomeChangeSummary,
+}: MicrobiomeChangesProps) {
   // Initialize
-  const [rows, setRows] = useState<TimeSeriesResultRow[]>(timeSeriesResults);
+  const [rows, setRows] = useState<MicrobiomeChangeRow[]>(microbiomeChanges);
   const keys = Object.keys(rows[0]?.timepoints ?? { probiotic: null });
 
   // Store
@@ -48,7 +48,7 @@ export function TimeSeriesResults({
   );
 
   const columns = useMemo<
-    readonly Column<TimeSeriesResultRow, TimeSeriesResultRow>[]
+    readonly Column<MicrobiomeChangeRow, MicrobiomeChangeRow>[]
   >(
     () => [
       {
@@ -60,8 +60,8 @@ export function TimeSeriesResults({
             {...p}
             expanded={expanded}
             onExpandAll={() => {
-              const newRows: TimeSeriesResultRow[] = [];
-              timeSeriesResults.forEach((row) => {
+              const newRows: MicrobiomeChangeRow[] = [];
+              microbiomeChanges.forEach((row) => {
                 const children = row.children ?? [];
                 row = { ...row, expanded: !expanded };
                 newRows.push(row, ...(!expanded ? children : []));
@@ -75,7 +75,7 @@ export function TimeSeriesResults({
             {...p}
             onExpand={() => {
               const rowIdx = rows.findIndex(
-                (row) => row.probiotic === p.row.probiotic
+                (row) => row.microorganism === p.row.microorganism
               );
               const row = rows[rowIdx];
               const newRows = [...rows];
@@ -90,11 +90,11 @@ export function TimeSeriesResults({
             }}
           />
         ),
-        renderSummaryCell: ({ row }) => row.probiotic,
+        renderSummaryCell: ({ row }) => row.microorganism,
       },
       ...keys
         .slice(-2)
-        .map<Column<TimeSeriesResultRow, TimeSeriesResultRow>>((key) => ({
+        .map<Column<MicrobiomeChangeRow, MicrobiomeChangeRow>>((key) => ({
           key,
           name: key,
           width: "25%",
@@ -104,18 +104,25 @@ export function TimeSeriesResults({
             formatTimeSeriesValue(
               normalized,
               row.timepoints[key],
-              summaryRows[0].timepoints[key]
+              microbiomeChangeSummary[0].timepoints[key]
             ),
           summaryCellClass: "tabular-nums tracking-tighter text-end",
           renderSummaryCell: ({ row }) =>
             formatTimeSeriesValue(
               normalized,
               row.timepoints[key],
-              summaryRows[0].timepoints[key]
+              microbiomeChangeSummary[0].timepoints[key]
             ),
         })),
     ],
-    [rows, keys, normalized, summaryRows, expanded, timeSeriesResults]
+    [
+      rows,
+      keys,
+      normalized,
+      microbiomeChangeSummary,
+      expanded,
+      microbiomeChanges,
+    ]
   );
 
   const gridElement = useMemo(
@@ -130,7 +137,7 @@ export function TimeSeriesResults({
           className="rdg-light flex-1 overflow-y-scroll"
           rows={rows}
           columns={columns}
-          bottomSummaryRows={summaryRows}
+          bottomSummaryRows={microbiomeChangeSummary}
           headerRowHeight={40}
           rowHeight={40}
           renderers={{
@@ -138,7 +145,7 @@ export function TimeSeriesResults({
           }}
         />
       ),
-    [loading, rows, columns, summaryRows]
+    [loading, rows, columns, microbiomeChangeSummary]
   );
 
   return (

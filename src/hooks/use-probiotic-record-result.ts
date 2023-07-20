@@ -1,42 +1,40 @@
 import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/file";
-import {
-  type ProbioticRecordResultEntry,
-  type ProbioticRecordResultRow,
-} from "@/types/probiotic-record";
+import { type MicroorganismRecordRow } from "@/types/microorganism-record";
+import { type MicroorganismRecord } from "@prisma/client";
 import { useCallback, useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
 interface UseProbioticRecordResultOptions {
-  initialResult?: ProbioticRecordResultEntry[];
+  initial?: MicroorganismRecord[];
 }
 
-export function useProbioticRecordResult(
+export function useMicrobiomeRecordRows(
   file?: File,
   options?: UseProbioticRecordResultOptions
 ) {
   // Initialize
-  const { initialResult } = { ...options };
+  const { initial } = { ...options };
 
   // States
   const [loading, setLoading] = useState(true);
   const [reader, setReader] = useState<FileReader>();
-  const [rows, setRows] = useState<ProbioticRecordResultRow[]>([]);
+  const [rows, setRows] = useState<MicroorganismRecordRow[]>([]);
 
   useEffect(() => void setLoading(false), []);
 
   const resetRows = useCallback(async () => {
-    if (!initialResult) {
+    if (!initial) {
       const emptyRows = await createEmptyResultRows(0, 20);
       setRows(emptyRows);
       return;
     }
-    const rows = initialResult.map((entry, idx) => ({
+    const rows = initial.map((microorganismRecord, idx) => ({
       idx,
-      probiotic: entry.probiotic,
-      value: entry.value.toString(),
+      microorganism: microorganismRecord.microorganism,
+      reads: microorganismRecord.reads.toString(),
     }));
     setRows(rows);
-  }, [initialResult]);
+  }, [initial]);
 
   const createEmptyRows = async (
     startIdx: number,
@@ -53,15 +51,20 @@ export function useProbioticRecordResult(
     const worksheet = XLSX.utils.book_new();
     XLSX.utils.sheet_add_aoa(worksheet, header);
 
-    const result: ProbioticRecordResultEntry[] = (
-      rows.filter((row) => row.probiotic !== null && row.value !== null) as {
-        probiotic: string;
-        value: string;
-      }[]
-    ).map((rows) => ({
-      probiotic: rows.probiotic,
-      value: parseFloat(rows.value),
-    }));
+    const result = rows
+      .filter(
+        (
+          row
+        ): row is {
+          idx: number;
+          microorganism: string;
+          reads: string;
+        } => row.microorganism !== null && row.reads !== null
+      )
+      .map((rows) => ({
+        probiotic: rows.microorganism,
+        value: parseFloat(rows.reads),
+      }));
     XLSX.utils.sheet_add_json(worksheet, result, {
       origin: "A2",
       skipHeader: true,
@@ -91,16 +94,16 @@ export function useProbioticRecordResult(
       const sheet = workbook.Sheets[sheetName];
 
       const rows = XLSX.utils.sheet_to_json<{
-        probiotic: string | null;
-        value: string | number | null;
+        microorganism: string | null;
+        reads: string | number | null;
       }>(sheet, {
         header: ["probiotic", "value"],
         range: 1,
       });
-      const result: ProbioticRecordResultRow[] = rows.map((row, idx) => ({
+      const result: MicroorganismRecordRow[] = rows.map((row, idx) => ({
         idx,
-        probiotic: row.probiotic,
-        value: typeof row.value === "number" ? row.value.toString() : row.value,
+        microorganism: row.microorganism,
+        reads: typeof row.reads === "number" ? row.reads.toString() : row.reads,
       }));
       setRows(result);
     };
@@ -127,7 +130,9 @@ export function useProbioticRecordResult(
   useEffect(() => {
     if (
       !loading &&
-      rows.slice(-5).some((row) => row.probiotic !== null || row.value !== null)
+      rows
+        .slice(-5)
+        .some((row) => row.microorganism !== null || row.reads !== null)
     ) {
       const startIdx = rows.length;
       void createEmptyRows(startIdx, Math.max(20 - startIdx, 5));
@@ -148,13 +153,13 @@ async function createEmptyResultRows(
   count: number,
   timeout = 0
 ) {
-  return new Promise<ProbioticRecordResultRow[]>((resolve) => {
-    const rows: ProbioticRecordResultRow[] = Array.from(
+  return new Promise<MicroorganismRecordRow[]>((resolve) => {
+    const rows: MicroorganismRecordRow[] = Array.from(
       { length: count },
       (_, idx) => ({
         idx: startIdx + idx,
-        probiotic: null,
-        value: null,
+        microorganism: null,
+        reads: null,
       })
     );
     setTimeout(() => resolve(rows), timeout);

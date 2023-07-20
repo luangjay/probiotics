@@ -14,7 +14,7 @@ export function handler(fn: ApiHandler) {
     const conditionId = z
       .number()
       .int()
-      .parse(parseInt(ctx.params["condition-id"]));
+      .parse(parseInt(ctx.params["medical-condition-id"]));
 
     const medicalCondition = await prisma.medicalConditionPatient.findUnique({
       where: {

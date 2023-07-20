@@ -1,9 +1,9 @@
-import { type TimeSeriesResultRow } from "@/types/probiotic-record";
+import { type MicrobiomeChangeRow } from "@/types/visit-data";
 import { XIcon } from "lucide-react";
 import { type RenderCellProps } from "react-data-grid";
 
 interface TimeSeriesProbioticCellProps
-  extends RenderCellProps<TimeSeriesResultRow, TimeSeriesResultRow> {
+  extends RenderCellProps<MicrobiomeChangeRow, MicrobiomeChangeRow> {
   onExpand: () => void;
 }
 
@@ -12,7 +12,7 @@ export function TimeSeriesProbioticCell({
   tabIndex,
   onExpand,
 }: TimeSeriesProbioticCellProps) {
-  const { probiotic, expanded } = row;
+  const { microorganism, expanded } = row;
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
@@ -26,7 +26,7 @@ export function TimeSeriesProbioticCell({
           <XIcon className="ml-px h-[20px] w-[20px]" strokeWidth={1} />
         </div>
       )}
-      {probiotic}
+      {microorganism}
       {expanded !== undefined && (
         <button
           tabIndex={tabIndex}

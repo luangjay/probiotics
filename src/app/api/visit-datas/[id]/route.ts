@@ -6,7 +6,7 @@ import { handler } from "./handler";
 const GET = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
-  const probioticRecord = await prisma.probioticRecord.findUniqueOrThrow({
+  const probioticRecord = await prisma.visitData.findUniqueOrThrow({
     where: {
       id,
     },
@@ -20,16 +20,23 @@ const PUT = handler(async (req, ctx) => {
 
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  const probioticRecordInfo = partialProbioticRecordSchema.parse(body);
+  const {
+    fileUri: _,
+    microorganismRecords,
+    ...probioticRecordInfo
+  } = partialProbioticRecordSchema.parse(body);
 
-  console.log(probioticRecordInfo)
-
-  const probioticRecord = await prisma.probioticRecord.update({
+  const probioticRecord = await prisma.visitData.update({
     where: {
       id,
     },
     data: {
       ...probioticRecordInfo,
+      microorganismRecords: {
+        createMany: {
+          data: microorganismRecords ?? [],
+        },
+      },
     },
   });
 
@@ -39,7 +46,7 @@ const PUT = handler(async (req, ctx) => {
 const DELETE = handler(async (req, ctx) => {
   const id = ctx.params.id;
 
-  await prisma.probioticRecord.delete({
+  await prisma.visitData.delete({
     where: {
       id,
     },

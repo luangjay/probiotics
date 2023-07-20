@@ -1,8 +1,8 @@
-import { type TimeSeriesResultRow } from "@/types/probiotic-record";
+import { type MicrobiomeChangeRow } from "@/types/visit-data";
 import { type RenderHeaderCellProps } from "react-data-grid";
 
 interface TimeSeriesProbioticHeaderProps
-  extends RenderHeaderCellProps<TimeSeriesResultRow, TimeSeriesResultRow> {
+  extends RenderHeaderCellProps<MicrobiomeChangeRow, MicrobiomeChangeRow> {
   expanded: boolean;
   onExpandAll: () => void;
 }

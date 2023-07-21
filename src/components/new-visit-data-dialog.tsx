@@ -27,15 +27,15 @@ import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadResultSchema as baseUploadResultSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
+import { type MicroorganismRow } from "@/types/microorganism";
 import { type MicroorganismRecordRow } from "@/types/microorganism-record";
-import { type MicroorganismRow } from "@/types/probiotic";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type VisitData } from "@prisma/client";
 import { format, isValid, parse } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
   type CellKeyDownArgs,
   type CellKeyboardEvent,
@@ -51,13 +51,15 @@ const uploadResultSchema = baseUploadResultSchema.extend({
 
 type UploadResultData = z.infer<typeof uploadResultSchema>;
 
-interface NewProbioticRecordDialogProps {
+interface NewVisitDataDialogProps {
   microorganisms: MicroorganismRow[];
+  trigger?: JSX.Element
 }
 
-export function NewProbioticRecordDialog({
+export function NewVisitDataDialog({
   microorganisms,
-}: NewProbioticRecordDialogProps) {
+  trigger
+}: NewVisitDataDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -161,7 +163,7 @@ export function NewProbioticRecordDialog({
   const columns = useMemo<Column<MicroorganismRecordRow>[]>(
     () => [
       {
-        key: "probiotic",
+        key: "microorganism",
         name: "Microorganism",
         minWidth: 416,
         maxWidth: 416,
@@ -169,7 +171,7 @@ export function NewProbioticRecordDialog({
         renderEditCell: (p) => <ProbioticEditor {...p} />,
       },
       {
-        key: "value",
+        key: "reads",
         name: "Reads",
         minWidth: 90,
         maxWidth: 90,
@@ -274,10 +276,10 @@ export function NewProbioticRecordDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-full">
+        {trigger ?? <Button className="h-full">
           <PlusIcon className="mr-2 h-4 w-4" />
           Import abundance file
-        </Button>
+        </Button>}
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
         <DialogTitle className="px-1">Import abundance file</DialogTitle>

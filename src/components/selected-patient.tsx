@@ -139,7 +139,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
               </Link>
             ) : (
               <Link
-                href={`/patients/${patient.id}/probiotic-records`}
+                href={`/patients`}
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
                 <FileCheck2Icon className="mr-2 h-4 w-4" />

@@ -13,7 +13,7 @@ import { cn, sleep } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
 import { format } from "date-fns";
-import { FileCheck2Icon, RotateCwIcon, SearchIcon } from "lucide-react";
+import { FileClockIcon, RotateCwIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -91,10 +91,10 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
         cellClass: cn("!p-0"),
         renderCell: ({ row }) => (
           <Link
-            href={`/patients/${row.id}/probiotic-records`}
+            href={`/patients/${row.id}/microbiome-changes`}
             className="flex h-full w-full items-center justify-center"
           >
-            <FileCheck2Icon className="h-[18px] w-[18px] opacity-70" />
+            <FileClockIcon className="h-[18px] w-[18px] opacity-80" />
           </Link>
         ),
       },

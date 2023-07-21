@@ -174,7 +174,7 @@ p {
 }
 
 .rdg-header-row {
-  color: hsl(var(--secondary-foreground));
+  @apply font-semibold text-secondary-foreground;
 }
 
 .rdg-header-row > .rdg-cell:first-child[aria-selected="true"]:after {
@@ -190,7 +190,7 @@ p {
 }
 
 .rdg-summary-row > .rdg-cell {
-  @apply border-b-0 border-t font-bold;
+  @apply border-b-0 border-t font-semibold;
 }
 
 .rdg-cell {

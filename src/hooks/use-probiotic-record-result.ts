@@ -22,6 +22,8 @@ export function useMicrobiomeRecordRows(
 
   useEffect(() => void setLoading(false), []);
 
+  useEffect(() => console.log(rows), [rows]);
+
   const resetRows = useCallback(async () => {
     if (!initial) {
       const emptyRows = await createEmptyResultRows(0, 20);
@@ -42,12 +44,11 @@ export function useMicrobiomeRecordRows(
     timeout = 0
   ) => {
     const emptyRows = await createEmptyResultRows(startIdx, count, timeout);
-    console.log("on: createEmptyResults");
     setRows((prev) => [...prev, ...emptyRows]);
   };
 
   const exportFile = () => {
-    const header = [["Probiotic", "Value"]];
+    const header = [["Microorganism", "Reads"]];
     const worksheet = XLSX.utils.book_new();
     XLSX.utils.sheet_add_aoa(worksheet, header);
 
@@ -76,10 +77,10 @@ export function useMicrobiomeRecordRows(
       blankrows: false,
     });
     // const blob = new Blob([csv], { type: "text/csv" });
-    const file = new File([csv], "data.csv", {
+    const exported = new File([csv], `${file?.name ?? "untitled"}.csv`, {
       type: "text/csv;charset=utf-8",
     });
-    return file;
+    return exported;
   };
 
   // Component mounted
@@ -97,7 +98,7 @@ export function useMicrobiomeRecordRows(
         microorganism: string | null;
         reads: string | number | null;
       }>(sheet, {
-        header: ["probiotic", "value"],
+        header: ["microorganism", "reads"],
         range: 1,
       });
       const result: MicroorganismRecordRow[] = rows.map((row, idx) => ({

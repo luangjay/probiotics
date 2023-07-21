@@ -96,7 +96,7 @@ export function splitClipboard(clipboard: string) {
   return rows;
 }
 
-export function formatTimeSeriesValue(
+export function formatReads(
   normalized: boolean,
   value: string | number,
   total: string | number

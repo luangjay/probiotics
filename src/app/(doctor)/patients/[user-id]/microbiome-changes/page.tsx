@@ -1,6 +1,7 @@
 import { MicrobiomeChanges } from "@/components/microbiome-changes";
 import { prisma } from "@/lib/prisma";
 import { species } from "@/lib/probiotic";
+import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
 import { type MicrobiomeChangeRow } from "@/types/visit-data";
 import { notFound } from "next/navigation";
@@ -16,6 +17,7 @@ export default async function Page({ params }: PageProps) {
   const patient = await getPatient(userId);
   const { microbiomeChanges, microbiomeChangeSummary } =
     await getMicrobiomeChanges(userId);
+  const microorganisms = await getMicroorganisms();
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
@@ -23,6 +25,7 @@ export default async function Page({ params }: PageProps) {
         patient={patient}
         microbiomeChanges={microbiomeChanges}
         microbiomeChangeSummary={microbiomeChangeSummary}
+        microorganisms={microorganisms}
       />
     </div>
   );
@@ -180,6 +183,16 @@ async function getMicrobiomeChanges(patientId: string): Promise<{
       },
     ],
   };
+}
+
+async function getMicroorganisms(): Promise<MicroorganismRow[]> {
+  const microorganisms = await prisma.microorgranism.findMany();
+  return microorganisms.map((microorganism) => ({
+    id: microorganism.id,
+    name: microorganism.name,
+    probiotic: microorganism.probiotic,
+    essential: microorganism.essential,
+  }));
 }
 
 export const dynamic = "force-dynamic";

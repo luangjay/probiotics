@@ -28,8 +28,8 @@ function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
   return (
     <SelectCellFormatter
       aria-label="Select All"
-      tabIndex={tabIndex}
       value={value}
+      tabIndex={tabIndex}
       onChange={(checked) => {
         if (!checked) {
           void setPatient(undefined);

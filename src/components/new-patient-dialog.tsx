@@ -88,7 +88,6 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
   const [selectedM14ns, setSelectedM14ns] = useState<MedicalConditionRow[]>([]);
 
   const onSubmit = async (data: NewPatientData) => {
-    console.log("aaa");
     const response = await fetch("/api/patients", {
       method: "POST",
       body: JSON.stringify(data),

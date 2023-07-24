@@ -1,12 +1,12 @@
 "use client";
 
 import { FormErrorTooltip } from "@/components/form-error-tooltip";
-import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
 import {
-  ProbioticEditor,
+  MicroorganismEditor,
   refineMicroorganism,
-} from "@/components/rdg/probiotic-editor";
-import { ValueEditor, refineValue } from "@/components/rdg/value-editor";
+} from "@/components/rdg/microorganism-editor";
+import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
+import { ReadsEditor, refineReads } from "@/components/rdg/reads-editor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useMicrobiomeRecordRows } from "@/hooks/use-probiotic-record-result";
+import { useMicroorganismRecordRows } from "@/hooks/use-microorganism-record-rows";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadResultSchema as baseUploadResultSchema } from "@/lib/schema";
@@ -35,7 +35,7 @@ import { format, isValid, parse } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, {
   type CellKeyDownArgs,
   type CellKeyboardEvent,
@@ -53,12 +53,12 @@ type UploadResultData = z.infer<typeof uploadResultSchema>;
 
 interface NewVisitDataDialogProps {
   microorganisms: MicroorganismRow[];
-  trigger?: JSX.Element
+  trigger?: JSX.Element;
 }
 
 export function NewVisitDataDialog({
   microorganisms,
-  trigger
+  trigger,
 }: NewVisitDataDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -90,7 +90,7 @@ export function NewVisitDataDialog({
   });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
   const { rows, setRows, resetRows, exportFile } =
-    useMicrobiomeRecordRows(file);
+    useMicroorganismRecordRows(file);
 
   // REQUIREMENT: Try to infer collection date from file name
   // HN1234 KP 20230630
@@ -168,7 +168,7 @@ export function NewVisitDataDialog({
         minWidth: 416,
         maxWidth: 416,
         width: 416,
-        renderEditCell: (p) => <ProbioticEditor {...p} />,
+        renderEditCell: (p) => <MicroorganismEditor {...p} />,
       },
       {
         key: "reads",
@@ -176,7 +176,7 @@ export function NewVisitDataDialog({
         minWidth: 90,
         maxWidth: 90,
         width: 90,
-        renderEditCell: (p) => <ValueEditor {...p} />,
+        renderEditCell: (p) => <ReadsEditor {...p} />,
       },
     ],
     []
@@ -219,7 +219,7 @@ export function NewVisitDataDialog({
                 ? refineMicroorganism(microorganism, newMicroorganism)
                 : rows[newIdx]?.microorganism ?? null,
               reads: newValue
-                ? refineValue(reads, newValue)
+                ? refineReads(reads, newValue)
                 : rows[newIdx]?.reads ?? null,
             };
           });
@@ -274,12 +274,18 @@ export function NewVisitDataDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(open) => {
+      if (!isSubmitting) {
+        setOpen(open);
+      }
+    }}>
       <DialogTrigger asChild>
-        {trigger ?? <Button className="h-full">
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Import abundance file
-        </Button>}
+        {trigger ?? (
+          <Button className="h-10">
+            <PlusIcon className="mr-2 h-4 w-4" />
+            Import abundance file
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
         <DialogTitle className="px-1">Import abundance file</DialogTitle>

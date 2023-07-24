@@ -7,27 +7,32 @@ function ref(input: HTMLInputElement | null) {
   input?.select();
 }
 
-export function refineValue(value: string | null, newValue: string) {
-  return newValue.match(VALUE_REGEX) ? newValue : value;
+export function refineReads(
+  reads: string | null,
+  newReads: string | number | null
+) {
+  return typeof newReads === "string" && newReads.match(VALUE_REGEX)
+    ? newReads
+    : reads;
 }
 
-export function ValueEditor<R, SR>({
+export function ReadsEditor<R, SR>({
   row,
   column,
   onRowChange,
   onClose,
 }: RenderEditCellProps<R, SR>) {
-  const value = row[column.key as keyof R];
+  const reads = row[column.key as keyof R];
   return (
     <input
       ref={ref}
       spellCheck={false}
-      value={typeof value === "string" ? value : ""}
+      value={typeof reads === "string" ? reads : ""}
       className="-mx-2 h-full w-[calc(100%+16px)] bg-inherit px-[8px] py-0 focus:outline-none"
       onChange={(e) => {
         const targetValue = e.target.value.match(VALUE_REGEX)
           ? e.target.value
-          : value;
+          : reads;
         onRowChange({
           ...row,
           [column.key]:

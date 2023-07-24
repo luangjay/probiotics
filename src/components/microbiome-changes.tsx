@@ -1,25 +1,32 @@
 "use client";
 
 import { NewVisitDataDialog } from "@/components/new-visit-data-dialog";
+import {
+  MicroorganismCell,
+  MicroorganismHeaderCell,
+} from "@/components/rdg/microorganism-cell";
 import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
-import { TimeSeriesProbioticCell } from "@/components/rdg/time-series-probiotic-cell";
-import { TimeSeriesProbioticHeader } from "@/components/rdg/time-series-probiotic-header";
 import { Toggle } from "@/components/ui/toggle";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { formatReads } from "@/lib/rdg";
-import { cn, sleep } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
-import { type MicrobiomeChangeRow } from "@/types/visit-data";
+import {
+  type MicrobiomeChangeRow,
+  type VisitDataRow,
+} from "@/types/visit-data";
 import { format } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import DataGrid, { type Column, type DataGridHandle } from "react-data-grid";
+import { ReadsHeaderCell } from "./rdg/reads-cell";
 
 interface MicrobiomeChangesProps {
   patient: PatientRow;
   microbiomeChanges: MicrobiomeChangeRow[];
   microbiomeChangeSummary: MicrobiomeChangeRow[];
   microorganisms: MicroorganismRow[];
+  visitDatas: VisitDataRow[];
 }
 
 export function MicrobiomeChanges({
@@ -27,10 +34,11 @@ export function MicrobiomeChanges({
   microbiomeChanges,
   microbiomeChangeSummary: summaryRows,
   microorganisms,
+  visitDatas,
 }: MicrobiomeChangesProps) {
   // Initialize
   const [rows, setRows] = useState<MicrobiomeChangeRow[]>(microbiomeChanges);
-  const keys = Object.keys(rows[0]?.timepoints ?? { probiotic: null });
+  const keys = Object.keys(rows[0]?.timepoints ?? { microorganism: null });
 
   // Store
   const { setPatient: setSelectedPatient } = useSelectPatientStore();
@@ -44,6 +52,8 @@ export function MicrobiomeChanges({
     [setSelectedPatient, patient]
   );
 
+  useEffect(() => void setRows(microbiomeChanges), [microbiomeChanges]);
+
   const expanded = useMemo<boolean>(
     () => rows.every((row) => row.expanded !== false),
     [rows]
@@ -54,13 +64,13 @@ export function MicrobiomeChanges({
   >(
     () => [
       {
-        key: "probiotic",
+        key: "microorganism",
         name: "Microorganism",
         frozen: true,
         width: "40%",
         headerCellClass: cn(keys.length === 0 && "!border-r"),
         renderHeaderCell: (p) => (
-          <TimeSeriesProbioticHeader
+          <MicroorganismHeaderCell
             {...p}
             expanded={expanded}
             onExpandAll={() => {
@@ -76,7 +86,7 @@ export function MicrobiomeChanges({
         ),
         cellClass: cn(keys.length === 0 && "!border-r"),
         renderCell: (p) => (
-          <TimeSeriesProbioticCell
+          <MicroorganismCell
             {...p}
             onExpand={() => {
               const rowIdx = rows.findIndex(
@@ -98,16 +108,22 @@ export function MicrobiomeChanges({
         summaryCellClass: cn(keys.length === 0 && "!border-r"),
         renderSummaryCell: ({ row }) => row.microorganism,
       },
-      ...keys.map<Column<MicrobiomeChangeRow, MicrobiomeChangeRow>>(
-        (key, idx) => ({
+      ...keys
+        .map<Column<MicrobiomeChangeRow, MicrobiomeChangeRow>>((key, idx) => ({
           key,
-          name: key,
+          name: format(new Date(parseInt(key)), "yyyy-MM-dd"),
           width: "30%",
           headerCellClass: cn(
-            "text-end tabular-nums tracking-tighter",
+            "flex items-center justify-between text-end tabular-nums tracking-tighter",
             keys.length === 1 && idx === 0 && "!border-r"
           ),
-          renderHeaderCell: () => format(new Date(parseInt(key)), "yyyy-MM-dd"),
+          renderHeaderCell: (p) => (
+            <ReadsHeaderCell
+              {...p}
+              visitData={visitDatas[idx]}
+              microorganisms={microorganisms}
+            />
+          ),
           cellClass: cn(
             "text-end tabular-nums tracking-tighter",
             keys.length === 1 && idx === 0 && "!border-r"
@@ -128,54 +144,67 @@ export function MicrobiomeChanges({
               row.timepoints[key],
               summaryRows[0].timepoints[key]
             ),
-        })
-      ),
+        }))
+        .slice(-2),
     ],
-    [microbiomeChanges, rows, keys, summaryRows, expanded, normalized]
+    [
+      microbiomeChanges,
+      microorganisms,
+      visitDatas,
+      rows,
+      summaryRows,
+      keys,
+      expanded,
+      normalized,
+    ]
   );
 
   // Ref
   const ref = useRef<DataGridHandle | null>(null);
 
-  const gridElement = useMemo(
-    () =>
-      loading ? (
-        <div className="flex flex-1 items-center justify-center">
-          Loading...
-        </div>
-      ) : (
-        <DataGrid
-          ref={ref}
-          direction="ltr"
-          className="rdg-light h-full overflow-scroll"
-          rows={rows}
-          columns={columns}
-          bottomSummaryRows={summaryRows}
-          headerRowHeight={40}
-          rowHeight={40}
-          renderers={{
-            noRowsFallback: <NoRowsFallback />,
-          }}
-        />
-      ),
-    [loading, rows, columns, summaryRows]
+  const gridElement = loading ? (
+    <div className="flex h-full items-center justify-center">Loading...</div>
+  ) : (
+    <DataGrid
+      ref={ref}
+      direction="ltr"
+      className="rdg-light h-full overflow-scroll"
+      rows={rows}
+      columns={columns}
+      bottomSummaryRows={summaryRows}
+      headerRowHeight={40}
+      rowHeight={40}
+      rowKeyGetter={(row) => row.microorganism}
+      renderers={{
+        noRowsFallback: <NoRowsFallback />,
+      }}
+    />
   );
 
   useEffect(() => {
-    const loadRdg = async () => {
-      ref.current?.scrollToCell({ idx: keys.length });
-      await sleep(100);
+    const loadRdg = () => {
+      // BUG: Double-focus with viewport virtualization -> Dialog closed
+      // ref.current?.scrollToCell({ idx: keys.length });
+      // await sleep(100);
       setLoading(false);
     };
     void loadRdg();
   }, [ref, keys]);
 
+  const aref = useRef<HTMLHeadingElement | null>(null);
+
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex h-10 items-center justify-between">
-        <h3 className="text-2xl font-semibold">Microbiome changes</h3>
+        <h3 ref={aref} className="text-2xl font-semibold">Microbiome changes</h3>
         <div className="flex h-full items-center gap-4">
-          <Toggle onClick={() => void setNormalized((prev) => !prev)}>
+          <Toggle
+            onClick={() => {
+              void setNormalized((prev) => !prev);
+              ref.current?.selectCell({ rowIdx: 312313, idx: 3213213133 });
+              aref.current?.focus();
+            }}
+          >
             Normalize
           </Toggle>
           <NewVisitDataDialog microorganisms={microorganisms} />

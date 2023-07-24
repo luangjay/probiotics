@@ -8,29 +8,34 @@ function ref(input: HTMLInputElement | null) {
 }
 
 export function refineMicroorganism(
-  probiotic: string | null,
-  newProbiotic: string
+  microorganism: string | null,
+  newMicroorganism: string | number | null
 ) {
-  return newProbiotic.match(PROBIOTIC_REGEX) ? newProbiotic : probiotic;
+  return typeof newMicroorganism === "string" &&
+    newMicroorganism.match(PROBIOTIC_REGEX)
+    ? newMicroorganism
+    : microorganism;
 }
 
-export function ProbioticEditor<R, SR>({
+interface MicroorgranismEditorProps<R, SR> extends RenderEditCellProps<R, SR> {}
+
+export function MicroorganismEditor<R, SR>({
   row,
   column,
   onRowChange,
   onClose,
-}: RenderEditCellProps<R, SR>) {
-  const value = row[column.key as keyof R];
+}: MicroorgranismEditorProps<R, SR>) {
+  const microorganism = row[column.key as keyof R];
   return (
     <input
       ref={ref}
-      value={typeof value === "string" ? value : ""}
+      value={typeof microorganism === "string" ? microorganism : ""}
       className="-mx-[8px] h-full w-[calc(100%+16px)] bg-inherit px-[8px] py-0 focus:outline-none"
       spellCheck={false}
       onChange={(e) => {
         const targetValue = e.target.value.match(PROBIOTIC_REGEX)
           ? e.target.value
-          : value;
+          : microorganism;
         onRowChange({
           ...row,
           [column.key]:

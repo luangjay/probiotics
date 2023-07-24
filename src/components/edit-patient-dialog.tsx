@@ -108,7 +108,6 @@ export function EditPatientDialog({
   );
 
   const onSubmit = async (data: EditPatientData) => {
-    console.log(data);
     if (!patient) return;
     const response = await fetch(`/api/patients/${patient.id}`, {
       method: "PUT",

@@ -1,12 +1,12 @@
 "use client";
 
 import { FormErrorTooltip } from "@/components/form-error-tooltip";
-import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
 import {
-  ProbioticEditor,
+  MicroorganismEditor,
   refineMicroorganism,
-} from "@/components/rdg/probiotic-editor";
-import { ValueEditor, refineValue } from "@/components/rdg/value-editor";
+} from "@/components/rdg/microorganism-editor";
+import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
+import { ReadsEditor, refineReads } from "@/components/rdg/reads-editor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useMicrobiomeRecordRows } from "@/hooks/use-probiotic-record-result";
+import { useMicroorganismRecordRows } from "@/hooks/use-microorganism-record-rows";
 import { splitClipboard } from "@/lib/rdg";
 import { uploadResultSchema as baseUploadResultSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
@@ -31,9 +31,9 @@ import { type MicroorganismRecordRow } from "@/types/microorganism-record";
 import { type VisitDataRow } from "@/types/visit-data";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isValid, parse } from "date-fns";
-import { CalendarIcon, FileEditIcon } from "lucide-react";
+import { CalendarIcon, EditIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DataGrid, {
   type CellKeyDownArgs,
   type CellKeyboardEvent,
@@ -49,15 +49,17 @@ const uploadResultSchema = baseUploadResultSchema.extend({
 
 type UploadResultData = z.infer<typeof uploadResultSchema>;
 
-interface EditProbioticRecordDialogProps {
+interface EditVisitDataDialogProps {
   visitData: VisitDataRow;
   microorganisms: MicroorganismRow[];
+  trigger?: JSX.Element;
 }
 
-export function EditProbioticRecordDialog({
+export function EditVisitDataDialog({
   visitData,
   microorganisms,
-}: EditProbioticRecordDialogProps) {
+  trigger,
+}: EditVisitDataDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -85,7 +87,7 @@ export function EditProbioticRecordDialog({
   });
   const { collectionDate, fileList } = useWatch<UploadResultData>({ control });
   const file = fileList && fileList.length !== 0 ? fileList[0] : undefined;
-  const { rows, setRows, resetRows, exportFile } = useMicrobiomeRecordRows(
+  const { rows, setRows, resetRows, exportFile } = useMicroorganismRecordRows(
     file,
     {
       initial: visitData.microorganismRecords,
@@ -128,7 +130,7 @@ export function EditProbioticRecordDialog({
       collectionDate,
       microorganismRecords,
     };
-    const postResponse = await fetch(`/api/probiotic-records/${visitData.id}`, {
+    const postResponse = await fetch(`/api/visit-datas/${visitData.id}`, {
       method: "PUT",
       body: JSON.stringify(postReqBody),
     });
@@ -137,13 +139,10 @@ export function EditProbioticRecordDialog({
     const formData = new FormData();
     formData.append("file", file);
 
-    const putResponse = await fetch(
-      `/api/probiotic-records/${visitData.id}/file`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    const putResponse = await fetch(`/api/visit-datas/${visitData.id}/file`, {
+      method: "PUT",
+      body: formData,
+    });
     if (!putResponse.ok) return;
     setOpen(false);
     router.refresh();
@@ -164,23 +163,27 @@ export function EditProbioticRecordDialog({
   const columns = useMemo<Column<MicroorganismRecordRow>[]>(
     () => [
       {
-        key: "probiotic",
-        name: "Probiotic",
+        key: "microorganism",
+        name: "Microorganism",
         minWidth: 416,
         maxWidth: 416,
         width: 416,
-        renderEditCell: (p) => <ProbioticEditor {...p} />,
+        renderEditCell: !isSubmitting
+          ? (p) => <MicroorganismEditor {...p} />
+          : undefined,
       },
       {
-        key: "value",
-        name: "Value",
+        key: "reads",
+        name: "Reads",
         minWidth: 90,
         maxWidth: 90,
         width: 90,
-        renderEditCell: (p) => <ValueEditor {...p} />,
+        renderEditCell: !isSubmitting
+          ? (p) => <ReadsEditor {...p} />
+          : undefined,
       },
     ],
-    []
+    [isSubmitting]
   );
 
   const handleCopy = useCallback(
@@ -220,7 +223,7 @@ export function EditProbioticRecordDialog({
                 ? refineMicroorganism(microorganism, newMicroorganism)
                 : rows[newIdx]?.microorganism ?? null,
               reads: newValue
-                ? refineValue(reads, newValue)
+                ? refineReads(reads, newValue)
                 : rows[newIdx]?.reads ?? null,
             };
           });
@@ -275,14 +278,24 @@ export function EditProbioticRecordDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="flex h-full w-full items-center justify-center">
-          <FileEditIcon className="h-[18px] w-[18px]" />
-        </button>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!isSubmitting) {
+          setOpen(open);
+        }
+      }}
+    >
+      <DialogTrigger asChild >
+        {trigger ?? (
+          <Button className="h-10">
+            <EditIcon className="mr-2 h-4 w-4" />
+            Edit visit data
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:h-[90vh] sm:max-w-[576px]">
-        <DialogTitle className="px-1">Edit probiotic record</DialogTitle>
+        <DialogTitle className="px-1">Edit visit data</DialogTitle>
         <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="flex gap-2">
             <Input

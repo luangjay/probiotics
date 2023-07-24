@@ -33,6 +33,7 @@ const PUT = handler(async (req, ctx) => {
     data: {
       ...probioticRecordInfo,
       microorganismRecords: {
+        deleteMany: {},
         createMany: {
           data: microorganismRecords ?? [],
         },

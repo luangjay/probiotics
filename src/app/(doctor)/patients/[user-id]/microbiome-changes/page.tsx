@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { species } from "@/lib/probiotic";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
-import { type MicrobiomeChangeRow } from "@/types/visit-data";
+import {
+  type MicrobiomeChangeRow,
+  type VisitDataRow,
+} from "@/types/visit-data";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -17,7 +20,10 @@ export default async function Page({ params }: PageProps) {
   const patient = await getPatient(userId);
   const { microbiomeChanges, microbiomeChangeSummary } =
     await getMicrobiomeChanges(userId);
-  const microorganisms = await getMicroorganisms();
+  const [microorganisms, visitDatas] = await Promise.all([
+    getMicroorganisms(),
+    getVisitDatas(userId),
+  ]);
 
   return (
     <div className="flex h-full flex-col gap-4 text-sm">
@@ -26,6 +32,7 @@ export default async function Page({ params }: PageProps) {
         microbiomeChanges={microbiomeChanges}
         microbiomeChangeSummary={microbiomeChangeSummary}
         microorganisms={microorganisms}
+        visitDatas={visitDatas}
       />
     </div>
   );
@@ -82,14 +89,14 @@ async function getMicrobiomeChanges(patientId: string): Promise<{
       collectionDate: "asc",
     },
   });
-  const probiotics = await prisma.microorgranism.findMany({
+  const microorganisms = await prisma.microorgranism.findMany({
     orderBy: {
       id: "asc",
     },
   });
 
-  const tree = probiotics.reduce<{ genus: string; species: string[] }[]>(
-    (acc, cur) => {
+  const tree = microorganisms
+    .reduce<{ genus: string; species: string[] }[]>((acc, cur) => {
       const { genus, species } = cur;
       const rootIdx = acc.map((root) => root.genus).indexOf(genus);
       if (rootIdx === -1) {
@@ -98,9 +105,12 @@ async function getMicrobiomeChanges(patientId: string): Promise<{
         acc[rootIdx].species.push(cur.species);
       }
       return acc;
-    },
-    []
-  );
+    }, [])
+    .map((microorganism) => {
+      microorganism.species.sort((a, b) => a.localeCompare(b));
+      return microorganism;
+    })
+    .sort((a, b) => a.genus.localeCompare(b.genus));
 
   // console.log(probioticTree);
 
@@ -192,6 +202,38 @@ async function getMicroorganisms(): Promise<MicroorganismRow[]> {
     name: microorganism.name,
     probiotic: microorganism.probiotic,
     essential: microorganism.essential,
+  }));
+}
+
+async function getVisitDatas(patientId: string): Promise<VisitDataRow[]> {
+  const visitDatas = await prisma.visitData.findMany({
+    where: {
+      patientId,
+    },
+    include: {
+      doctor: {
+        include: {
+          user: true,
+        },
+      },
+      microorganismRecords: true,
+    },
+    orderBy: {
+      collectionDate: "asc",
+    },
+  });
+
+  return visitDatas.map((visitData) => ({
+    id: visitData.id,
+    fileUri: visitData.fileUri,
+    collectionDate: visitData.collectionDate,
+    microorganismRecords: visitData.microorganismRecords,
+    createdAt: visitData.createdAt,
+    updatedAt: visitData.updatedAt,
+    doctor: {
+      userId: visitData.doctor.userId,
+      name: visitData.doctor.user.name,
+    },
   }));
 }
 

@@ -1,16 +1,18 @@
+import { refineMicroorganism } from "@/components/rdg/microorganism-editor";
+import { refineReads } from "@/components/rdg/reads-editor";
 import { csvFileType, xlsFileType, xlsxFileType } from "@/lib/file";
 import { type MicroorganismRecordRow } from "@/types/microorganism-record";
 import { type MicroorganismRecord } from "@prisma/client";
 import { useCallback, useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
-interface UseProbioticRecordResultOptions {
+interface UseMicroorganismRecordRowsArgs {
   initial?: MicroorganismRecord[];
 }
 
-export function useMicrobiomeRecordRows(
+export function useMicroorganismRecordRows(
   file?: File,
-  options?: UseProbioticRecordResultOptions
+  options?: UseMicroorganismRecordRowsArgs
 ) {
   // Initialize
   const { initial } = { ...options };
@@ -19,10 +21,6 @@ export function useMicrobiomeRecordRows(
   const [loading, setLoading] = useState(true);
   const [reader, setReader] = useState<FileReader>();
   const [rows, setRows] = useState<MicroorganismRecordRow[]>([]);
-
-  useEffect(() => void setLoading(false), []);
-
-  useEffect(() => console.log(rows), [rows]);
 
   const resetRows = useCallback(async () => {
     if (!initial) {
@@ -103,13 +101,17 @@ export function useMicrobiomeRecordRows(
       });
       const result: MicroorganismRecordRow[] = rows.map((row, idx) => ({
         idx,
-        microorganism: row.microorganism,
-        reads: typeof row.reads === "number" ? row.reads.toString() : row.reads,
+        microorganism: refineMicroorganism(null, row.microorganism),
+        reads: refineReads(
+          null,
+          typeof row.reads === "number" ? row.reads.toString() : row.reads
+        ),
       }));
       setRows(result);
     };
 
     setReader(reader);
+    setLoading(false);
   }, []);
 
   useEffect(() => void resetRows(), [resetRows]);

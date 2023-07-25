@@ -9,22 +9,63 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { type VisitDataRow } from "@/types/visit-data";
+import { Loader2Icon, TrashIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, type MouseEvent } from "react";
 
-export function DeleteVisitDataDialog() {
+interface DeleteVisitDataDialogProps {
+  visitData: VisitDataRow;
+  trigger?: JSX.Element;
+}
+
+export function DeleteVisitDataDialog({
+  visitData,
+  trigger,
+}: DeleteVisitDataDialogProps) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleAction = async (e: MouseEvent) => {
+    e.preventDefault();
+    setDeleting(true);
+    const response = await fetch(`/api/visit-datas/${visitData.id}`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      router.refresh();
+    }
+    setDeleting(false);
+  };
+
   return (
-    <AlertDialog>
-      <AlertDialogTrigger>Open</AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        {trigger ?? <Button variant="outline">Delete visit data</Button>}
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Delete visit data?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction
+            className={cn(buttonVariants({ variant: "destructive" }))}
+            onClick={(...args) => void handleAction(...args)}
+          >
+            {deleting ? (
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <TrashIcon className="mr-2 h-4 w-4" />
+            )}
+            Delete
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

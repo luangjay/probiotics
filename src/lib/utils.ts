@@ -11,3 +11,7 @@ export function sleep(ms: number): Promise<void> {
     setTimeout(resolve, ms);
   });
 }
+
+export function all(): true {
+  return true;
+}

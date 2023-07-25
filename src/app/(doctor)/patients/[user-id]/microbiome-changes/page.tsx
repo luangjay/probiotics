@@ -1,6 +1,6 @@
 import { MicrobiomeChanges } from "@/components/microbiome-changes";
 import { prisma } from "@/lib/prisma";
-import { species } from "@/lib/probiotic";
+import { genus, species } from "@/lib/probiotic";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
 import {
@@ -18,8 +18,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
   const patient = await getPatient(userId);
-  const { microbiomeChanges, microbiomeChangeSummary } =
-    await getMicrobiomeChanges(userId);
+  const microbiomeChanges = await getMicrobiomeChanges(userId);
   const [microorganisms, visitDatas] = await Promise.all([
     getMicroorganisms(),
     getVisitDatas(userId),
@@ -30,7 +29,6 @@ export default async function Page({ params }: PageProps) {
       <MicrobiomeChanges
         patient={patient}
         microbiomeChanges={microbiomeChanges}
-        microbiomeChangeSummary={microbiomeChangeSummary}
         microorganisms={microorganisms}
         visitDatas={visitDatas}
       />
@@ -74,10 +72,16 @@ async function getPatient(userId: string): Promise<PatientRow> {
   };
 }
 
-async function getMicrobiomeChanges(patientId: string): Promise<{
-  microbiomeChanges: MicrobiomeChangeRow[];
-  microbiomeChangeSummary: MicrobiomeChangeRow[];
-}> {
+// interface Node {
+//   genus: string;
+//   species: string[];
+//   essential: boolean;
+//   probiotic: boolean;
+// }
+
+async function getMicrobiomeChanges(
+  patientId: string
+): Promise<MicrobiomeChangeRow[]> {
   const visitDatas = await prisma.visitData.findMany({
     where: {
       patientId,
@@ -96,13 +100,19 @@ async function getMicrobiomeChanges(patientId: string): Promise<{
   });
 
   const tree = microorganisms
-    .reduce<{ genus: string; species: string[] }[]>((acc, cur) => {
-      const { genus, species } = cur;
-      const rootIdx = acc.map((root) => root.genus).indexOf(genus);
-      if (rootIdx === -1) {
+    .reduce<
+      {
+        genus: string;
+        species: string[];
+      }[]
+    >((acc, microorganism) => {
+      const { genus, species: _species } = microorganism;
+      const species = `${genus};${_species}`;
+      const nodeIdx = acc.map((node) => node.genus).indexOf(genus);
+      if (nodeIdx === -1) {
         acc.push({ genus, species: [species] });
       } else {
-        acc[rootIdx].species.push(cur.species);
+        acc[nodeIdx].species.push(species);
       }
       return acc;
     }, [])
@@ -112,87 +122,82 @@ async function getMicrobiomeChanges(patientId: string): Promise<{
     })
     .sort((a, b) => a.genus.localeCompare(b.genus));
 
-  // console.log(probioticTree);
+  console.log(tree);
 
-  const results = visitDatas.map((visitData) =>
+  const timepoints = visitDatas.map((visitData) =>
     Object.fromEntries<number | undefined>(
       visitData.microorganismRecords.map((microorganismRecord) => [
-        species(microorganismRecord.microorganism),
+        `${genus(microorganismRecord.microorganism)};${species(
+          microorganismRecord.microorganism
+        )}`,
         microorganismRecord.reads,
       ])
     )
   );
 
-  const keys = tree.reduce<string[]>((acc, cur) => {
-    const { genus, species } = cur;
+  const keys = tree.reduce<string[]>((acc, node) => {
+    const { genus, species } = node;
     acc.push(genus, ...species);
     return acc;
   }, []);
 
-  // console.log(keys);
-
-  const values = tree.reduce<(number | null)[][]>((acc, cur) => {
-    const { species } = cur;
+  const readsMatrix = tree.reduce<(number | null)[][]>((acc, node) => {
+    const { species } = node;
     const values = species.map((species) =>
       visitDatas.map((_, idx) => {
-        const value = results[idx][species];
+        const value = timepoints[idx][species];
         return value ?? null;
       })
     );
     const total = values[0].map((_, idx) =>
-      values.reduce((acc, cur) => acc + (cur[idx] ?? 0), 0)
+      values.reduce((acc, value) => acc + (value[idx] ?? 0), 0)
     );
     acc.push(total, ...values);
     return acc;
   }, []);
 
-  // console.log(values);
-
-  const total = values[0].map((_, idx) =>
-    values.reduce((acc, cur) => acc + (cur[idx] ?? 0) / 2, 0)
+  const readsTable = Object.fromEntries(
+    Array.from({ length: keys.length }, (_, idx) => [
+      keys[idx],
+      readsMatrix[idx],
+    ])
   );
 
-  const table = Object.fromEntries(
-    Array.from({ length: keys.length }, (_, idx) => [keys[idx], values[idx]])
+  const infoTable = Object.fromEntries(
+    microorganisms.map((microorganism) => {
+      const { genus, species: _species, essential, probiotic } = microorganism;
+      const species = `${genus};${_species}`;
+      return [species, { essential, probiotic }];
+    })
   );
 
-  // console.log(table);
-
-  return {
-    microbiomeChanges: tree.map((node) => {
-      const { genus, species } = node;
-      return {
-        microorganism: genus,
-        timepoints: Object.fromEntries(
-          table[genus].map((value, idx) => [
-            visitDatas[idx].collectionDate.getTime().toString(),
-            value ?? 0,
-          ])
-        ),
-        expanded: false,
-        children: species.map((species) => ({
+  return tree.map<MicrobiomeChangeRow>((node) => {
+    const { genus, species } = node;
+    return {
+      microorganism: genus,
+      timepoints: Object.fromEntries(
+        readsTable[genus].map((value, idx) => [
+          visitDatas[idx].collectionDate.getTime().toString(),
+          value ?? 0,
+        ])
+      ),
+      expanded: false,
+      children: species.map((species) => {
+        const { essential, probiotic } = infoTable[species];
+        return {
           microorganism: species,
           timepoints: Object.fromEntries(
-            table[species].map((value, idx) => [
+            readsTable[species].map((value, idx) => [
               visitDatas[idx].collectionDate.getTime().toString(),
               value ?? 0,
             ])
           ),
-        })),
-      };
-    }),
-    microbiomeChangeSummary: [
-      {
-        microorganism: "Total",
-        timepoints: Object.fromEntries(
-          total.map((value, idx) => [
-            visitDatas[idx].collectionDate.getTime().toString(),
-            value,
-          ])
-        ),
-      },
-    ],
-  };
+          essential,
+          probiotic,
+        };
+      }),
+    };
+  });
 }
 
 async function getMicroorganisms(): Promise<MicroorganismRow[]> {

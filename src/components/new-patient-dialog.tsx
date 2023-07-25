@@ -19,7 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -44,6 +43,7 @@ import { format } from "date-fns";
 import {
   CalendarIcon,
   ChevronDownIcon,
+  Loader2Icon,
   PlusIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -372,7 +372,7 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
           <DialogFooter className="mt-2 flex sm:justify-center">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (
-                <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
               )}
               Confirm
             </Button>

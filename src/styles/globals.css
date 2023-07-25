@@ -170,7 +170,7 @@ p {
 }
 
 .rdg {
-  @apply custom-scroll overflow-scroll rounded-md border shadow-sm;
+  @apply custom-scroll select-none overflow-scroll rounded-md border shadow-sm;
 }
 
 .rdg-header-row {

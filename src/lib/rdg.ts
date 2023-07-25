@@ -95,14 +95,3 @@ export function splitClipboard(clipboard: string) {
   console.log(rows);
   return rows;
 }
-
-export function formatReads(
-  normalized: boolean,
-  value: string | number,
-  total: string | number
-) {
-  if (value === 0) return null;
-  return normalized && typeof total === "number" && typeof value === "number"
-    ? (value / total).toFixed(4)
-    : value;
-}

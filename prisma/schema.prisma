@@ -105,7 +105,7 @@ model MicroorganismRecord {
   visitDataId   String    @map("visit_data_id")
   microorganism String
   reads         Float
-  visitData     VisitData @relation(fields: [visitDataId], references: [id])
+  visitData     VisitData @relation(fields: [visitDataId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("microorganism_records")
 }

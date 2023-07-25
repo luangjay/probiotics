@@ -6,10 +6,10 @@ import {
   MicroorganismHeaderCell,
 } from "@/components/rdg/microorganism-cell";
 import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
+import { ReadsHeaderCell } from "@/components/rdg/reads-cell";
 import { Toggle } from "@/components/ui/toggle";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { formatReads } from "@/lib/rdg";
-import { cn } from "@/lib/utils";
+import { all, cn } from "@/lib/utils";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
 import {
@@ -17,14 +17,12 @@ import {
   type VisitDataRow,
 } from "@/types/visit-data";
 import { format } from "date-fns";
-import { useEffect, useMemo, useRef, useState } from "react";
-import DataGrid, { type Column, type DataGridHandle } from "react-data-grid";
-import { ReadsHeaderCell } from "./rdg/reads-cell";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import DataGrid, { type Column } from "react-data-grid";
 
 interface MicrobiomeChangesProps {
   patient: PatientRow;
   microbiomeChanges: MicrobiomeChangeRow[];
-  microbiomeChangeSummary: MicrobiomeChangeRow[];
   microorganisms: MicroorganismRow[];
   visitDatas: VisitDataRow[];
 }
@@ -32,7 +30,6 @@ interface MicrobiomeChangesProps {
 export function MicrobiomeChanges({
   patient,
   microbiomeChanges,
-  microbiomeChangeSummary: summaryRows,
   microorganisms,
   visitDatas,
 }: MicrobiomeChangesProps) {
@@ -45,18 +42,92 @@ export function MicrobiomeChanges({
 
   // States
   const [loading, setLoading] = useState(true);
+  const [essential, setEssential] = useState(false);
+  const [probiotic, setProbiotic] = useState(false);
+  const [active, setActive] = useState(false);
   const [normalized, setNormalized] = useState(false);
+
+  const expanded = useMemo<boolean>(
+    () => rows.every((row) => row.expanded !== false),
+    [rows]
+  );
+
+  useEffect(() => void setLoading(false), []);
 
   useEffect(
     () => void setSelectedPatient(patient),
     [setSelectedPatient, patient]
   );
 
-  useEffect(() => void setRows(microbiomeChanges), [microbiomeChanges]);
+  // useEffect(() => {
+  //   setRows(microbiomeChanges);
+  // }, [microbiomeChanges]);
 
-  const expanded = useMemo<boolean>(
-    () => rows.every((row) => row.expanded !== false),
-    [rows]
+  const filter = useCallback(
+    (rows: MicrobiomeChangeRow[]) =>
+      rows
+        .filter(
+          !essential
+            ? all
+            : (row) =>
+                !row.children
+                  ? row.essential
+                  : row.children.reduce(
+                      (acc, row) => row.essential || acc,
+                      false
+                    )
+        )
+        .filter(
+          !probiotic
+            ? all
+            : (row) =>
+                !row.children
+                  ? row.probiotic
+                  : row.children.reduce(
+                      (acc, row) => row.probiotic || acc,
+                      false
+                    )
+        )
+        .filter(
+          !active
+            ? all
+            : (row) =>
+                !Object.keys(row.timepoints).reduce(
+                  (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
+                  false
+                )
+        ),
+    [essential, probiotic, active]
+  );
+
+  useEffect(() => {
+    setRows(filter(microbiomeChanges));
+  }, [microbiomeChanges, filter]);
+
+  const summaryRows = useMemo<MicrobiomeChangeRow[]>(
+    () => [
+      {
+        microorganism: "Total",
+        timepoints: rows.reduce<{ [timepoint: string]: number }>((acc, row) => {
+          Object.keys(row.timepoints).forEach((timepoint) => {
+            acc[timepoint] +=
+              row.expanded !== undefined ? row.timepoints[timepoint] : 0;
+          });
+          return acc;
+        }, Object.fromEntries(keys.map((key) => [key, 0]))),
+      },
+    ],
+    [rows, keys]
+  );
+
+  const formatReads = useCallback(
+    (row: MicrobiomeChangeRow, key: string) => {
+      const value = row.timepoints[key];
+      const total = summaryRows[0].timepoints[key];
+      if (value === 0) return null;
+      return normalized ? (value / total).toFixed(4) : value;
+    },
+    [normalized, summaryRows]
   );
 
   const columns = useMemo<
@@ -80,7 +151,7 @@ export function MicrobiomeChanges({
                 row = { ...row, expanded: !expanded };
                 newRows.push(row, ...(!expanded ? children : []));
               });
-              setRows(newRows);
+              setRows(filter(newRows));
             }}
           />
         ),
@@ -101,7 +172,7 @@ export function MicrobiomeChanges({
               } else {
                 newRows.splice(rowIdx + 1, children.length);
               }
-              setRows(newRows);
+              setRows(filter(newRows));
             }}
           />
         ),
@@ -114,59 +185,32 @@ export function MicrobiomeChanges({
           name: format(new Date(parseInt(key)), "yyyy-MM-dd"),
           width: "30%",
           headerCellClass: cn(
-            "flex items-center justify-between text-end tabular-nums tracking-tighter",
+            "flex items-center justify-between tabular-nums tracking-tighter",
             keys.length === 1 && idx === 0 && "!border-r"
           ),
           renderHeaderCell: (p) => (
-            <ReadsHeaderCell
-              {...p}
-              visitData={visitDatas[idx]}
-              microorganisms={microorganisms}
-            />
+            <ReadsHeaderCell {...p} visitData={visitDatas[idx]} />
           ),
           cellClass: cn(
             "text-end tabular-nums tracking-tighter",
             keys.length === 1 && idx === 0 && "!border-r"
           ),
-          renderCell: ({ row }) =>
-            formatReads(
-              normalized,
-              row.timepoints[key],
-              summaryRows[0].timepoints[key]
-            ),
+          renderCell: ({ row }) => formatReads(row, key),
           summaryCellClass: cn(
             "text-end tabular-nums tracking-tighter",
             keys.length === 1 && idx === 0 && "!border-r"
           ),
-          renderSummaryCell: ({ row }) =>
-            formatReads(
-              normalized,
-              row.timepoints[key],
-              summaryRows[0].timepoints[key]
-            ),
+          renderSummaryCell: ({ row }) => formatReads(row, key),
         }))
         .slice(-2),
     ],
-    [
-      microbiomeChanges,
-      microorganisms,
-      visitDatas,
-      rows,
-      summaryRows,
-      keys,
-      expanded,
-      normalized,
-    ]
+    [microbiomeChanges, visitDatas, rows, keys, filter, expanded, formatReads]
   );
-
-  // Ref
-  const ref = useRef<DataGridHandle | null>(null);
 
   const gridElement = loading ? (
     <div className="flex h-full items-center justify-center">Loading...</div>
   ) : (
     <DataGrid
-      ref={ref}
       direction="ltr"
       className="rdg-light h-full overflow-scroll"
       rows={rows}
@@ -181,34 +225,25 @@ export function MicrobiomeChanges({
     />
   );
 
-  useEffect(() => {
-    const loadRdg = () => {
-      // BUG: Double-focus with viewport virtualization -> Dialog closed
-      // ref.current?.scrollToCell({ idx: keys.length });
-      // await sleep(100);
-      setLoading(false);
-    };
-    void loadRdg();
-  }, [ref, keys]);
-
-  const aref = useRef<HTMLHeadingElement | null>(null);
-
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex h-10 items-center justify-between">
-        <h3 ref={aref} className="text-2xl font-semibold">Microbiome changes</h3>
+        <h3 className="text-2xl font-semibold">Microbiome changes</h3>
         <div className="flex h-full items-center gap-4">
-          <Toggle
-            onClick={() => {
-              void setNormalized((prev) => !prev);
-              ref.current?.selectCell({ rowIdx: 312313, idx: 3213213133 });
-              aref.current?.focus();
-            }}
-          >
+          <Toggle onClick={() => void setEssential((prev) => !prev)}>
+            Essential
+          </Toggle>
+          <Toggle onClick={() => void setProbiotic((prev) => !prev)}>
+            Probiotic
+          </Toggle>
+          <Toggle onClick={() => void setActive((prev) => !prev)}>
+            Active
+          </Toggle>
+          <Toggle onClick={() => void setNormalized((prev) => !prev)}>
             Normalize
           </Toggle>
-          <NewVisitDataDialog microorganisms={microorganisms} />
         </div>
+        <NewVisitDataDialog microorganisms={microorganisms} />
       </div>
       <div className="relative flex-1 overflow-auto">
         {gridElement}

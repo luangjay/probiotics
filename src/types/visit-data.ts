@@ -16,6 +16,8 @@ export type MicrobiomeChangeRow = {
   timepoints: {
     [timepoint: string]: number;
   };
+  essential?: boolean;
+  probiotic?: boolean;
   expanded?: boolean;
   children?: MicrobiomeChangeRow[];
 };

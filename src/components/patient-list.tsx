@@ -2,7 +2,10 @@
 
 import { NewPatientDialog } from "@/components/new-patient-dialog";
 import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
-import { selectPatientColumn } from "@/components/rdg/select-patient-column";
+import {
+  SelectPatientCell,
+  SelectPatientHeaderCell,
+} from "@/components/rdg/select-patient-cell";
 import { SortStatusRenderer } from "@/components/rdg/sort-status-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +20,12 @@ import { FileClockIcon, RotateCwIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import DataGrid, { Row, type Column, type SortColumn } from "react-data-grid";
+import DataGrid, {
+  Row,
+  SELECT_COLUMN_KEY,
+  type Column,
+  type SortColumn,
+} from "react-data-grid";
 import { useForm, useWatch } from "react-hook-form";
 
 interface PatientListProps {
@@ -60,7 +68,18 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
   // Columns
   const columns = useMemo<Column<PatientRow>[]>(
     () => [
-      selectPatientColumn,
+      {
+        key: SELECT_COLUMN_KEY,
+        name: "",
+        width: 40,
+        minWidth: 40,
+        maxWidth: 40,
+        resizable: false,
+        sortable: false,
+        frozen: true,
+        renderHeaderCell: (p) => <SelectPatientHeaderCell {...p} />,
+        renderCell: (p) => <SelectPatientCell {...p} />,
+      },
       {
         key: "name",
         name: "Name",

@@ -2,27 +2,16 @@ import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { type PatientRow } from "@/types/patient";
 import {
   SelectCellFormatter,
-  type Column,
   type RenderCellProps,
   type RenderHeaderCellProps,
 } from "react-data-grid";
 
-const SELECT_COLUMN_KEY = "select-row";
+interface SelectPatientHeaderCellProps<R, SR = unknown>
+  extends RenderHeaderCellProps<R, SR> {}
 
-export const selectPatientColumn: Column<PatientRow> = {
-  key: SELECT_COLUMN_KEY,
-  name: "",
-  width: 40,
-  minWidth: 40,
-  maxWidth: 40,
-  resizable: false,
-  sortable: false,
-  frozen: true,
-  renderHeaderCell: (p) => <HeaderRenderer {...p} />,
-  renderCell: (p) => <SelectRenderer {...p} />,
-};
-
-function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
+export function SelectPatientHeaderCell({
+  tabIndex,
+}: SelectPatientHeaderCellProps<PatientRow>) {
   const { patient, setPatient } = useSelectPatientStore();
   const value = patient !== undefined;
   return (
@@ -39,7 +28,13 @@ function HeaderRenderer({ tabIndex }: RenderHeaderCellProps<PatientRow>) {
   );
 }
 
-function SelectRenderer({ row, tabIndex }: RenderCellProps<PatientRow>) {
+interface SelectPatientCellProps<R, SR = unknown>
+  extends RenderCellProps<R, SR> {}
+
+export function SelectPatientCell({
+  row,
+  tabIndex,
+}: SelectPatientCellProps<PatientRow>) {
   const { patient, setPatient } = useSelectPatientStore();
   const value = patient?.id === row.id;
   return (

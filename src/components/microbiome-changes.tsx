@@ -35,7 +35,10 @@ export function MicrobiomeChanges({
 }: MicrobiomeChangesProps) {
   // Initialize
   const [rows, setRows] = useState<MicrobiomeChangeRow[]>(microbiomeChanges);
-  const keys = Object.keys(rows[0]?.timepoints ?? { microorganism: null });
+  const keys = useMemo(
+    () => Object.keys(rows[0]?.timepoints ?? { microorganism: null }),
+    [rows]
+  );
 
   // Store
   const { setPatient: setSelectedPatient } = useSelectPatientStore();
@@ -62,6 +65,16 @@ export function MicrobiomeChanges({
   // useEffect(() => {
   //   setRows(microbiomeChanges);
   // }, [microbiomeChanges]);
+
+  const total = useCallback((rows: MicrobiomeChangeRow[]) => {
+    const keys = Object.keys(rows[0]?.timepoints ?? { microorganism: null });
+    return rows.reduce<{ [timepoint: string]: number }>((acc, row) => {
+      Object.keys(row.timepoints).forEach((timepoint) => {
+        acc[timepoint] += !row.expanded ? row.timepoints[timepoint] : 0;
+      });
+      return acc;
+    }, Object.fromEntries(keys.map((key) => [key, 0])));
+  }, []);
 
   const filter = useCallback(
     (rows: MicrobiomeChangeRow[]) =>
@@ -100,24 +113,31 @@ export function MicrobiomeChanges({
     [essential, probiotic, active]
   );
 
+  const calculate = useCallback(
+    (rows: MicrobiomeChangeRow[]) =>
+      rows.map((row) => {
+        if (row.children) {
+          row.children = filter(row.children);
+          console.log(row.children);
+          row.timepoints = total(row.children);
+        }
+        return row;
+      }),
+    [total, filter]
+  );
+
   useEffect(() => {
-    setRows(filter(microbiomeChanges));
-  }, [microbiomeChanges, filter]);
+    setRows(calculate(microbiomeChanges));
+  }, [microbiomeChanges, calculate]);
 
   const summaryRows = useMemo<MicrobiomeChangeRow[]>(
     () => [
       {
         microorganism: "Total",
-        timepoints: rows.reduce<{ [timepoint: string]: number }>((acc, row) => {
-          Object.keys(row.timepoints).forEach((timepoint) => {
-            acc[timepoint] +=
-              row.expanded !== undefined ? row.timepoints[timepoint] : 0;
-          });
-          return acc;
-        }, Object.fromEntries(keys.map((key) => [key, 0]))),
+        timepoints: total(rows),
       },
     ],
-    [rows, keys]
+    [rows, total]
   );
 
   const formatReads = useCallback(
@@ -151,7 +171,7 @@ export function MicrobiomeChanges({
                 row = { ...row, expanded: !expanded };
                 newRows.push(row, ...(!expanded ? children : []));
               });
-              setRows(filter(newRows));
+              setRows(calculate(newRows));
             }}
           />
         ),
@@ -172,7 +192,7 @@ export function MicrobiomeChanges({
               } else {
                 newRows.splice(rowIdx + 1, children.length);
               }
-              setRows(filter(newRows));
+              setRows(calculate(newRows));
             }}
           />
         ),
@@ -204,7 +224,15 @@ export function MicrobiomeChanges({
         }))
         .slice(-2),
     ],
-    [microbiomeChanges, visitDatas, rows, keys, filter, expanded, formatReads]
+    [
+      microbiomeChanges,
+      visitDatas,
+      rows,
+      keys,
+      expanded,
+      formatReads,
+      calculate,
+    ]
   );
 
   const gridElement = loading ? (

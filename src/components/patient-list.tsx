@@ -108,12 +108,17 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
         maxWidth: 40,
         width: 40,
         cellClass: cn("!p-0"),
-        renderCell: ({ row }) => (
+        renderCell: ({ row, tabIndex }) => (
           <Link
             href={`/patients/${row.id}/microbiome-changes`}
             className="flex h-full w-full items-center justify-center"
           >
-            <FileClockIcon className="h-[18px] w-[18px] opacity-80" />
+            <button
+              tabIndex={tabIndex}
+              className="rounded-sm text-secondary-foreground ring-offset-background transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <FileClockIcon className="h-[18px] w-[18px]" />
+            </button>
           </Link>
         ),
       },

@@ -314,7 +314,7 @@ async function seedPatients({ reset, clear, count }: SeedOptions) {
 async function seedMicroorganisms({ reset, clear, count }: SeedOptions) {
   // Options
   faker.seed(42005);
-  const pool = probioticPool();
+  const pool = microorganismPool();
 
   return prisma.$transaction(
     async (tx) => {
@@ -325,9 +325,7 @@ async function seedMicroorganisms({ reset, clear, count }: SeedOptions) {
       await Promise.all(
         Array.from({ length: count }, (_, idx) => {
           // Probiotic fields
-          const name = pool[idx];
-          const probiotic = faker.datatype.boolean(0.4);
-          const essential = faker.datatype.boolean(0.4);
+          const { name, probiotic, essential } = pool[idx];
 
           // Create probiotics
           return tx.microorgranism.create({
@@ -538,68 +536,304 @@ async function seedMedicalConditionPatient({
 }
 
 /* Custom pools */
-function probioticPool() {
+function microorganismPool() {
   return [
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides caccae",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides clarus",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides dorei",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides eggerthii",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides faecis",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides finegoldii",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides massiliensis",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides ovatus",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides thetaiotaomicron",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides uniformis",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides vulgatus",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Barnesiella;Barnesiella intestinihominis",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Butyricimonas;Butyricimonas paravirosa",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Odoribacter;Odoribacter laneus",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides distasonis",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides merdae",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Prevotellaceae;Prevotella;Prevotella copri",
-    "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Rikenellaceae;Alistipes;Alistipes senegalensis",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Eubacteriaceae;Eubacterium;Eubacterium coprostanoligenes",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Anaerostipes;Anaerostipes hadrus",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Blautia;Blautia obeum",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium amygdalinum",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium clostridioforme",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium indolis",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium saccharolyticum",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium contortum",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium fissicatena",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVb;Clostridium lactatifermentans",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Dorea;Dorea longicatena",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Fusicatenibacter;Fusicatenibacter saccharivorans",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnobacterium;Lachnobacterium bovis",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospira;Lachnospira pectinoschiza",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium eligens",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium hallii",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium ruminantium",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium xylanophilum",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Lachnospira pectinoschiza",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Ruminococcus gnavus",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Roseburia;Roseburia inulinivorans",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Ruminococcus2;Ruminococcus torques",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Peptococcaceae;Desulfonispora;Desulfonispora thiosulfatigenes",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Anaerotruncus;Anaerotruncus colihominis",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Butyricicoccus;Butyricicoccus pullicaecorum",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Clostridium IV;Eubacterium siraeum",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Faecalibacterium;Faecalibacterium prausnitzii",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Flavonifractor;Flavonifractor plautii",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Gemmiger;Gemmiger formicilis",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Intestinimonas;Intestinimonas butyriciproducens",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Oscillibacter;Oscillibacter valericigenes",
-    "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Ruminococcus;Ruminococcus callidus",
-    "Bacteria;Firmicutes;Negativicutes;Selenomonadales;Acidaminococcaceae;Phascolarctobacterium;Phascolarctobacterium faecium",
-    "Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Clostridium rectum",
-    "Bacteria;Proteobacteria;Alphaproteobacteria;Kiloniellales;Kiloniellaceae;Kiloniella;Kiloniella laminariae",
-    "Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Sutterellaceae;Parasutterella;Parasutterella excrementihominis",
-    "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Bilophila;Bilophila wadsworthia",
-    "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Desulfovibrio;Desulfovibrio fairfieldensis",
-    "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Escherichia/Shigella;Escherichia coli",
-    "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Klebsiella;Klebsiella pneumoniae",
-    "Bacteria;Verrucomicrobia;Verrucomicrobiae;Verrucomicrobiales;Verrucomicrobiaceae;Akkermansia;Akkermansia muciniphila",
-  ] as const;
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides caccae",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides clarus",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides dorei",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides eggerthii",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides faecis",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides finegoldii",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides massiliensis",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides ovatus",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides thetaiotaomicron",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides uniformis",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides vulgatus",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Barnesiella;Barnesiella intestinihominis",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Butyricimonas;Butyricimonas paravirosa",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Odoribacter;Odoribacter laneus",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides distasonis",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides merdae",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Prevotellaceae;Prevotella;Prevotella copri",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Rikenellaceae;Alistipes;Alistipes senegalensis",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Eubacteriaceae;Eubacterium;Eubacterium coprostanoligenes",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Anaerostipes;Anaerostipes hadrus",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Blautia;Blautia obeum",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium amygdalinum",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium clostridioforme",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium indolis",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium saccharolyticum",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium contortum",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium fissicatena",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVb;Clostridium lactatifermentans",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Dorea;Dorea longicatena",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Fusicatenibacter;Fusicatenibacter saccharivorans",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnobacterium;Lachnobacterium bovis",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospira;Lachnospira pectinoschiza",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium eligens",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium hallii",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium ruminantium",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium xylanophilum",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Lachnospira pectinoschiza",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Ruminococcus gnavus",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Roseburia;Roseburia inulinivorans",
+      probiotic: true,
+      essential: true,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Ruminococcus2;Ruminococcus torques",
+      probiotic: true,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Peptococcaceae;Desulfonispora;Desulfonispora thiosulfatigenes",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Anaerotruncus;Anaerotruncus colihominis",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Butyricicoccus;Butyricicoccus pullicaecorum",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Clostridium IV;Eubacterium siraeum",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Faecalibacterium;Faecalibacterium prausnitzii",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Flavonifractor;Flavonifractor plautii",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Gemmiger;Gemmiger formicilis",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Intestinimonas;Intestinimonas butyriciproducens",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Oscillibacter;Oscillibacter valericigenes",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Ruminococcus;Ruminococcus callidus",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Firmicutes;Negativicutes;Selenomonadales;Acidaminococcaceae;Phascolarctobacterium;Phascolarctobacterium faecium",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Clostridium rectum",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Proteobacteria;Alphaproteobacteria;Kiloniellales;Kiloniellaceae;Kiloniella;Kiloniella laminariae",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Sutterellaceae;Parasutterella;Parasutterella excrementihominis",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Bilophila;Bilophila wadsworthia",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Desulfovibrio;Desulfovibrio fairfieldensis",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Escherichia/Shigella;Escherichia coli",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Klebsiella;Klebsiella pneumoniae",
+      probiotic: false,
+      essential: false,
+    },
+    {
+      name: "Bacteria;Verrucomicrobia;Verrucomicrobiae;Verrucomicrobiales;Verrucomicrobiaceae;Akkermansia;Akkermansia muciniphila",
+      probiotic: false,
+      essential: false,
+    },
+  ];
 }
 
 function medicalConditionPool() {

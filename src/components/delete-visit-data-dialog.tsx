@@ -29,13 +29,14 @@ export function DeleteVisitDataDialog({
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const handleAction = async (e: MouseEvent) => {
+  const handleDelete = async (e: MouseEvent) => {
     e.preventDefault();
     setDeleting(true);
     const response = await fetch(`/api/visit-datas/${visitData.id}`, {
       method: "DELETE",
     });
     if (response.ok) {
+      setOpen(false);
       router.refresh();
     }
     setDeleting(false);
@@ -56,8 +57,9 @@ export function DeleteVisitDataDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
+            disabled={deleting}
             className={cn(buttonVariants({ variant: "destructive" }))}
-            onClick={(...args) => void handleAction(...args)}
+            onClick={(...args) => void handleDelete(...args)}
           >
             {deleting ? (
               <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />

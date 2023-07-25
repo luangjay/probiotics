@@ -1,15 +1,16 @@
 "use client";
 
-import { NewVisitDataDialog } from "@/components/new-visit-data-dialog";
+import { ImportAbundanceFileDialog } from "@/components/import-abundance-file-dialog";
 import {
   MicroorganismCell,
   MicroorganismHeaderCell,
 } from "@/components/rdg/microorganism-cell";
 import { NoRowsFallback } from "@/components/rdg/no-rows-fallback";
 import { ReadsHeaderCell } from "@/components/rdg/reads-cell";
+import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { all, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
 import {
@@ -17,12 +18,14 @@ import {
   type VisitDataRow,
 } from "@/types/visit-data";
 import { format } from "date-fns";
+import { PlusIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, { type Column } from "react-data-grid";
 
 interface MicrobiomeChangesProps {
   patient: PatientRow;
   microbiomeChanges: MicrobiomeChangeRow[];
+  keys: string[];
   microorganisms: MicroorganismRow[];
   visitDatas: VisitDataRow[];
 }
@@ -30,15 +33,12 @@ interface MicrobiomeChangesProps {
 export function MicrobiomeChanges({
   patient,
   microbiomeChanges,
+  keys,
   microorganisms,
   visitDatas,
 }: MicrobiomeChangesProps) {
   // Initialize
   const [rows, setRows] = useState<MicrobiomeChangeRow[]>(microbiomeChanges);
-  const keys = useMemo(
-    () => Object.keys(rows[0]?.timepoints ?? { microorganism: null }),
-    [rows]
-  );
 
   // Store
   const { setPatient: setSelectedPatient } = useSelectPatientStore();
@@ -66,63 +66,51 @@ export function MicrobiomeChanges({
   //   setRows(microbiomeChanges);
   // }, [microbiomeChanges]);
 
-  const total = useCallback((rows: MicrobiomeChangeRow[]) => {
-    const keys = Object.keys(rows[0]?.timepoints ?? { microorganism: null });
-    return rows.reduce<{ [timepoint: string]: number }>((acc, row) => {
-      Object.keys(row.timepoints).forEach((timepoint) => {
-        acc[timepoint] += !row.expanded ? row.timepoints[timepoint] : 0;
-      });
-      return acc;
-    }, Object.fromEntries(keys.map((key) => [key, 0])));
-  }, []);
+  const total = useCallback(
+    (rows: MicrobiomeChangeRow[]) => {
+      return rows.reduce<{ [timepoint: string]: number }>((acc, row) => {
+        Object.keys(row.timepoints).forEach((timepoint) => {
+          acc[timepoint] += !row.expanded ? row.timepoints[timepoint] : 0;
+        });
+        return acc;
+      }, Object.fromEntries(keys.map((key) => [key, 0])));
+    },
+    [keys]
+  );
 
   const filter = useCallback(
-    (rows: MicrobiomeChangeRow[]) =>
-      rows
-        .filter(
-          !essential
-            ? all
-            : (row) =>
-                !row.children
-                  ? row.essential
-                  : row.children.reduce(
-                      (acc, row) => row.essential || acc,
-                      false
-                    )
-        )
-        .filter(
-          !probiotic
-            ? all
-            : (row) =>
-                !row.children
-                  ? row.probiotic
-                  : row.children.reduce(
-                      (acc, row) => row.probiotic || acc,
-                      false
-                    )
-        )
-        .filter(
-          !active
-            ? all
-            : (row) =>
-                !Object.keys(row.timepoints).reduce(
-                  (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
-                  false
-                )
-        ),
+    (rows: MicrobiomeChangeRow[]) => {
+      if (essential) {
+        rows = rows.filter((row) => row.children || row.essential);
+      }
+      if (probiotic) {
+        rows = rows.filter((row) => row.children || row.probiotic);
+      }
+      if (active) {
+        rows = rows.filter((row) =>
+          Object.keys(row.timepoints).reduce(
+            (acc, timepoint) => row.timepoints[timepoint] !== 0 || acc,
+            false
+          )
+        );
+      }
+      return rows;
+    },
     [essential, probiotic, active]
   );
 
   const calculate = useCallback(
-    (rows: MicrobiomeChangeRow[]) =>
-      rows.map((row) => {
-        if (row.children) {
-          row.children = filter(row.children);
-          console.log(row.children);
-          row.timepoints = total(row.children);
-        }
-        return row;
-      }),
+    (rows: MicrobiomeChangeRow[]) => {
+      rows = filter(
+        rows.map((row) =>
+          row.children
+            ? { ...row, timepoints: total(filter(row.children)) }
+            : row
+        )
+      );
+      console.log(rows);
+      return rows;
+    },
     [total, filter]
   );
 
@@ -185,7 +173,7 @@ export function MicrobiomeChanges({
               );
               const row = rows[rowIdx];
               const newRows = [...rows];
-              const children = row.children ?? [];
+              const children = filter(row.children ?? []);
               newRows[rowIdx] = { ...row, expanded: !row.expanded };
               if (!row.expanded) {
                 newRows.splice(rowIdx + 1, 0, ...children);
@@ -199,8 +187,8 @@ export function MicrobiomeChanges({
         summaryCellClass: cn(keys.length === 0 && "!border-r"),
         renderSummaryCell: ({ row }) => row.microorganism,
       },
-      ...keys
-        .map<Column<MicrobiomeChangeRow, MicrobiomeChangeRow>>((key, idx) => ({
+      ...keys.map<Column<MicrobiomeChangeRow, MicrobiomeChangeRow>>(
+        (key, idx) => ({
           key,
           name: format(new Date(parseInt(key)), "yyyy-MM-dd"),
           width: "30%",
@@ -221,8 +209,8 @@ export function MicrobiomeChanges({
             keys.length === 1 && idx === 0 && "!border-r"
           ),
           renderSummaryCell: ({ row }) => formatReads(row, key),
-        }))
-        .slice(-2),
+        })
+      ),
     ],
     [
       microbiomeChanges,
@@ -231,6 +219,7 @@ export function MicrobiomeChanges({
       keys,
       expanded,
       formatReads,
+      filter,
       calculate,
     ]
   );
@@ -271,18 +260,34 @@ export function MicrobiomeChanges({
             Normalize
           </Toggle>
         </div>
-        <NewVisitDataDialog microorganisms={microorganisms} />
+        <ImportAbundanceFileDialog microorganisms={microorganisms} />
       </div>
       <div className="relative flex-1 overflow-auto">
         {gridElement}
         {keys.length === 0 && (
           <div className="absolute bottom-[11px] left-[calc(40%-4px)] right-[11px] top-0 flex items-center justify-center">
-            aaabb
+            <ImportAbundanceFileDialog
+              microorganisms={microorganisms}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Import abundance file
+                </Button>
+              }
+            />
           </div>
         )}
         {keys.length === 1 && (
           <div className="absolute bottom-[11px] left-[calc(70%-4px)] right-[11px] top-0 flex items-center justify-center">
-            aaabb
+            <ImportAbundanceFileDialog
+              microorganisms={microorganisms}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Import abundance file
+                </Button>
+              }
+            />
           </div>
         )}
       </div>

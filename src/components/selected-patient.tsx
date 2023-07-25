@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
 import { format } from "date-fns";
 import {
+  ChevronLeftCircleIcon,
   ChevronsUpDownIcon,
-  FileCheck2Icon,
   FileClockIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -142,7 +142,7 @@ export function SelectedPatient({ medicalConditions }: SelectedPatientProps) {
                 href={`/patients`}
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
               >
-                <FileCheck2Icon className="mr-2 h-4 w-4" />
+                <ChevronLeftCircleIcon className="mr-2 h-4 w-4" />
                 Back to patients
               </Link>
             )}

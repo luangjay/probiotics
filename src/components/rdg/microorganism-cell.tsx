@@ -26,12 +26,12 @@ export function MicroorganismHeaderCell({
     }
   };
   return (
-    <div className="relative -mx-[8px] flex h-full w-[calc(100%+16px)] pl-[8px]">
-      {column.name}
-      <span className="absolute right-0 flex h-[40px] w-[40px] items-center justify-center">
+    <div className="relative -mx-[8px] flex h-full w-[calc(100%+16px)] justify-between px-[8px]">
+      <span className="truncate">{column.name}</span>
+      <span className="flex items-center justify-center">
         <button
           tabIndex={tabIndex}
-          className="rounded-sm text-xs leading-none text-secondary-foreground ring-offset-secondary transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="rounded-sm text-sm leading-none text-secondary-foreground ring-offset-secondary transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           onClick={onExpandAll}
           onKeyDown={handleKeyDown}
         >
@@ -60,7 +60,7 @@ export function MicroorganismCell({
     }
   };
   return (
-    <div className="relative -mx-[8px] flex h-full w-[calc(100%+16px)] pl-[8px]">
+    <div className="relative -mx-[8px] flex h-full w-[calc(100%+16px)] justify-between px-[8px]">
       {expanded === undefined && (
         <span className="absolute flex h-full w-[40px] items-center before:absolute before:left-[10px] before:h-full before:w-0 before:rounded-full before:border-r before:border-r-secondary-foreground after:absolute after:left-[10px] after:h-0 after:w-[20px] after:rounded-full after:border-t after:border-t-secondary-foreground">
           <XIcon className="ml-px h-[20px] w-[20px]" strokeWidth={1} />
@@ -70,10 +70,10 @@ export function MicroorganismCell({
         {expanded === undefined ? species(microorganism) : microorganism}
       </span>
       {expanded !== undefined && (
-        <span className="absolute right-0 flex h-[40px] w-[40px] items-center justify-center">
+        <span className="flex items-center justify-center">
           <button
             tabIndex={tabIndex}
-            className="rounded-sm text-xs leading-none text-secondary-foreground ring-offset-background transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="rounded-sm text-sm leading-none text-secondary-foreground ring-offset-background transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={onExpand}
             onKeyDown={handleKeyDown}
           >

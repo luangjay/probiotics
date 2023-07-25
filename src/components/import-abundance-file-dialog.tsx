@@ -51,15 +51,15 @@ const uploadResultSchema = baseUploadResultSchema.extend({
 
 type UploadResultData = z.infer<typeof uploadResultSchema>;
 
-interface NewVisitDataDialogProps {
+interface ImportAbundanceFileDialogProps {
   microorganisms: MicroorganismRow[];
   trigger?: JSX.Element;
 }
 
-export function NewVisitDataDialog({
+export function ImportAbundanceFileDialog({
   microorganisms,
   trigger,
-}: NewVisitDataDialogProps) {
+}: ImportAbundanceFileDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -274,11 +274,14 @@ export function NewVisitDataDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={(open) => {
-      if (!isSubmitting) {
-        setOpen(open);
-      }
-    }}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!isSubmitting) {
+          setOpen(open);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button className="h-10">

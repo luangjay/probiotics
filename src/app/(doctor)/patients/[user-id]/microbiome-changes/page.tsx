@@ -18,7 +18,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const userId = params["user-id"];
   const patient = await getPatient(userId);
-  const microbiomeChanges = await getMicrobiomeChanges(userId);
+  const { microbiomeChanges, keys } = await getMicrobiomeChanges(userId);
   const [microorganisms, visitDatas] = await Promise.all([
     getMicroorganisms(),
     getVisitDatas(userId),
@@ -29,6 +29,7 @@ export default async function Page({ params }: PageProps) {
       <MicrobiomeChanges
         patient={patient}
         microbiomeChanges={microbiomeChanges}
+        keys={keys}
         microorganisms={microorganisms}
         visitDatas={visitDatas}
       />
@@ -72,27 +73,22 @@ async function getPatient(userId: string): Promise<PatientRow> {
   };
 }
 
-// interface Node {
-//   genus: string;
-//   species: string[];
-//   essential: boolean;
-//   probiotic: boolean;
-// }
-
 async function getMicrobiomeChanges(
   patientId: string
-): Promise<MicrobiomeChangeRow[]> {
-  const visitDatas = await prisma.visitData.findMany({
-    where: {
-      patientId,
-    },
-    include: {
-      microorganismRecords: true,
-    },
-    orderBy: {
-      collectionDate: "asc",
-    },
-  });
+): Promise<{ microbiomeChanges: MicrobiomeChangeRow[]; keys: string[] }> {
+  const visitDatas = (
+    await prisma.visitData.findMany({
+      where: {
+        patientId,
+      },
+      include: {
+        microorganismRecords: true,
+      },
+      orderBy: {
+        collectionDate: "asc",
+      },
+    })
+  ).slice(-2);
   const microorganisms = await prisma.microorgranism.findMany({
     orderBy: {
       id: "asc",
@@ -121,8 +117,6 @@ async function getMicrobiomeChanges(
       return microorganism;
     })
     .sort((a, b) => a.genus.localeCompare(b.genus));
-
-  console.log(tree);
 
   const timepoints = visitDatas.map((visitData) =>
     Object.fromEntries<number | undefined>(
@@ -171,33 +165,38 @@ async function getMicrobiomeChanges(
     })
   );
 
-  return tree.map<MicrobiomeChangeRow>((node) => {
-    const { genus, species } = node;
-    return {
-      microorganism: genus,
-      timepoints: Object.fromEntries(
-        readsTable[genus].map((value, idx) => [
-          visitDatas[idx].collectionDate.getTime().toString(),
-          value ?? 0,
-        ])
-      ),
-      expanded: false,
-      children: species.map((species) => {
-        const { essential, probiotic } = infoTable[species];
-        return {
-          microorganism: species,
-          timepoints: Object.fromEntries(
-            readsTable[species].map((value, idx) => [
-              visitDatas[idx].collectionDate.getTime().toString(),
-              value ?? 0,
-            ])
-          ),
-          essential,
-          probiotic,
-        };
-      }),
-    };
-  });
+  return {
+    microbiomeChanges: tree.map<MicrobiomeChangeRow>((node) => {
+      const { genus, species } = node;
+      return {
+        microorganism: genus,
+        timepoints: Object.fromEntries(
+          readsTable[genus].map((value, idx) => [
+            visitDatas[idx].collectionDate.getTime().toString(),
+            value ?? 0,
+          ])
+        ),
+        expanded: false,
+        children: species.map((species) => {
+          const { essential, probiotic } = infoTable[species];
+          return {
+            microorganism: species,
+            timepoints: Object.fromEntries(
+              readsTable[species].map((value, idx) => [
+                visitDatas[idx].collectionDate.getTime().toString(),
+                value ?? 0,
+              ])
+            ),
+            essential,
+            probiotic,
+          };
+        }),
+      };
+    }),
+    keys: visitDatas.map((visitData) =>
+      visitData.collectionDate.getTime().toString()
+    ),
+  };
 }
 
 async function getMicroorganisms(): Promise<MicroorganismRow[]> {
@@ -211,22 +210,24 @@ async function getMicroorganisms(): Promise<MicroorganismRow[]> {
 }
 
 async function getVisitDatas(patientId: string): Promise<VisitDataRow[]> {
-  const visitDatas = await prisma.visitData.findMany({
-    where: {
-      patientId,
-    },
-    include: {
-      doctor: {
-        include: {
-          user: true,
-        },
+  const visitDatas = (
+    await prisma.visitData.findMany({
+      where: {
+        patientId,
       },
-      microorganismRecords: true,
-    },
-    orderBy: {
-      collectionDate: "asc",
-    },
-  });
+      include: {
+        doctor: {
+          include: {
+            user: true,
+          },
+        },
+        microorganismRecords: true,
+      },
+      orderBy: {
+        collectionDate: "asc",
+      },
+    })
+  ).slice(-2);
 
   return visitDatas.map((visitData) => ({
     id: visitData.id,

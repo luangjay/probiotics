@@ -15,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -32,7 +31,7 @@ import { type MicroorganismRecordRow } from "@/types/microorganism-record";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type VisitData } from "@prisma/client";
 import { format, isValid, parse } from "date-fns";
-import { CalendarIcon, PlusIcon } from "lucide-react";
+import { CalendarIcon, Loader2Icon, PlusIcon } from "lucide-react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -354,7 +353,7 @@ export function ImportAbundanceFileDialog({
           >
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (
-                <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
               )}
               Confirm
             </Button>

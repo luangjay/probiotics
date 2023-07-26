@@ -96,12 +96,7 @@ async function getMicrobiomeChanges(
   });
 
   const tree = microorganisms
-    .reduce<
-      {
-        genus: string;
-        species: string[];
-      }[]
-    >((acc, microorganism) => {
+    .reduce<{ genus: string; species: string[] }[]>((acc, microorganism) => {
       const { genus, species: _species } = microorganism;
       const species = `${genus};${_species}`;
       const nodeIdx = acc.map((node) => node.genus).indexOf(genus);

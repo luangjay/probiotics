@@ -87,11 +87,13 @@ export function MicrobiomeChanges({
         rows = rows.filter((row) => row.children || row.probiotic);
       }
       if (active) {
-        rows = rows.filter((row) =>
-          Object.keys(row.timepoints).reduce(
-            (acc, timepoint) => row.timepoints[timepoint] !== 0 || acc,
-            false
-          )
+        rows = rows.filter(
+          (row) =>
+            row.children ||
+            Object.keys(row.timepoints).reduce(
+              (acc, timepoint) => row.timepoints[timepoint] !== 0 || acc,
+              false
+            )
         );
       }
       return rows;
@@ -101,21 +103,31 @@ export function MicrobiomeChanges({
 
   const calculate = useCallback(
     (rows: MicrobiomeChangeRow[]) => {
-      rows = filter(
-        rows.map((row) =>
+      const newRows = rows
+        .filter((row) => row.expanded !== undefined)
+        .map((row) =>
           row.children
             ? { ...row, timepoints: total(filter(row.children)) }
             : row
-        )
-      );
-      console.log(rows);
-      return rows;
+        );
+
+      rows
+        .filter((row) => row.expanded)
+        .forEach((row) => {
+          const rowIdx = newRows.findIndex(
+            (newRow) => row.microorganism === newRow.microorganism
+          );
+          const children = filter(row.children ?? []);
+          newRows.splice(rowIdx + 1, 0, ...children);
+        });
+
+      return filter(newRows);
     },
     [total, filter]
   );
 
   useEffect(() => {
-    setRows(calculate(microbiomeChanges));
+    setRows((prev) => calculate(prev));
   }, [microbiomeChanges, calculate]);
 
   const summaryRows = useMemo<MicrobiomeChangeRow[]>(
@@ -159,7 +171,7 @@ export function MicrobiomeChanges({
                 row = { ...row, expanded: !expanded };
                 newRows.push(row, ...(!expanded ? children : []));
               });
-              setRows(calculate(newRows));
+              setRows(newRows);
             }}
           />
         ),
@@ -180,7 +192,7 @@ export function MicrobiomeChanges({
               } else {
                 newRows.splice(rowIdx + 1, children.length);
               }
-              setRows(calculate(newRows));
+              setRows(newRows);
             }}
           />
         ),
@@ -212,16 +224,7 @@ export function MicrobiomeChanges({
         })
       ),
     ],
-    [
-      microbiomeChanges,
-      visitDatas,
-      rows,
-      keys,
-      expanded,
-      formatReads,
-      filter,
-      calculate,
-    ]
+    [microbiomeChanges, visitDatas, keys, rows, expanded, formatReads, filter]
   );
 
   const gridElement = loading ? (

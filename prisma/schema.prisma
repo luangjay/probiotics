@@ -20,38 +20,6 @@ enum Gender {
   @@map("genders")
 }
 
-model Microorgranism {
-  id              Int                            @id @default(autoincrement())
-  name            String                         @unique
-  essential       Boolean
-  probiotic       Boolean
-  createdAt       DateTime                       @default(now()) @map("created_at")
-  updatedAt       DateTime                       @updatedAt @map("updated_at")
-  probioticBrands MicroorgranismProbioticBrand[]
-
-  @@map("microorganisms")
-}
-
-model ProbioticBrand {
-  id              Int                            @id @default(autoincrement())
-  name            String                         @unique
-  createdAt       DateTime                       @default(now()) @map("created_at")
-  updatedAt       DateTime                       @updatedAt @map("updated_at")
-  microorgranisms MicroorgranismProbioticBrand[]
-
-  @@map("probiotic_brands")
-}
-
-model MedicalCondition {
-  id        Int                       @id @default(autoincrement())
-  name      String                    @unique
-  createdAt DateTime                  @default(now()) @map("created_at")
-  updatedAt DateTime                  @updatedAt @map("updated_at")
-  patients  MedicalConditionPatient[]
-
-  @@map("medical_conditions")
-}
-
 model User {
   id        String    @id @default(cuid())
   username  String    @unique
@@ -100,6 +68,38 @@ model Patient {
   @@map("patients")
 }
 
+model Microorgranism {
+  id              Int                            @id @default(autoincrement())
+  name            String                         @unique
+  essential       Boolean
+  probiotic       Boolean
+  createdAt       DateTime                       @default(now()) @map("created_at")
+  updatedAt       DateTime                       @updatedAt @map("updated_at")
+  probioticBrands MicroorgranismProbioticBrand[]
+
+  @@map("microorganisms")
+}
+
+model ProbioticBrand {
+  id              Int                            @id @default(autoincrement())
+  name            String                         @unique
+  createdAt       DateTime                       @default(now()) @map("created_at")
+  updatedAt       DateTime                       @updatedAt @map("updated_at")
+  microorgranisms MicroorgranismProbioticBrand[]
+
+  @@map("probiotic_brands")
+}
+
+model MedicalCondition {
+  id        Int                       @id @default(autoincrement())
+  name      String                    @unique
+  createdAt DateTime                  @default(now()) @map("created_at")
+  updatedAt DateTime                  @updatedAt @map("updated_at")
+  patients  MedicalConditionPatient[]
+
+  @@map("medical_conditions")
+}
+
 model MicroorganismRecord {
   id            String    @id @default(cuid())
   visitDataId   String    @map("visit_data_id")
@@ -127,7 +127,7 @@ model VisitData {
 
 model MicroorgranismProbioticBrand {
   id               Int            @id @default(autoincrement())
-  microorganismId  Int            @map("micro_organism_id")
+  microorganismId  Int            @map("microorganism_id")
   probioticBrandId Int            @map("probiotic_brand_id")
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")

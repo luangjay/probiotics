@@ -62,10 +62,7 @@ export function MicrobiomeChanges({
     [setSelectedPatient, patient]
   );
 
-  // useEffect(() => {
-  //   setRows(microbiomeChanges);
-  // }, [microbiomeChanges]);
-
+  /* BEGIN HELL */
   const total = useCallback(
     (rows: MicrobiomeChangeRow[]) => {
       return rows.reduce<{ [timepoint: string]: number }>((acc, row) => {
@@ -126,10 +123,6 @@ export function MicrobiomeChanges({
     [total, filter]
   );
 
-  useEffect(() => {
-    setRows((prev) => calculate(prev));
-  }, [microbiomeChanges, calculate]);
-
   const summaryRows = useMemo<MicrobiomeChangeRow[]>(
     () => [
       {
@@ -139,6 +132,10 @@ export function MicrobiomeChanges({
     ],
     [rows, total]
   );
+
+  useEffect(() => {
+    setRows((prev) => calculate(prev));
+  }, [microbiomeChanges, calculate]);
 
   const formatReads = useCallback(
     (row: MicrobiomeChangeRow, key: string) => {
@@ -166,12 +163,14 @@ export function MicrobiomeChanges({
             expanded={expanded}
             onExpandAll={() => {
               const newRows: MicrobiomeChangeRow[] = [];
-              microbiomeChanges.forEach((row) => {
-                const children = row.children ?? [];
-                row = { ...row, expanded: !expanded };
-                newRows.push(row, ...(!expanded ? children : []));
-              });
-              setRows(newRows);
+              rows
+                .filter((row) => row.expanded !== undefined)
+                .forEach((row) => {
+                  const children = filter(row.children ?? []);
+                  row = { ...row, expanded: !expanded };
+                  newRows.push(row, ...(!expanded ? children : []));
+                });
+              setRows(filter(newRows));
             }}
           />
         ),
@@ -192,7 +191,7 @@ export function MicrobiomeChanges({
               } else {
                 newRows.splice(rowIdx + 1, children.length);
               }
-              setRows(newRows);
+              setRows(filter(newRows));
             }}
           />
         ),
@@ -224,8 +223,9 @@ export function MicrobiomeChanges({
         })
       ),
     ],
-    [microbiomeChanges, visitDatas, keys, rows, expanded, formatReads, filter]
+    [visitDatas, keys, rows, expanded, formatReads, filter]
   );
+  /* END HELL */
 
   const gridElement = loading ? (
     <div className="flex h-full items-center justify-center">Loading...</div>

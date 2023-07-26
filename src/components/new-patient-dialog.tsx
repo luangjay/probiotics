@@ -272,6 +272,7 @@ export function NewPatientDialog({ medicalConditions }: NewPatientDialogProps) {
                   <Calendar
                     initialFocus
                     mode="single"
+                    captionLayout="dropdown-buttons"
                     disabled={isSubmitting}
                     selected={birthDate ?? undefined}
                     onSelect={(day, selectedDay) => {

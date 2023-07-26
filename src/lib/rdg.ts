@@ -6,9 +6,11 @@ interface Row {
 
 type SortFunction<R> = (a: R, b: R) => number;
 
-const numberColumns = new Set<string | number | symbol>(["ssn"]);
+type objectKey = string | number | symbol;
 
-const dateColumns = new Set<string | number | symbol>(["birthDate"]);
+const numberColumns = new Set<objectKey>(["ssn"]);
+
+const dateColumns = new Set<objectKey>(["birthDate"]);
 
 function sortFunction<R extends Row>(key: keyof R): SortFunction<R> {
   if (numberColumns.has(key)) {
@@ -35,9 +37,9 @@ function dateSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
     ((b[key] ?? new Date(0)) as Date).getTime();
 }
 
-export function filteredRows<R extends Row>(
+export function filterRows<R extends Row>(
   rows: R[],
-  keys: string[],
+  keys: (keyof R)[],
   filter?: string | null
 ) {
   if (!filter) return rows;
@@ -49,7 +51,7 @@ export function filteredRows<R extends Row>(
       (acc, cur) =>
         acc &&
         keys.some((key) => {
-          const val = row[key as keyof R];
+          const val = row[key];
           if (typeof val === "string") {
             return val.toLowerCase().includes(cur);
           }
@@ -63,7 +65,7 @@ export function filteredRows<R extends Row>(
   );
 }
 
-export function sortedRows<R extends Row>(
+export function sortRows<R extends Row>(
   rows: R[],
   sortColumns: readonly SortColumn[]
 ) {
@@ -81,7 +83,7 @@ export function sortedRows<R extends Row>(
 
 // Thanks https://gist.github.com/torjusb/7d6baf4b68370b4ef42f
 export function splitClipboard(clipboard: string) {
-  const rows = clipboard
+  return clipboard
     .replace(
       /"((?:[^"]*(?:\r\n|\n\r|\n|\r))+[^"]+)"/gm,
       (match: string, p1: string) => {
@@ -91,7 +93,4 @@ export function splitClipboard(clipboard: string) {
     .split(/\r\n|\n\r|\n|\r/g)
     .filter((row) => row !== "")
     .map((row) => row.split("\t"));
-
-  console.log(rows);
-  return rows;
 }

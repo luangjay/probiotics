@@ -50,6 +50,8 @@ export function MicrobiomeChanges({
   const [active, setActive] = useState(false);
   const [normalized, setNormalized] = useState(false);
 
+  useEffect(() => console.log(rows), [rows]);
+
   const expanded = useMemo<boolean>(
     () => rows.every((row) => row.expanded !== false),
     [rows]
@@ -78,19 +80,40 @@ export function MicrobiomeChanges({
   const filter = useCallback(
     (rows: MicrobiomeChangeRow[]) => {
       if (essential) {
-        rows = rows.filter((row) => row.children || row.essential);
+        rows = rows.filter((row) =>
+          !row.children
+            ? row.essential
+            : row.children.reduce(
+                (acc, row) => Boolean(row.essential) || acc,
+                false
+              )
+        );
       }
       if (probiotic) {
-        rows = rows.filter((row) => row.children || row.probiotic);
+        rows = rows.filter((row) =>
+          !row.children
+            ? row.probiotic
+            : row.children.reduce(
+                (acc, row) => Boolean(row.probiotic) || acc,
+                false
+              )
+        );
       }
       if (active) {
-        rows = rows.filter(
-          (row) =>
-            row.children ||
-            Object.keys(row.timepoints).reduce(
-              (acc, timepoint) => row.timepoints[timepoint] !== 0 || acc,
-              false
-            )
+        rows = rows.filter((row) =>
+          !row.children
+            ? Object.keys(row.timepoints).reduce(
+                (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
+                true
+              )
+            : row.children.reduce(
+                (acc, row) =>
+                  Object.keys(row.timepoints).reduce(
+                    (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
+                    true
+                  ) || acc,
+                false
+              )
         );
       }
       return rows;
@@ -100,14 +123,21 @@ export function MicrobiomeChanges({
 
   const calculate = useCallback(
     (rows: MicrobiomeChangeRow[]) => {
-      const newRows = rows
-        .filter((row) => row.expanded !== undefined)
-        .map((row) =>
-          row.children
-            ? { ...row, timepoints: total(filter(row.children)) }
-            : row
+      // Get original rows, keep expanded states and kill child rows
+      const newRows = microbiomeChanges.map((microbiomeChange) => {
+        const row = rows.find(
+          (row) => row.microorganism === microbiomeChange.microorganism
         );
+        return microbiomeChange.children
+          ? {
+              ...microbiomeChange,
+              timepoints: total(filter(microbiomeChange.children)),
+              expanded: row?.expanded ?? false,
+            }
+          : microbiomeChange;
+      });
 
+      // Revive child rows
       rows
         .filter((row) => row.expanded)
         .forEach((row) => {
@@ -120,7 +150,7 @@ export function MicrobiomeChanges({
 
       return filter(newRows);
     },
-    [total, filter]
+    [microbiomeChanges, total, filter]
   );
 
   const summaryRows = useMemo<MicrobiomeChangeRow[]>(
@@ -228,7 +258,14 @@ export function MicrobiomeChanges({
   /* END HELL */
 
   const gridElement = loading ? (
-    <div className="flex h-full items-center justify-center">Loading...</div>
+    <DataGrid
+      rows={[]}
+      columns={columns}
+      headerRowHeight={40}
+      rowHeight={40}
+      enableVirtualization={false}
+      className="h-full"
+    />
   ) : (
     <DataGrid
       direction="ltr"

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { filteredRows, sortedRows } from "@/lib/rdg";
+import { filterRows, sortRows } from "@/lib/rdg";
 import { cn, sleep } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
@@ -127,27 +127,31 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
   );
 
   // Rows
-  const rows = useMemo(() => {
-    const sorted = sortedRows(patients, sortColumns);
-    const filtered = filteredRows(
-      sorted,
-      ["name", "gender", "birthDate", "ethnicity"],
-      filter
-    );
-    return filtered;
-  }, [patients, sortColumns, filter]);
+  const rows = useMemo(
+    () =>
+      filterRows(
+        sortRows(patients, sortColumns),
+        ["name", "gender", "birthDate", "ethnicity"],
+        filter
+      ),
+    [patients, sortColumns, filter]
+  );
 
   // Data grid
   const gridElement = useMemo(
     () =>
       loading ? (
-        <div className="flex flex-1 items-center justify-center">
-          Loading...
-        </div>
+        <DataGrid
+          rows={[]}
+          columns={columns}
+          headerRowHeight={40}
+          rowHeight={40}
+          enableVirtualization={false}
+          className="h-full"
+        />
       ) : (
         <DataGrid
           direction="ltr"
-          className="flex-1"
           rows={rows}
           columns={columns}
           headerRowHeight={40}
@@ -158,6 +162,7 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
           defaultColumnOptions={{
             sortable: true,
           }}
+          className="h-full"
           renderers={{
             noRowsFallback: <NoRowsFallback />,
             renderSortStatus: (p) => <SortStatusRenderer {...p} />,
@@ -223,7 +228,7 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
           <NewPatientDialog medicalConditions={medicalConditions} />
         </div>
       </div>
-      {gridElement}
+      <div className="relative flex-1 overflow-auto">{gridElement}</div>
     </div>
   );
 }

@@ -19,12 +19,6 @@ export function MicroorganismHeaderCell({
   expanded,
   onExpandAll,
 }: MicroorganismHeaderCellProps) {
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === " " || e.key === "Enter") {
-      e.preventDefault();
-      onExpandAll();
-    }
-  };
   return (
     <div className="relative -mx-[8px] flex h-full w-[calc(100%+16px)] justify-between px-[8px]">
       <span className="truncate">{column.name}</span>
@@ -33,7 +27,6 @@ export function MicroorganismHeaderCell({
           tabIndex={tabIndex}
           className="rounded-sm text-sm leading-none text-secondary-foreground ring-offset-secondary transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           onClick={onExpandAll}
-          onKeyDown={handleKeyDown}
         >
           {expanded ? "\u25BC" : "\u25B6"}
         </button>
@@ -53,12 +46,6 @@ export function MicroorganismCell({
   onExpand,
 }: MicroorganismCellProps) {
   const { microorganism, expanded } = row;
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === " " || e.key === "Enter") {
-      e.preventDefault();
-      onExpand();
-    }
-  };
   return (
     <div className="relative -mx-[8px] flex h-full w-[calc(100%+16px)] justify-between px-[8px]">
       {expanded === undefined && (
@@ -75,7 +62,6 @@ export function MicroorganismCell({
             tabIndex={tabIndex}
             className="rounded-sm text-sm leading-none text-secondary-foreground ring-offset-background transition-colors hover:text-secondary-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={onExpand}
-            onKeyDown={handleKeyDown}
           >
             {expanded ? "\u25BC" : "\u25B6"}
           </button>

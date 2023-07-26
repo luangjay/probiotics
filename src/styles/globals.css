@@ -200,6 +200,7 @@ p {
 
 .rdg-cell > .rdg-checkbox-label > .rdg-checkbox {
   border-color: var(--rdg-border-color);
+  @apply rounded;
 }
 
 .rdg-cell[aria-selected="true"] {

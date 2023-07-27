@@ -1,8 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { Gender, PrismaClient } from "@prisma/client";
 import { genSaltSync, hashSync } from "bcrypt-ts";
+import * as fs from "fs";
+import * as path from "path";
 import slugid from "slugid";
 import yargs from "yargs";
+import { z } from "zod";
 
 const prisma = new PrismaClient();
 
@@ -535,305 +538,22 @@ async function seedMedicalConditionPatient({
   );
 }
 
+const microorganismSchema = z.array(
+  z.object({
+    name: z.string(),
+    probiotic: z.boolean(),
+    essential: z.boolean(),
+  })
+);
+
 /* Custom pools */
 function microorganismPool() {
-  return [
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides caccae",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides clarus",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides dorei",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides eggerthii",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides faecis",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides finegoldii",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides massiliensis",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides ovatus",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides thetaiotaomicron",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides uniformis",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacteroidaceae;Bacteroides;Bacteroides vulgatus",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Barnesiella;Barnesiella intestinihominis",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Butyricimonas;Butyricimonas paravirosa",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Odoribacter;Odoribacter laneus",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides distasonis",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Parabacteroides;Parabacteroides merdae",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Prevotellaceae;Prevotella;Prevotella copri",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Rikenellaceae;Alistipes;Alistipes senegalensis",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Eubacteriaceae;Eubacterium;Eubacterium coprostanoligenes",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Anaerostipes;Anaerostipes hadrus",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Blautia;Blautia obeum",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium amygdalinum",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium clostridioforme",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium indolis",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Clostridium saccharolyticum",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium contortum",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVa;Eubacterium fissicatena",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Clostridium XlVb;Clostridium lactatifermentans",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Dorea;Dorea longicatena",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Fusicatenibacter;Fusicatenibacter saccharivorans",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnobacterium;Lachnobacterium bovis",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospira;Lachnospira pectinoschiza",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium eligens",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium hallii",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium ruminantium",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Eubacterium xylanophilum",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Lachnospira pectinoschiza",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Lachnospiracea_incertae_sedis;Ruminococcus gnavus",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Roseburia;Roseburia inulinivorans",
-      probiotic: true,
-      essential: true,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Ruminococcus2;Ruminococcus torques",
-      probiotic: true,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Peptococcaceae;Desulfonispora;Desulfonispora thiosulfatigenes",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Anaerotruncus;Anaerotruncus colihominis",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Butyricicoccus;Butyricicoccus pullicaecorum",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Clostridium IV;Eubacterium siraeum",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Faecalibacterium;Faecalibacterium prausnitzii",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Flavonifractor;Flavonifractor plautii",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Gemmiger;Gemmiger formicilis",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Intestinimonas;Intestinimonas butyriciproducens",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Oscillibacter;Oscillibacter valericigenes",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Ruminococcus;Ruminococcus callidus",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Firmicutes;Negativicutes;Selenomonadales;Acidaminococcaceae;Phascolarctobacterium;Phascolarctobacterium faecium",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Clostridium rectum",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Proteobacteria;Alphaproteobacteria;Kiloniellales;Kiloniellaceae;Kiloniella;Kiloniella laminariae",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Sutterellaceae;Parasutterella;Parasutterella excrementihominis",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Bilophila;Bilophila wadsworthia",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Proteobacteria;Deltaproteobacteria;Desulfovibrionales;Desulfovibrionaceae;Desulfovibrio;Desulfovibrio fairfieldensis",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Escherichia/Shigella;Escherichia coli",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Klebsiella;Klebsiella pneumoniae",
-      probiotic: false,
-      essential: false,
-    },
-    {
-      name: "Bacteria;Verrucomicrobia;Verrucomicrobiae;Verrucomicrobiales;Verrucomicrobiaceae;Akkermansia;Akkermansia muciniphila",
-      probiotic: false,
-      essential: false,
-    },
-  ];
+  const absDir = path.resolve(__dirname);
+  const jsonPath = path.join(absDir, "microorganisms.json");
+  const text = fs.readFileSync(jsonPath, "utf8");
+
+  const microorganisms = microorganismSchema.parse(JSON.parse(text));
+  return microorganisms;
 }
 
 function medicalConditionPool() {

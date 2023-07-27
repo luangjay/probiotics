@@ -1,18 +1,18 @@
 import { PillIcon } from "lucide-react";
 import * as React from "react";
 
-interface LogoProps extends React.HTMLAttributes<HTMLSpanElement> {}
+interface LogoProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-const Logo = React.forwardRef<HTMLSpanElement, LogoProps>(
+const Logo = React.forwardRef<HTMLDivElement, LogoProps>(
   ({ className, ...props }, ref) => (
-    <span
-      className="inline-flex select-none items-center gap-2 font-logo text-[3rem] font-medium leading-[2.25rem]"
+    <div
       ref={ref}
+      className="flex select-none items-center gap-2 font-logo text-[3rem] font-medium leading-none ring-offset-background transition-colors"
       {...props}
     >
-      <PillIcon className="h-5 w-5" />
+      <PillIcon className="h-5 w-5 leading-[2.25rem]" />
       Probiotics
-    </span>
+    </div>
   )
 );
 Logo.displayName = "Logo";

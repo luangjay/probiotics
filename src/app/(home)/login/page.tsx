@@ -6,6 +6,7 @@ import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema } from "@/lib/schema";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -57,7 +58,7 @@ export default function Register() {
             htmlFor="username"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
+            <span className="absolute w-[6.5rem] px-3 font-normal text-muted-foreground">
               Username
             </span>
             <Input
@@ -67,7 +68,11 @@ export default function Register() {
               autoCapitalize="none"
               autoCorrect="off"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[6.5rem]",
+                errors.username &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("username")}
             />
           </Label>
@@ -81,7 +86,7 @@ export default function Register() {
             htmlFor="password"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
+            <span className="absolute w-[6.5rem] px-3 font-normal text-muted-foreground">
               Password
             </span>
             <Input
@@ -90,7 +95,11 @@ export default function Register() {
               type="password"
               autoCapitalize="none"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[6.5rem]",
+                errors.password &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("password")}
             />
           </Label>

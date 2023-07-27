@@ -37,7 +37,7 @@ function dateSortFunction<R extends Row>(key: keyof R): SortFunction<R> {
     ((b[key] ?? new Date(0)) as Date).getTime();
 }
 
-export function filterRows<R extends Row>(
+export function filter<R extends Row>(
   rows: R[],
   keys: (keyof R)[],
   filter?: string | null
@@ -65,7 +65,7 @@ export function filterRows<R extends Row>(
   );
 }
 
-export function sortRows<R extends Row>(
+export function sort<R extends Row>(
   rows: R[],
   sortColumns: readonly SortColumn[]
 ) {

@@ -13,6 +13,7 @@ import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
 import { cn } from "@/lib/utils";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
+import { type ProbioticBrandRow } from "@/types/probiotic-brand";
 import {
   type MicrobiomeChangeRow,
   type VisitDataRow,
@@ -101,19 +102,10 @@ export function MicrobiomeChanges({
       }
       if (active) {
         rows = rows.filter((row) =>
-          !row.children
-            ? Object.keys(row.timepoints).reduce(
-                (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
-                true
-              )
-            : row.children.reduce(
-                (acc, row) =>
-                  Object.keys(row.timepoints).reduce(
-                    (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
-                    true
-                  ) || acc,
-                false
-              )
+          Object.keys(row.timepoints).reduce(
+            (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
+            true
+          )
         );
       }
       return rows;
@@ -151,6 +143,31 @@ export function MicrobiomeChanges({
       return filter(newRows);
     },
     [microbiomeChanges, total, filter]
+  );
+
+  const probioticBrands = useMemo(
+    () =>
+      keys.map((key) =>
+        Array.from(
+          rows
+            .reduce<MicrobiomeChangeRow[]>((acc, row) => {
+              const children = filter(row.children ?? []);
+              acc.push(...children);
+              return acc;
+            }, [])
+            .reduce<Set<ProbioticBrandRow>>(
+              (acc, row) =>
+                !row.children || row.timepoints[key] === 0
+                  ? acc
+                  : new Set([
+                      ...Array.from(new Set(row.probioticBrands)),
+                      ...Array.from(acc),
+                    ]),
+              new Set()
+            )
+        )
+      ),
+    [rows, keys, filter]
   );
 
   const summaryRows = useMemo<MicrobiomeChangeRow[]>(
@@ -238,7 +255,11 @@ export function MicrobiomeChanges({
             keys.length === 1 && idx === 0 && "!border-r"
           ),
           renderHeaderCell: (p) => (
-            <ReadsHeaderCell {...p} visitData={visitDatas[idx]} />
+            <ReadsHeaderCell
+              {...p}
+              visitData={visitDatas[idx]}
+              probioticBrands={probioticBrands[idx]}
+            />
           ),
           cellClass: cn(
             "text-end tabular-nums tracking-tighter",
@@ -253,7 +274,7 @@ export function MicrobiomeChanges({
         })
       ),
     ],
-    [visitDatas, keys, rows, expanded, formatReads, filter]
+    [visitDatas, keys, rows, probioticBrands, expanded, formatReads, filter]
   );
   /* END HELL */
 

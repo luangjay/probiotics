@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { filterRows, sortRows } from "@/lib/rdg";
+import { filter, sort } from "@/lib/rdg";
 import { cn, sleep } from "@/lib/utils";
 import { type MedicalConditionRow } from "@/types/medical-condition";
 import { type PatientRow } from "@/types/patient";
@@ -34,7 +34,7 @@ interface PatientListProps {
 }
 
 interface FilterPatients {
-  filter: string;
+  filterText: string;
 }
 
 export function PatientList({ patients, medicalConditions }: PatientListProps) {
@@ -63,7 +63,7 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
 
   // Filter rows
   const { register, control } = useForm<FilterPatients>({ mode: "onChange" });
-  const { filter } = useWatch<FilterPatients>({ control });
+  const { filterText } = useWatch<FilterPatients>({ control });
 
   // Columns
   const columns = useMemo<Column<PatientRow>[]>(
@@ -129,12 +129,12 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
   // Rows
   const rows = useMemo(
     () =>
-      filterRows(
-        sortRows(patients, sortColumns),
+      filter(
+        sort(patients, sortColumns),
         ["name", "gender", "birthDate", "ethnicity"],
-        filter
+        filterText
       ),
-    [patients, sortColumns, filter]
+    [patients, sortColumns, filterText]
   );
 
   // Data grid
@@ -199,14 +199,14 @@ export function PatientList({ patients, medicalConditions }: PatientListProps) {
         <h2 className="text-2xl font-semibold">Patients</h2>
         <div className="relative flex h-full w-[20rem] items-center gap-2 font-normal">
           <Label
-            htmlFor="filter"
+            htmlFor="filter_text"
             className="absolute left-0 flex h-10 w-10 items-center justify-center"
           >
             <SearchIcon className="h-4 w-4 opacity-50" />
           </Label>
           <Input
-            {...register("filter")}
-            id="filter"
+            {...register("filterText")}
+            id="filter_text"
             className="h-full w-full pl-10"
             placeholder="Search patients"
           />

@@ -7,8 +7,8 @@ export const MIN_PASSWORD = 4;
 export const MAX_USERNAME = 16;
 export const MAX_PASSWORD = 16;
 export const REGEX_USERNAME = /^[a-zA-Z0-9_.]+$/;
-export const REGEX_FIRSTNAME = /^[a-zA-Z]+$/;
-export const REGEX_LASTNAME = /^[a-zA-Z]+$/;
+export const REGEX_FIRSTNAME = /^[\u0E00-\u0E7F]+$|^[a-zA-Z]+$/;
+export const REGEX_LASTNAME = /^[\u0E00-\u0E7F]+$|^[a-zA-Z]+$/;
 export const REGEX_SSN = /^\d+$/;
 export const PATTERN_USERNAME = "^[a-zA-Z0-9_.]+$";
 export const PATTERN_SSN = "^[0-9]+$";
@@ -75,12 +75,15 @@ export const doctorSchema = z
       .string()
       .trim()
       .min(1, "First name is required")
-      .regex(REGEX_FIRSTNAME, "First name must be alphabetical"),
+      .regex(
+        REGEX_FIRSTNAME,
+        "First name must be single-language alphabetical"
+      ),
     lastName: z
       .string()
       .trim()
       .min(1, "Last name is required")
-      .regex(REGEX_LASTNAME, "Last name must be alphabetical"),
+      .regex(REGEX_LASTNAME, "Last name must be single-language alphabetical"),
   })
   .strict();
 
@@ -106,12 +109,15 @@ export const patientSchema = z
       .string()
       .trim()
       .min(1, "First name is required")
-      .regex(REGEX_FIRSTNAME, "First name must be alphabetical"),
+      .regex(
+        REGEX_FIRSTNAME,
+        "First name must be single-language alphabetical"
+      ),
     lastName: z
       .string()
       .trim()
       .min(1, "Last name is required")
-      .regex(REGEX_LASTNAME, "Last name must be alphabetical"),
+      .regex(REGEX_LASTNAME, "Last name must be single-language alphabetical"),
     ssn: z
       .string()
       .trim()

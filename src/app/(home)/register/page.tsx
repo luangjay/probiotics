@@ -6,6 +6,7 @@ import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { doctorSchema } from "@/lib/schema";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
@@ -52,16 +53,20 @@ export default function Register() {
             htmlFor="username"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
-              Username
-            </span>
+            <div className="absolute w-[7rem] px-3 font-normal text-muted-foreground">
+              Username*
+            </div>
             <Input
               id="username"
               key="username"
               autoCapitalize="none"
               autoCorrect="off"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[7rem]",
+                errors.username &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("username")}
             />
           </Label>
@@ -75,16 +80,20 @@ export default function Register() {
             htmlFor="password"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
-              Password
-            </span>
+            <div className="absolute w-[7rem] px-3 font-normal text-muted-foreground">
+              Password*
+            </div>
             <Input
               id="password"
               key="password"
               type="password"
               autoCapitalize="none"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[7rem]",
+                errors.password &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("password")}
             />
           </Label>
@@ -98,15 +107,19 @@ export default function Register() {
             htmlFor="prefix"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
-              Prefix
-            </span>
+            <div className="absolute w-[7rem] px-3 font-normal text-muted-foreground">
+              Prefix*
+            </div>
             <Input
               id="prefix"
               key="prefix"
               autoCorrect="off"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[7rem]",
+                errors.prefix &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("prefix")}
             />
           </Label>
@@ -120,15 +133,19 @@ export default function Register() {
             htmlFor="firstname"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
-              First name
-            </span>
+            <div className="absolute w-[7rem] px-3 font-normal text-muted-foreground">
+              First name*
+            </div>
             <Input
               id="firstname"
               key="firstname"
               autoCorrect="off"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[7rem]",
+                errors.firstName &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("firstName")}
             />
           </Label>
@@ -142,15 +159,19 @@ export default function Register() {
             htmlFor="lastname"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
-              Last name
-            </span>
+            <div className="absolute w-[7rem] px-3 font-normal text-muted-foreground">
+              Last name*
+            </div>
             <Input
               id="lastname"
               key="lastname"
               autoCorrect="off"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[7rem]",
+                errors.lastName &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("lastName")}
             />
           </Label>
@@ -164,15 +185,19 @@ export default function Register() {
             htmlFor="email"
             className="relative flex w-full items-center font-normal"
           >
-            <span className="absolute w-24 px-3 font-normal text-muted-foreground">
+            <div className="absolute w-[7rem] px-3 font-normal text-muted-foreground">
               Email
-            </span>
+            </div>
             <Input
               id="email"
               key="email"
               autoCorrect="off"
               disabled={isSubmitting}
-              className="pl-24"
+              className={cn(
+                "pl-[7rem]",
+                errors.email &&
+                  "ring-2 ring-destructive ring-offset-2 focus-visible:ring-destructive"
+              )}
               {...register("email")}
             />
           </Label>

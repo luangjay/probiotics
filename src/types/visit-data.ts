@@ -1,5 +1,6 @@
 import { type DoctorRow } from "@/types/doctor";
 import { type MicroorganismRecord } from "@prisma/client";
+import { type ProbioticBrandRow } from "./probiotic-brand";
 
 export type VisitDataRow = {
   id: string;
@@ -18,6 +19,7 @@ export type MicrobiomeChangeRow = {
   };
   essential?: boolean;
   probiotic?: boolean;
+  probioticBrands?: ProbioticBrandRow[];
   expanded?: boolean;
   children?: MicrobiomeChangeRow[];
 };

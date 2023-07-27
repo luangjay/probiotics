@@ -22,7 +22,10 @@ export function DummyNav({ authenticated = false }: DummyNavProps) {
   return (
     <div className="container flex h-full w-full items-center justify-between">
       <div className="flex-1">
-        <Link href="/" className="flex w-fit">
+        <Link
+          href="/"
+          className="flex w-fit rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <Logo />
         </Link>
       </div>

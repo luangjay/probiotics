@@ -6,7 +6,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { BadgeAlertIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -25,13 +24,12 @@ export function FormErrorTooltip({ id, message }: FormErrorTooltipProps) {
     <TooltipProvider>
       <Tooltip delayDuration={200} open={open} onOpenChange={setOpen}>
         <TooltipTrigger asChild>
-          <button
-            type="button"
-            className={cn("overflow-hidden focus-visible:outline-none")}
+          <div
+            className="flex cursor-pointer items-center overflow-hidden focus-visible:outline-none"
             onClick={() => void setOpen(!open)}
           >
             <BadgeAlertIcon className="mr-px h-5 w-5 fill-destructive text-destructive-foreground" />
-          </button>
+          </div>
         </TooltipTrigger>
         <TooltipContent
           className="bg-destructive text-sm text-destructive-foreground"

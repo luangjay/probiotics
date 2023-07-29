@@ -20,7 +20,9 @@ export type MicrobiomeChangeRow = {
   probiotic?: boolean;
   essential?: boolean;
   active?: boolean;
-  probioticBrands?: ProbioticBrandRow[];
+  probioticBrands: {
+    [timepoint: string]: ProbioticBrandRow[];
+  };
   expanded?: boolean;
   children?: MicrobiomeChangeRow[];
 };

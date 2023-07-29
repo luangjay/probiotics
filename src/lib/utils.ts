@@ -12,6 +12,7 @@ export function sleep(ms: number): Promise<void> {
   });
 }
 
-export function all(): true {
-  return true;
+export function union<T>(...sets: Set<T>[]): Set<T> {
+  const arr = ([] as T[]).concat(...sets.map((set) => Array.from(set)));
+  return new Set<T>(arr);
 }

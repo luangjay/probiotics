@@ -10,7 +10,7 @@ import { ReadsHeaderCell } from "@/components/rdg/reads-cell";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { useSelectPatientStore } from "@/hooks/use-select-patient-store";
-import { cn } from "@/lib/utils";
+import { cn, union } from "@/lib/utils";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
 import { type ProbioticBrandRow } from "@/types/probiotic-brand";
@@ -51,8 +51,6 @@ export function MicrobiomeChanges({
   const [active, setActive] = useState(false);
   const [normalized, setNormalized] = useState(false);
 
-  useEffect(() => console.log(rows), [rows]);
-
   const expanded = useMemo<boolean>(
     () => rows.filter((row) => row.children).every((row) => row.expanded),
     [rows]
@@ -72,10 +70,25 @@ export function MicrobiomeChanges({
         (acc, row) => {
           keys.forEach((key) => {
             acc.timepoints[key] += !row.expanded ? row.timepoints[key] : 0;
+            // BUG PLS FIX: cannot use set of objects because of references
+            acc.probioticBrands[key] = Array.from(
+              union(
+                new Set(
+                  acc.probioticBrands[key] ?? new Set<ProbioticBrandRow>()
+                ),
+                new Set(
+                  !row.expanded &&
+                  row.timepoints[key] &&
+                  row.probioticBrands[key] !== undefined
+                    ? row.probioticBrands[key]
+                    : new Set<ProbioticBrandRow>()
+                )
+              )
+            );
           });
-          acc.probiotic ||= row.probiotic;
-          acc.essential ||= row.essential;
-          acc.active ||= row.active;
+          acc.probiotic ||= !row.expanded ? row.probiotic : false;
+          acc.essential ||= !row.expanded ? row.essential : false;
+          acc.active ||= !row.expanded ? row.active : false;
           return acc;
         },
         {
@@ -95,32 +108,32 @@ export function MicrobiomeChanges({
         (!probiotic || row.probiotic) &&
         (!essential || row.essential) &&
         (!active || row.active);
-      return rows.filter(fn).map((row) =>
-        !row.children
-          ? row
-          : {
-              ...row,
-              children: row.children.filter(fn),
-            }
-      );
+      return rows
+        .map((row) => {
+          if (!row.children) return row;
+          row.children = row.children.filter(fn);
+          return total(row, row.children);
+        })
+        .filter(fn);
     },
-    [essential, probiotic, active]
+    [total, essential, probiotic, active]
   );
 
   const calculate = useCallback(
     (rows: MicrobiomeChangeRow[]) => {
-      // Get original rows, keep expanded states and kill child rows
-      const newRows = microbiomeChanges.map((microbiomeChange) => {
-        const row = rows.find(
-          (row) => row.microorganism === microbiomeChange.microorganism
-        );
-        return !microbiomeChange.children
-          ? microbiomeChange
-          : {
-              ...total(microbiomeChange, filter(microbiomeChange.children)),
-              expanded: row?.expanded ?? false,
-            };
-      });
+      // Get filtered original rows, keep expanded states and kill child rows
+      const newRows = filter(
+        microbiomeChanges.map((microbiomeChange) => {
+          if (!microbiomeChange.children) return microbiomeChange;
+          const row = rows.find(
+            (row) => row.microorganism === microbiomeChange.microorganism
+          );
+          return {
+            ...microbiomeChange,
+            expanded: row?.expanded ?? false,
+          };
+        })
+      );
 
       // Revive child rows
       rows
@@ -133,40 +146,16 @@ export function MicrobiomeChanges({
           newRows.splice(rowIdx + 1, 0, ...children);
         });
 
-      return filter(newRows);
+      return newRows;
     },
-    [microbiomeChanges, total, filter]
-  );
-
-  const probioticBrands = useMemo(
-    () =>
-      keys.map((key) =>
-        Array.from(
-          rows
-            .reduce<MicrobiomeChangeRow[]>((acc, row) => {
-              const children = filter(row.children ?? []);
-              acc.push(...children);
-              return acc;
-            }, [])
-            .reduce<Set<ProbioticBrandRow>>(
-              (acc, row) =>
-                row.timepoints[key] === 0
-                  ? acc
-                  : new Set([
-                      ...(row.probioticBrands ?? []),
-                      ...Array.from(acc),
-                    ]),
-              new Set()
-            )
-        )
-      ),
-    [rows, keys, filter]
+    [microbiomeChanges, filter]
   );
 
   const summaryRows = useMemo<MicrobiomeChangeRow[]>(() => {
-    const org = {
+    const org: MicrobiomeChangeRow = {
       microorganism: "Total",
       timepoints: Object.fromEntries(keys.map((key) => [key, 0])),
+      probioticBrands: Object.fromEntries(keys.map((key) => [key, []])),
     };
     return [total(org, rows)];
   }, [rows, keys, total]);
@@ -249,7 +238,7 @@ export function MicrobiomeChanges({
             <ReadsHeaderCell
               {...p}
               visitData={visitDatas[idx]}
-              probioticBrands={probioticBrands[idx]}
+              probioticBrands={summaryRows[0].probioticBrands[key]}
             />
           ),
           cellClass: cn(
@@ -265,7 +254,7 @@ export function MicrobiomeChanges({
         })
       ),
     ],
-    [visitDatas, keys, rows, probioticBrands, expanded, formatReads, filter]
+    [visitDatas, keys, rows, summaryRows, expanded, formatReads, filter]
   );
   /* END HELL */
 
@@ -299,20 +288,22 @@ export function MicrobiomeChanges({
       <div className="flex h-10 items-center justify-between">
         <h3 className="text-2xl font-semibold">Microbiome changes</h3>
         <div className="flex h-full items-center gap-4">
-          <Toggle onClick={() => void setEssential((prev) => !prev)}>
-            Essential
-          </Toggle>
           <Toggle onClick={() => void setProbiotic((prev) => !prev)}>
             Probiotic
+          </Toggle>
+          <Toggle onClick={() => void setEssential((prev) => !prev)}>
+            Essential
           </Toggle>
           <Toggle onClick={() => void setActive((prev) => !prev)}>
             Active
           </Toggle>
+        </div>
+        <div className="flex h-full items-center gap-4">
           <Toggle onClick={() => void setNormalized((prev) => !prev)}>
             Normalize
           </Toggle>
+          <ImportAbundanceFileDialog microorganisms={microorganisms} />
         </div>
-        <ImportAbundanceFileDialog microorganisms={microorganisms} />
       </div>
       <div className="relative flex-1 overflow-auto">
         {gridElement}

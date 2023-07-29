@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { genus, species } from "@/lib/probiotic";
 import { type MicroorganismRow } from "@/types/microorganism";
 import { type PatientRow } from "@/types/patient";
+import { type ProbioticBrandRow } from "@/types/probiotic-brand";
 import {
   type MicrobiomeChangeRow,
   type VisitDataRow,
@@ -182,8 +183,18 @@ async function getMicrobiomeChanges(
           value ?? 0,
         ])
       );
+      const probioticBrands = Object.fromEntries<ProbioticBrandRow[]>(
+        readsTable[genus].map((_, idx) => [
+          visitDatas[idx].collectionDate.getTime().toString(),
+          [],
+        ])
+      );
       const children = species.map((species) => {
-        const { probiotic, essential, probioticBrands } = infoTable[species];
+        const {
+          probiotic,
+          essential,
+          probioticBrands: _probioticBrands,
+        } = infoTable[species];
         const microorganism = species;
         const timepoints = Object.fromEntries(
           readsTable[species].map((value, idx) => [
@@ -194,6 +205,15 @@ async function getMicrobiomeChanges(
         const active = Object.keys(timepoints).reduce(
           (acc, timepoint) => timepoints[timepoint] !== 0 && acc,
           true
+        );
+        const probioticBrands = Object.fromEntries(
+          readsTable[species].map((_, idx) => [
+            visitDatas[idx].collectionDate.getTime().toString(),
+            _probioticBrands.map((probioticBrand) => ({
+              id: probioticBrand.id,
+              name: probioticBrand.name,
+            })),
+          ])
         );
         return {
           microorganism,
@@ -208,6 +228,7 @@ async function getMicrobiomeChanges(
       return {
         microorganism,
         timepoints,
+        probioticBrands,
         children,
       };
     }),

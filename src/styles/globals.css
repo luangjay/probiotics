@@ -100,6 +100,10 @@ p {
   display: none; /* Safari and Chrome */
 }
 
+.custom-scroll {
+  @apply border;
+}
+
 .custom-scroll::-webkit-scrollbar {
   @apply block h-[11px] w-[11px];
 }

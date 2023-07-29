@@ -20,15 +20,17 @@ export function RelatedProbioticBrandsDialog({
       <DialogTrigger>
         <DollarSignIcon className="h-[18px] w-[18px]" />
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="h-[90vh]">
         <DialogHeader>
           <DialogTitle>Related probiotic brands</DialogTitle>
-          <div>
-            {probioticBrands
-              .map((probioticBrand) => probioticBrand.name)
-              .join(", ")}
-          </div>
         </DialogHeader>
+        <div className="custom-scroll flex h-full flex-col overflow-auto text-sm">
+          {probioticBrands.map((probioticBrand, idx) => (
+            <div key={`related_probiotic_brand_${idx}`}>
+              {probioticBrand.name}
+            </div>
+          ))}
+        </div>
       </DialogContent>
     </Dialog>
   );

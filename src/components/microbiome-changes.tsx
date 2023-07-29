@@ -54,7 +54,7 @@ export function MicrobiomeChanges({
   useEffect(() => console.log(rows), [rows]);
 
   const expanded = useMemo<boolean>(
-    () => rows.every((row) => row.expanded !== false),
+    () => rows.filter((row) => row.children).every((row) => row.expanded),
     [rows]
   );
 
@@ -67,48 +67,42 @@ export function MicrobiomeChanges({
 
   /* BEGIN HELL */
   const total = useCallback(
-    (rows: MicrobiomeChangeRow[]) => {
-      return rows.reduce<{ [timepoint: string]: number }>((acc, row) => {
-        Object.keys(row.timepoints).forEach((timepoint) => {
-          acc[timepoint] += !row.expanded ? row.timepoints[timepoint] : 0;
-        });
-        return acc;
-      }, Object.fromEntries(keys.map((key) => [key, 0])));
-    },
+    (org: MicrobiomeChangeRow, rows: MicrobiomeChangeRow[]) =>
+      rows.reduce<MicrobiomeChangeRow>(
+        (acc, row) => {
+          keys.forEach((key) => {
+            acc.timepoints[key] += !row.expanded ? row.timepoints[key] : 0;
+          });
+          acc.probiotic ||= row.probiotic;
+          acc.essential ||= row.essential;
+          acc.active ||= row.active;
+          return acc;
+        },
+        {
+          ...org,
+          timepoints: Object.fromEntries(keys.map((key) => [key, 0])),
+          probiotic: false,
+          essential: false,
+          active: false,
+        }
+      ),
     [keys]
   );
 
   const filter = useCallback(
     (rows: MicrobiomeChangeRow[]) => {
-      if (essential) {
-        rows = rows.filter((row) =>
-          !row.children
-            ? row.essential
-            : row.children.reduce(
-                (acc, row) => Boolean(row.essential) || acc,
-                false
-              )
-        );
-      }
-      if (probiotic) {
-        rows = rows.filter((row) =>
-          !row.children
-            ? row.probiotic
-            : row.children.reduce(
-                (acc, row) => Boolean(row.probiotic) || acc,
-                false
-              )
-        );
-      }
-      if (active) {
-        rows = rows.filter((row) =>
-          Object.keys(row.timepoints).reduce(
-            (acc, timepoint) => row.timepoints[timepoint] !== 0 && acc,
-            true
-          )
-        );
-      }
-      return rows;
+      const fn = (row: MicrobiomeChangeRow) =>
+        (!probiotic || row.probiotic) &&
+        (!essential || row.essential) &&
+        (!active || row.active);
+      return rows.filter(fn).map((row) =>
+        !row.children
+          ? row
+          : {
+              ...row,
+              children: row.children.filter(fn),
+            }
+      );
     },
     [essential, probiotic, active]
   );
@@ -120,13 +114,12 @@ export function MicrobiomeChanges({
         const row = rows.find(
           (row) => row.microorganism === microbiomeChange.microorganism
         );
-        return microbiomeChange.children
-          ? {
-              ...microbiomeChange,
-              timepoints: total(filter(microbiomeChange.children)),
+        return !microbiomeChange.children
+          ? microbiomeChange
+          : {
+              ...total(microbiomeChange, filter(microbiomeChange.children)),
               expanded: row?.expanded ?? false,
-            }
-          : microbiomeChange;
+            };
       });
 
       // Revive child rows
@@ -157,10 +150,10 @@ export function MicrobiomeChanges({
             }, [])
             .reduce<Set<ProbioticBrandRow>>(
               (acc, row) =>
-                !row.children || row.timepoints[key] === 0
+                row.timepoints[key] === 0
                   ? acc
                   : new Set([
-                      ...Array.from(new Set(row.probioticBrands)),
+                      ...(row.probioticBrands ?? []),
                       ...Array.from(acc),
                     ]),
               new Set()
@@ -170,15 +163,13 @@ export function MicrobiomeChanges({
     [rows, keys, filter]
   );
 
-  const summaryRows = useMemo<MicrobiomeChangeRow[]>(
-    () => [
-      {
-        microorganism: "Total",
-        timepoints: total(rows),
-      },
-    ],
-    [rows, total]
-  );
+  const summaryRows = useMemo<MicrobiomeChangeRow[]>(() => {
+    const org = {
+      microorganism: "Total",
+      timepoints: Object.fromEntries(keys.map((key) => [key, 0])),
+    };
+    return [total(org, rows)];
+  }, [rows, keys, total]);
 
   useEffect(() => {
     setRows((prev) => calculate(prev));
@@ -211,7 +202,7 @@ export function MicrobiomeChanges({
             onExpandAll={() => {
               const newRows: MicrobiomeChangeRow[] = [];
               rows
-                .filter((row) => row.expanded !== undefined)
+                .filter((row) => row.children)
                 .forEach((row) => {
                   const children = filter(row.children ?? []);
                   row = { ...row, expanded: !expanded };

@@ -133,7 +133,7 @@ async function getMicrobiomeChanges(
     )
   );
 
-  const keys = tree.reduce<string[]>((acc, node) => {
+  const names = tree.reduce<string[]>((acc, node) => {
     const { genus, species } = node;
     acc.push(genus, ...species);
     return acc;
@@ -155,8 +155,8 @@ async function getMicrobiomeChanges(
   }, []);
 
   const readsTable = Object.fromEntries(
-    Array.from({ length: keys.length }, (_, idx) => [
-      keys[idx],
+    Array.from({ length: names.length }, (_, idx) => [
+      names[idx],
       readsMatrix[idx],
     ])
   );
@@ -165,7 +165,7 @@ async function getMicrobiomeChanges(
     microorganisms.map((microorganism) => {
       const { genus, species: _species, essential, probiotic } = microorganism;
       const probioticBrands = microorganism.probioticBrands.map(
-        (interm) => interm.probioticBrand
+        (intm) => intm.probioticBrand
       );
       const species = `${genus};${_species}`;
       return [species, { essential, probiotic, probioticBrands }];
@@ -175,30 +175,40 @@ async function getMicrobiomeChanges(
   return {
     microbiomeChanges: tree.map<MicrobiomeChangeRow>((node) => {
       const { genus, species } = node;
-      return {
-        microorganism: genus,
-        timepoints: Object.fromEntries(
-          readsTable[genus].map((value, idx) => [
+      const microorganism = genus;
+      const timepoints = Object.fromEntries(
+        readsTable[genus].map((value, idx) => [
+          visitDatas[idx].collectionDate.getTime().toString(),
+          value ?? 0,
+        ])
+      );
+      const children = species.map((species) => {
+        const { probiotic, essential, probioticBrands } = infoTable[species];
+        const microorganism = species;
+        const timepoints = Object.fromEntries(
+          readsTable[species].map((value, idx) => [
             visitDatas[idx].collectionDate.getTime().toString(),
             value ?? 0,
           ])
-        ),
-        expanded: false,
-        children: species.map((species) => {
-          const { essential, probiotic, probioticBrands } = infoTable[species];
-          return {
-            microorganism: species,
-            timepoints: Object.fromEntries(
-              readsTable[species].map((value, idx) => [
-                visitDatas[idx].collectionDate.getTime().toString(),
-                value ?? 0,
-              ])
-            ),
-            essential,
-            probiotic,
-            probioticBrands,
-          };
-        }),
+        );
+        const active = Object.keys(timepoints).reduce(
+          (acc, timepoint) => timepoints[timepoint] !== 0 && acc,
+          true
+        );
+        return {
+          microorganism,
+          timepoints,
+          probiotic,
+          essential,
+          active,
+          probioticBrands,
+        };
+      });
+
+      return {
+        microorganism,
+        timepoints,
+        children,
       };
     }),
     keys: visitDatas.map((visitData) =>

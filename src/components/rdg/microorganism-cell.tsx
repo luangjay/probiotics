@@ -45,18 +45,18 @@ export function MicroorganismCell({
   tabIndex,
   onExpand,
 }: MicroorganismCellProps) {
-  const { microorganism, expanded } = row;
+  const { microorganism, expanded, children } = row;
   return (
     <div className="relative -mx-[8px] flex h-full w-[calc(100%+16px)] justify-between px-[8px]">
-      {expanded === undefined && (
+      {!children && (
         <span className="absolute flex h-full w-[40px] items-center before:absolute before:left-[10px] before:h-full before:w-0 before:rounded-full before:border-r before:border-r-secondary-foreground after:absolute after:left-[10px] after:h-0 after:w-[20px] after:rounded-full after:border-t after:border-t-secondary-foreground">
           <XIcon className="ml-px h-[20px] w-[20px]" strokeWidth={1} />
         </span>
       )}
-      <span className={cn("truncate", expanded === undefined && "ml-[40px]")}>
-        {expanded === undefined ? species(microorganism) : microorganism}
+      <span className={cn("truncate", !children && "ml-[40px]")}>
+        {!children ? species(microorganism) : microorganism}
       </span>
-      {expanded !== undefined && (
+      {children && (
         <span className="flex items-center justify-center">
           <button
             tabIndex={tabIndex}

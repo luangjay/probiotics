@@ -12,7 +12,6 @@ const GET = handler(async () => {
 const POST = handler(async (req) => {
   // Validate the request body against the schema
   const body: unknown = await req.json();
-  console.log(body);
   const {
     fileUri: _,
     microorganismRecords,

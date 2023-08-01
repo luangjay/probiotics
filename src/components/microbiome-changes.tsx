@@ -122,7 +122,7 @@ export function MicrobiomeChanges({
   const calculate = useCallback(
     (rows: MicrobiomeChangeRow[]) => {
       // Get filtered original rows, keep expanded states and kill child rows
-      const newRows = filter(
+      rows = filter(
         microbiomeChanges.map((microbiomeChange) => {
           if (!microbiomeChange.children) return microbiomeChange;
           const row = rows.find(
@@ -135,15 +135,17 @@ export function MicrobiomeChanges({
         })
       );
 
+      const newRows = [...rows];
+
       // Revive child rows
       rows
         .filter((row) => row.expanded)
         .forEach((row) => {
+          if (!row.children) return;
           const rowIdx = newRows.findIndex(
             (newRow) => row.microorganism === newRow.microorganism
           );
-          const children = filter(row.children ?? []);
-          newRows.splice(rowIdx + 1, 0, ...children);
+          newRows.splice(rowIdx + 1, 0, ...row.children);
         });
 
       return newRows;
